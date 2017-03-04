@@ -1,7 +1,10 @@
 ##### Menu
 menu:
-  Home: /
-  Archives: /archives
+  主页: /
+  归档: /archives #归档
+  分类: /categories  #分类
+  标签: /tags #标签
+  关于: /about #关于我
 ## you can create `tags` and `categories` folders in `../source`.
 ## And create a `index.md` file in each of them.
 ## set `front-matter`as
