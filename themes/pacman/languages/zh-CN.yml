@@ -1,3 +1,4 @@
+home: 主页
 categories: 分类
 search: 搜索
 tags: 标签
@@ -16,3 +17,6 @@ rss: RSS 订阅
 showsidebar: 显示侧边栏
 hidesidebar: 隐藏侧边栏
 updated: 更新日期
+nextpost: 下一篇
+prevpost: 上一篇
+about: 关于
