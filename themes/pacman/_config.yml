@@ -62,7 +62,7 @@ fancybox: true
 #### Author information
 author:
   google_plus:    ## eg:116338260303228776998 for https://plus.google.com/u/0/116338260303228776998
-  intro_line1: "Hello ,I'm Larry Page in Google" ## eg: "Hello ,I'm Larry Page in Google."
+  intro_line1: "Hello ,I'm GitPage in Google" ## eg: "Hello ,I'm Larry Page in Google."
   intro_line2: "This is my blog,believe it or not " ## eg: "This is my blog,believe it or not."
   weibo:      ## e.g. 436062867 for http://weibo.com/436062867
   twitter:    ## e.g. yangjiansky for https://twitter.com/yangjiansky
@@ -100,21 +100,3 @@ google_cse:
 ## layout: search 
 ## title: search
 ## ---
-
-#### Theme Color
-#theme_color:
-#    theme: '#ea6753'    ##the defaut theme color is blue
-
-#### Comment
-duoshuo_shortname: zj2626   # e.g. wuchong   your duoshuo short name.
-disqus_shortname:     ## e.g. wuchong   your disqus short name.
-
-##### Miscellaneous
-#ShowCustomFont: true  ## you can change custom font in `variable.styl` and `font.styl` which in the theme folder `/jacman/source/css`.
-#fancybox: true        ## if you use gallery post or want use fancybox please set the value to true.
-#totop: true           ## if you want to scroll to top in every post set the value to true
-
-#### Links
-links:
-  AY's Blog: http://www.ay2626.me
-  GitHub: https://github.com/zj2626

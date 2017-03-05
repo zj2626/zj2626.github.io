@@ -1,17 +1,19 @@
 ---
 title: Mongodb安装与启动
 
-categories: 
-
-- Mongodb 
+comments: true    
 
 tags: 
+    - Mongodb
 
-- jdbc
+categories: 
+    - 数据库
+    - 程序安装与配置
 
-- 数据库 
+description: Mongodb的安装,配置,启动以及部分常见问题的解决方法
 
-description: 这是描述这是描述
+date: 2017-03-1
+   
 ---
 
 ## **MongoDB** 是一个基于分布式文件存储的数据库。由C++语言编写;是一个介于关系数据库和非关系数据库之间的产品
@@ -107,7 +109,6 @@ root：只在admin数据库中可用。超级账号，超级权限
 ```
 > db.auth('root','anyao112233')
 ```
-
 	返回1表示成功 返回0表示失败 ; 此时再输入:
 ```
 > show dbs
