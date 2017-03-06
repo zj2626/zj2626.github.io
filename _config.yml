@@ -4,7 +4,7 @@
 
 # Site
 title: AY_BLOG
-subtitle: 欢迎来到Silence的部落格
+subtitle: Silence的博客
 description:
 author: 一起沉默
 language: zh-CN
@@ -12,7 +12,7 @@ timezone: Asia/Shanghai
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://zj2626.github.io/
+url: http://www.ay2626.m.ay2626.me/
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -65,6 +65,9 @@ pagination_dir: page #分页目录
 ## Themes: https://hexo.io/themes/    主题
 theme: material   #当前主题名称
 
+search:
+	path: search.xml
+	field: post
 
 
 # Deployment  #部署到github
