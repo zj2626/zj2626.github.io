@@ -41,14 +41,16 @@ date: 2017-03-1
 >db.集合名.find({x:1})  	查询数据库 查询包含参数json字符串的数据
 >db.集合名.find().count()  	查询数据库中数据的个数(可带参数 表条件)
 >db.集合名.find().skip(5).limit(10).sort({x:1,y:1})		查询条件:skip:跳过数据的个数;limit:查询条数;sort:按照某个字段排序(这里是先按x排序,再按y排序, 1表示正像排序,-1代表反向)
->
+>db.集合名.find({y:{$exists:true}})  //查询y字段存在的数据
 ```
+
 ### 增加
 ```
 >db.集合名.insert({x:1}) 	插入数据(参数格式为json格式,集合名可以自动新建) 插入时会自动生成id(名叫"_id"的字段)
 >db.集合名.insert({x:1, _id:1}) 	带id的插入(需要保证_id全局唯一,不可重复)
 >for(i=0;i<100;i++) 	db.集合名.insert({x:i+200}) 使用循环插入数据库
 ```
+
 ### 更新
 ```
 Update有4个参数：(默认更新一条数据)
@@ -82,6 +84,14 @@ Update有4个参数：(默认更新一条数据)
 ### 创建索引
 ```
 >db.collection.ensureIndex({x:1})  1表示正像排序,-1代表反向 (最好在存在大量数据之前就已经添加好索引)
+
+>db.collection.ensureIndex({x:1},{name:""my_index})  自定义命名索引名
+
+```
+
+### 删除索引
+```
+>db.collection.dropIndex("index_name")  //参数是索引名
 ```
 
 ### 索引类型 
@@ -101,5 +111,86 @@ Update有4个参数：(默认更新一条数据)
                 3.不能是复合索引
                 4.删除不是准时的,而是60s的一个定时进程执行的删除
                 5.全文索引
+                    db.collection.ensureIndex({"key":"text"})
+                    db.collection.ensureIndex({"key":"text","key2":"text"})
+                    db.collection.ensureIndex({"$**":"text"})
+*其中key表示原来的"字段名",键; text表示的不是原来的正序或倒序,而是要检索的内容(创建索引要写"text")*
+*一个collection只能创建一个全文索引*
+
+```
+    全文索引测试:
+        创建内容:   > db.test.insert({"x":"aaa ccc"})
+                   > db.test.insert({"x":"bbb"})
+                   > db.test.insert({"y":"ccc"})
+                   > db.test.insert({"z":"ccc"})
+                   > db.test.insert({"x":"aaa111"})
+                   > db.test.insert({"y":"aaa111"})
+                   > db.test.insert({"x":"aaa222","y":"ccc"})
+        查看创建的内容:  db.test.find()   //6条
+        创建索引:   db.test.ensureIndex({"x":"text"})
+        查看所有索引:db.test.getIndexes()    //2个,第一个是默认的索引
+        查询:       
+                    > db.test.find({$text:{$search:"aaa"}})           //没找到数据
+                    
+                    > db.test.find({$text:{$search:"aaa111"}})        //查到一条(全部匹配)
+                    { "_id" : ObjectId("58bcb92118bc95b8f476def1"), "x" : "aaa111" }
+                    
+                    > db.test.find({$text:{$search:"ccc"}})
+                    { "_id" : ObjectId("58bf535ae830c0c5f89055e7"), "x" : "aaa ccc" }
+                    
+                    > db.test.find({$text:{$search:"aaa111 aaa"}})    //或查询 用户空格分开
+                    { "_id" : ObjectId("58bf535ae830c0c5f89055e7"), "x" : "aaa ccc" }
+                    { "_id" : ObjectId("58bcb92118bc95b8f476def1"), "x" : "aaa111" }
+                    
+                    > db.test.find({$text:{$search:"aaa111 aaa -ccc"}})  //或查询,其中'-'表示不包含 
+                    { "_id" : ObjectId("58bcb92118bc95b8f476def1"), "x" : "aaa111" }
+
+                    > db.test.find({$text:{$search:"\"aaa\" \"aaa111\""}}) //与查询 1条
+                    > db.test.find({$text:{$search:"\"aaa222\""}})          //1条
+                    > db.test.find({$text:{$search:"\"aaa\" \"aa\""}})      //1条
+                    > db.test.find({$text:{$search:"\"aaa\" \"aa\""}})      //1条
+                    > db.test.find({$text:{$search:"\"aaa222\" \"aa\""}})   //1条
+```
+
+                *全文索引相似度查询 返回查询到的结果与要查询的数据的相似度
+                    {score:{$meta:"textScore"}}   得到的数越大表示相似度越高
+                    
+```
+                    > db.test.find({$text:{$search:"aaa222"}},{score:{$meta:"textScore"}})
+                    { "_id" : ObjectId("58bcb92518bc95b8f476def2"), "x" : "aaa222", "y" : "ccc", "score" : 1.1 }
+                    > db.test.find({$text:{$search:"aaa"}},{score:{$meta:"textScore"}})
+                    { "_id" : ObjectId("58bf535ae830c0c5f89055e7"), "x" : "aaa ccc", "score" : 0.75 }
+                    
+                    //用相似度排序
+                    > db.test.find({$text:{$search:"bbb"}},{score:{$meta:"textScore"}}).sort({score:{$meta:"textScore"}})
+
+```
+                全文索引限制:
+                    1.一次只能指定一个$text查询
+                    2.$text不能使用$nor查询
+                    3.查询中包含$text,则hint(强制指定索引)无效
+                    4.目前已经支持中文查询(版本3.0.6)
+
                 6.地理位置索引 
-    
+                
+                
+### 索引属性
+    1.name:   db.collection.ensureIndex({x:1},{name:"my_index"}) 指定索引名称
+    2.unique: db.collection.ensureIndex({y:1},{unique:true})  设置为true,则不允许在同一个collection中插入有相同唯一索引的字段(索引的数值不能重复)
+        注意:如果插入的数据没有指定的索引字段,则只能插入一条这样的数据,再插入则会报错(相当于重复)
+    3.sparse: db.collection.ensureIndex({y:1},{sparse:true})  设置为true,则不会在没有的字段的数据上创建索引
+            > db.collection.find({y:{$exists:true}})  //查询y字段存在的数据
+```
+        测试: 先插入6条数据,其中1条包含有y字段 
+            > db.test3.ensureIndex({y:1},{name:"mytest_y"},{sparse:false})  //创建索引
+            > db.test3.find({y:{$exists:false}})   //查询不存在y的数据 5条(数据库并没有为这5条数据建立y的索引,而是数据库优化的结果,这里查询并没有用上面的索引,so查到了)
+            { "_id" : ObjectId("58bf69ced52555dec4840312"), "x" : 1 }
+            { "_id" : ObjectId("58bf6c00d52555dec4840319"), "x" : 2111313, "k" : 1 }
+            { "_id" : ObjectId("58bf6c13d52555dec484031a"), "x" : 2111313, "k" : 2 }
+            { "_id" : ObjectId("58bf6c15d52555dec484031b"), "x" : 2111313, "k" : 3 }
+            { "_id" : ObjectId("58bf6c19d52555dec484031c"), "x" : 2111313, "z" : 3 }
+            > db.test3.find({y:{$exists:false}}).hint("mytest_y")     //强制指定索引,使用指定的索引查询,就无法查到不包含y的数据
+            >                                                         //没有查到数据
+```
+    4.expireAfterSeconds 是否定时删除TTL(过期索引) 
+            > db.collection.ensureIndex({x:1},{expireAfterSeconds:10})
