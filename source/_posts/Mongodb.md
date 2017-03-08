@@ -94,6 +94,52 @@ userAdminAnyDatabase：只在admin数据库中可用，赋予用户所有数据�
 dbAdminAnyDatabase：只在admin数据库中可用，赋予用户所有数据库的dbAdmin权限。
 root：只在admin数据库中可用。超级账号，超级权限
 ```
+
+    也可以创建角色:
+```
+    > db.createRole(
+    ... {
+    ...     role: "manageOpRole",
+    ...     privileges: [ 
+    ...         { resource: { cluster: true }, actions: [ "killop", "inprog" ] }, 
+    ...         { resource: { db: "my_test", collection: "my_collection" }, 
+    ...            actions: [ "insert", "update", "remove", "compact"] } 
+    ...                 ],
+    ...     roles: [] 
+    ...     }
+    ... )
+    
+    {
+    	"role" : "manageOpRole",
+    	"privileges" : [
+    		{
+    			"resource" : {
+    				"cluster" : true
+    			},
+    			"actions" : [
+    				"killop",
+    				"inprog"
+    			]
+    		},
+    		{
+    			"resource" : {
+    				"db" : "my_test",
+    				"collection" : "my_collection"
+    			},
+    			"actions" : [
+    				"insert", 
+    				"update", 
+    				"remove", 
+    				"compact"
+    			]
+    		}
+    	],
+    	"roles" : [ ]
+    }
+    > 
+
+```
+
 *可以添加几个其他角色的用户来测试权限*
 
 10. 要用用户登录的服务 so先关闭服务: > db.shutdownServer()

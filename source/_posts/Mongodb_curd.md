@@ -1,5 +1,5 @@
 ---
-title: Mongodb的CURD等操作
+title: Mongodb的基础操作详解
 
 comments: true    
 
@@ -42,6 +42,7 @@ date: 2017-03-1
 >db.集合名.find().count()  	查询数据库中数据的个数(可带参数 表条件)
 >db.集合名.find().skip(5).limit(10).sort({x:1,y:1})		查询条件:skip:跳过数据的个数;limit:查询条数;sort:按照某个字段排序(这里是先按x排序,再按y排序, 1表示正像排序,-1代表反向)
 >db.集合名.find({y:{$exists:true}})  //查询y字段存在的数据
+>db.集合名.find({x:1}).explain()       //带详细信息的查询
 ```
 
 ### 增加
@@ -103,6 +104,7 @@ Update有4个参数：(默认更新一条数据)
     那么在这条记录创建时候 会自动建立多键索引(或手动创建 db.collection.createIndex( {x: 1} )  )
     查询: db.collection.find({x: 1}) 或者  db.collection.find({x: 3})
 ```
+
     4.复合索引: 相当于多个单键索引 创建方式: db.collection.ensureIndex({x:1,y:1})
     5.过期索引: (TTL) 一段时间后会过期(删除数据)的索引 (过期时间 单位是秒)
         创建方式: db.collection.ensureIndex({x:1},{expireAfterSeconds:10})
@@ -165,16 +167,107 @@ Update有4个参数：(默认更新一条数据)
                     > db.test.find({$text:{$search:"bbb"}},{score:{$meta:"textScore"}}).sort({score:{$meta:"textScore"}})
 
 ```
-                全文索引限制:
+
+                *全文索引限制:
                     1.一次只能指定一个$text查询
                     2.$text不能使用$nor查询
                     3.查询中包含$text,则hint(强制指定索引)无效
                     4.目前已经支持中文查询(版本3.0.6)
 
                 6.地理位置索引 
-                
+                    1. 2D索引:平面地理位置索引
+                        创建索引: db.collection.ensureIndex({w:"2d"})
+                            位置表示方法:经纬度[经度, 纬度]    //经度:-180 -> 180; 纬度:-90 -> 90
+
+```    
+        1.插入数据(插入数据超过范围时可能会有不可预知的错误)
+            > db.mytest4.find()
+            { "_id" : ObjectId("58bfa69dbf18b69568aedc5c"), "w" : [ 1, 1 ] }
+            { "_id" : ObjectId("58bfa6a1bf18b69568aedc5d"), "w" : [ 1, 3 ] }
+            { "_id" : ObjectId("58bfa6aabf18b69568aedc5e"), "w" : [ 10, 30 ] }
+            { "_id" : ObjectId("58bfa780bf18b69568aedc64"), "w" : [ 180, 90 ] }
+            { "_id" : ObjectId("58bfa723bf18b69568aedc62"), "w" : [ -100, 90 ] }
+            { "_id" : ObjectId("58bfa728bf18b69568aedc63"), "w" : [ -150, 90 ] }
+        2.查询
+            1.普通查询
+            > db.mytest4.find({w:{$near:[1,1]}})   //默认返回100个距离所求点最近的点的位置
+            
+            2.查询某个距离内的点
+            > db.mytest4.find({w:{$near:[1,1],$maxDistance:10}})  //$maxDistance设置最远距离(直线距离)(不支持$minDistance)
+            { "_id" : ObjectId("58bfa69dbf18b69568aedc5c"), "w" : [ 1, 1 ] }
+            { "_id" : ObjectId("58bfa6a1bf18b69568aedc5d"), "w" : [ 1, 3 ] }
+            
+            3.查询某个形状范围内的点
+                1.矩形: $geoWithin + $box (查询[0,0],[100,10]内的点)
+                    > db.mytest4.find({w:{$geoWithin:{$box:[[0,0],[100,10]]}}})
+                    { "_id" : ObjectId("58bfa69dbf18b69568aedc5c"), "w" : [ 1, 1 ] }
+                    { "_id" : ObjectId("58bfa6a1bf18b69568aedc5d"), "w" : [ 1, 3 ] }
+                    
+                2.圆形: $geoWithin + $center (查询圆心为[0,0],半径为140内的点)
+                    > db.mytest4.find({w:{$geoWithin:{$center:[[0,0],140]}}})
+                    { "_id" : ObjectId("58bfa723bf18b69568aedc62"), "w" : [ -100, 90 ] }
+                    { "_id" : ObjectId("58bfa69dbf18b69568aedc5c"), "w" : [ 1, 1 ] }
+                    { "_id" : ObjectId("58bfa6a1bf18b69568aedc5d"), "w" : [ 1, 3 ] }
+                    { "_id" : ObjectId("58bfa6aabf18b69568aedc5e"), "w" : [ 10, 30 ] }
+                    
+                3.多边形: $geoWithin + $polygon (查询这几个点围成的多边形内的点,写至少是三个点)
+                    > db.mytest4.find({w:{$geoWithin:{$polygon:[[0,0],[80,91],[-45,70]]}}})
+                    { "_id" : ObjectId("58bfa6a1bf18b69568aedc5d"), "w" : [ 1, 3 ] }
+                    { "_id" : ObjectId("58bfa6aabf18b69568aedc5e"), "w" : [ 10, 30 ] }
+                    
+        #查询方式2   
+            geoNear:要查询的collection名;
+            near:基点;
+            minDistance:搜索的最小距离;
+            maxDistance:搜索的最大距离;
+            num:查询数量
+                > db.runCommand({geoNear:"mytest4",near:[1,5],maxDistance:10,num:2})
+                {
+                    "results" : [
+                        {
+                            "dis" : 2,
+                            "obj" : {
+                                "_id" : ObjectId("58bfa6a1bf18b69568aedc5d"),
+                                "w" : [
+                                    1,
+                                    3
+                                ]
+                            }
+                        },
+                        {
+                            "dis" : 4,
+                            "obj" : {
+                                "_id" : ObjectId("58bfa69dbf18b69568aedc5c"),
+                                "w" : [
+                                    1,
+                                    1
+                                ]
+                            }
+                        }
+                    ],
+                    "stats" : {
+                        "nscanned" : 3,       
+                        "objectsLoaded" : 2,
+                        "avgDistance" : 3,    
+                        "maxDistance" : 4,
+                        "time" : 0              
+                    }, 
+                    "ok" : 1
+                }
+
+```
+
+                    2. 2Dsphere索引:球面地理位置索引:geoNear查询 使用runCommand命令进行使用
+                        1. 创建
+                            db.collection.ensureIndex({w:"2dsphere"})
+                                位置表示方法:GeoJSON:可以描述一个点,线或各种形状等 {type:"",coordinates:[<coordinates>]}
+                        2. 查询
+                     
+                     //待续... 
+                    
                 
 ### 索引属性
+
     1.name:   db.collection.ensureIndex({x:1},{name:"my_index"}) 指定索引名称
     2.unique: db.collection.ensureIndex({y:1},{unique:true})  设置为true,则不允许在同一个collection中插入有相同唯一索引的字段(索引的数值不能重复)
         注意:如果插入的数据没有指定的索引字段,则只能插入一条这样的数据,再插入则会报错(相当于重复)
@@ -192,5 +285,22 @@ Update有4个参数：(默认更新一条数据)
             > db.test3.find({y:{$exists:false}}).hint("mytest_y")     //强制指定索引,使用指定的索引查询,就无法查到不包含y的数据
             >                                                         //没有查到数据
 ```
+
     4.expireAfterSeconds 是否定时删除TTL(过期索引) 
             > db.collection.ensureIndex({x:1},{expireAfterSeconds:10})
+            
+### 其他
+    1. mongodb可以通过profile来监控数据，进行优化。
+        
+        查看当前是否开启profile功能用命令
+        > db.getProfilingLevel()
+        0
+        
+        开启profile功能 
+        > db.setProfilingLevel(2)  //0代表关闭，1代表记录慢命令，2代表全部
+        { "was" : 0, "slowms" : 100, "ok" : 1 }
+       
+        查看当前的监控日志
+        db.system.profile.find() 
+
+                
