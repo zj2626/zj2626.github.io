@@ -4,4 +4,4 @@ db.json
 *.log
 public/
 .deploy*/
-themes/material
+#themes/material
