@@ -59,6 +59,8 @@ date: 2017-02-14
 }
 </code></pre>
 
+<!--more-->
+
 ```
 #驱动
 driverClassName=com.mysql.jdbc.Driver

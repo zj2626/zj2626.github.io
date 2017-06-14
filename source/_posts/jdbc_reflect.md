@@ -25,6 +25,8 @@ date: 2017-02-08
 
 ![](http://www.ay2626.me/wp-content/uploads/2017/02/jdbc.png)
 
+<!--more-->
+
 ---
 
 ```

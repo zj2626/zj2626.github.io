@@ -27,6 +27,8 @@ date: 2017-03-1
 
 > **键-值对的形式**:键用于唯一标识一个文档，为字符串类型，而值则可以是各种复杂的文件类型。我们称这种存储形式为BSON（Binary Serialized Document Format）
 
+<!--more-->
+
 # 安装
 1. 环境:CentOs6.5 64位 远程工具 xsell
 2. 下载:官网下载 https://www.mongodb.com/download-center?jmp=nav#community 或者

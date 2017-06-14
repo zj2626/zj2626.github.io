@@ -15,6 +15,8 @@ date: 2017-02-05 #文章生成時間
    
 ---
 
+<!--more-->
+
 **这是被解析的xml文档示例**
 ```
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>

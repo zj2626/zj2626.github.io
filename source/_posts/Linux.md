@@ -16,6 +16,8 @@ date: 2017-02-09
    
 ---
 
+<!--more-->
+
 *不停更新ing*   贴一个搜索命令的网站  http://man.linuxde.net/
 # **1.各版本Linux安装命令**
 

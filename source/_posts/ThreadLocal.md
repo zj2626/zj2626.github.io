@@ -32,6 +32,8 @@ protected Object initialValue()返回该线程局部变量的初始值，该方�
 　　ThreadLocal是如何做到为每一个线程维护变量的副本的呢？其实实现的思路很简单：在ThreadLocal类中有一个Map，用于存储每一个线程的变量副本，Map中元素的键为线程对象，而值对应线程的变量副本。我们自己就可以提供一个简单的实现版本：
 [java] view plain copy print?在CODE上查看代码片派生到我的代码片
 
+<!--more-->
+
 ```
 package com.test;  
   

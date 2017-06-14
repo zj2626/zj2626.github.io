@@ -36,6 +36,8 @@ Java不仅是一门编程语言, 也是一个由一系列计算机软件和规�
 >JavaAPI类库中的JavaSE API子集和Java虚拟机统称------>JRE  (Java Runtime Environment) 这是支持Java程序运行的标准环境*
 ![这里写图片描述](http://img.blog.csdn.net/20161214190258788?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvYW55YW8xMTIyMzM=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast)
 
+<!--more-->
+
     *(这是原书上的附图)*
 ----------
 ##  *java技术体系按照业务领域目前分为4个平台**

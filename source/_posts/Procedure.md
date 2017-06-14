@@ -23,6 +23,9 @@ date: 2017-02-05 #文章生成時間
 **目的:要把exam_add表中的memo字段根据idCard字段对应更新到w_secondary_score表的memo
 
 **
+
+<!--more-->
+
 ```
 BEGIN
     DECLARE pidCard varchar(20); /*存放idCard*/

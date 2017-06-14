@@ -32,6 +32,9 @@ Tomcat7 中保留DBCP连接池，以兼容已有应用。并提供了新的Tomca
 DBCP连接池配置参数讲解
  
 -----------------------------
+
+<!--more-->
+
 一、Apache官方DBCP文档给出的配置示例：
 可参见：http://tomcat.apache.org/tomcat-6.0-doc/jndi-datasource-examples-howto.html
 

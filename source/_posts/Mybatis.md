@@ -15,6 +15,8 @@ date: 2017-02-28
    
 ---
 
+<!--more-->
+
 # Student.java
 
 ```

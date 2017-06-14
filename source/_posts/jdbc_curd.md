@@ -16,6 +16,8 @@ date: 2017-02-07
    
 ---
 
+<!--more-->
+
 ```
 package com.jdbc;
 
