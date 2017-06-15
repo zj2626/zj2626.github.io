@@ -76,3 +76,7 @@ deploy:
   type: git
   repository: git@github.com:zj2626/zj2626.github.io.git
   branch: master
+
+live2d:
+  model: nipsilon
+  bottom: -60
