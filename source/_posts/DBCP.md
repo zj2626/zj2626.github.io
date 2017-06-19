@@ -49,33 +49,32 @@ DBCP连接池配置参数讲解
 二、常用参数说明：
 可参见：http://elf8848.iteye.com/blog/337981
 
-```
-<Resource
-	name="jdbc/TestDB"  JNDI数据源的name
-	type="javax.sql.DataSource"
-
-	driverClassName="com.mysql.jdbc.Driver" JDBC驱动类
-	url=""
-	username="" 访问数据库用户名
-	password="" 访问数据库的密码
-
-	maxActive="80" 最大活动连接 //我使用版本是2.1,最大连接名称变为maxTotal
-	initialSize="10"  初始化连接
-	maxIdle="60"   最大空闲连接
-	minIdle="10"   最小空闲连接
-	maxWait="3000" 从池中取连接的最大等待时间，单位ms.
- 
-    validationQuery = "SELECT 1"  验证使用的SQL语句
-    testWhileIdle = "true"      指明连接是否被空闲连接回收器(如果有)进行检验.如果检测失败,则连接将被从池中去除.
-    testOnBorrow = "false"   借出连接时不要测试，否则很影响性能
-    timeBetweenEvictionRunsMillis = "30000"  每30秒运行一次空闲连接回收器
-    minEvictableIdleTimeMillis = "1800000"  池中的连接空闲30分钟后被回收
-    numTestsPerEvictionRun="3" 在每次空闲连接回收器线程(如果有)运行时检查的连接数量
-    
-    removeAbandoned="true"  连接泄漏回收参数，当可用连接数少于3个时才执行
-    removeAbandonedTimeout="180"  连接泄漏回收参数，180秒，泄露的连接可以被删除的超时值
-/>
- ```
+        <Resource
+            name="jdbc/TestDB"  JNDI数据源的name
+            type="javax.sql.DataSource"
+        
+            driverClassName="com.mysql.jdbc.Driver" JDBC驱动类
+            url=""
+            username="" 访问数据库用户名
+            password="" 访问数据库的密码
+        
+            maxActive="80" 最大活动连接 //我使用版本是2.1,最大连接名称变为maxTotal
+            initialSize="10"  初始化连接
+            maxIdle="60"   最大空闲连接
+            minIdle="10"   最小空闲连接
+            maxWait="3000" 从池中取连接的最大等待时间，单位ms.
+         
+            validationQuery = "SELECT 1"  验证使用的SQL语句
+            testWhileIdle = "true"      指明连接是否被空闲连接回收器(如果有)进行检验.如果检测失败,则连接将被从池中去除.
+            testOnBorrow = "false"   借出连接时不要测试，否则很影响性能
+            timeBetweenEvictionRunsMillis = "30000"  每30秒运行一次空闲连接回收器
+            minEvictableIdleTimeMillis = "1800000"  池中的连接空闲30分钟后被回收
+            numTestsPerEvictionRun="3" 在每次空闲连接回收器线程(如果有)运行时检查的连接数量
+            
+            removeAbandoned="true"  连接泄漏回收参数，当可用连接数少于3个时才执行
+            removeAbandonedTimeout="180"  连接泄漏回收参数，180秒，泄露的连接可以被删除的超时值
+        />
+        
  
 DBCP连接池的自我检测
  
@@ -171,22 +170,22 @@ JNDI配置:更改tomcat的server.xml或context.xml
 在$CATALINA_HOME/conf/context.xml的根节点Context里加入Resource配置。这种配置方法，你在context.xml配置了一个数据源，但Tomcat中有同时运行着5个工程，那了就坏事儿了，这个在Tomcat启动时数据源被创建了5份，每个工程1份数据源。连接数会是你配置的参数的5倍。
 只有在你的Tomcat只加载一个web工程时,才可以直接以context.xml配置数据源。
  
- ```
-<Resource name="jdbc/testDB"       //指定的jndi名称，会用于spring数据源bean的配置和ResourceLink的配置
-               type="javax.sql.DataSource"   //数据源床型，使用标准的javax.sql.DataSource
-               driverClassName="com.mysql.jdbc.Driver"    //JDBC驱动器 
-               url="jdbc:mysql://localhost:3306/test" //数据库URL地址             
-               username="test"     //数据库用户名
-               password="test"   //数据库密码
-               maxIdle="40"   //最大的空闲连接数
-               maxWait="4000" //当池的数据库连接已经被占用的时候，最大等待时间
-               maxActive="40" //连接池当中最大的数据库连接
-               removeAbandoned="true" 
-               removeAbandonedTimeout="180"
-               logAbandoned="true" //被丢弃的数据库连接是否做记录，以便跟踪
-               factory="org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory" />
-```
+        <Resource name="jdbc/testDB"       //指定的jndi名称，会用于spring数据源bean的配置和ResourceLink的配置
+                       type="javax.sql.DataSource"   //数据源床型，使用标准的javax.sql.DataSource
+                       driverClassName="com.mysql.jdbc.Driver"    //JDBC驱动器 
+                       url="jdbc:mysql://localhost:3306/test" //数据库URL地址             
+                       username="test"     //数据库用户名
+                       password="test"   //数据库密码
+                       maxIdle="40"   //最大的空闲连接数
+                       maxWait="4000" //当池的数据库连接已经被占用的时候，最大等待时间
+                       maxActive="40" //连接池当中最大的数据库连接
+                       removeAbandoned="true" 
+                       removeAbandonedTimeout="180"
+                       logAbandoned="true" //被丢弃的数据库连接是否做记录，以便跟踪
+                       factory="org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory" />
  
+ 
+
       这里的factory指的是该Resource 配置使用的是哪个数据源配置类，这里使用的是tomcat自带的标准数据源Resource配置类，这个类也可以自己写，实现javax.naming.spi.ObjectFactory 接口即可。某些地方使用的commons-dbcp.jar中的org.apache.commons.dbcp.BasicDataSourceFactory，如果使用这个就需把commons-dbcp.jar及其依赖的jar包，都放在tomcat的lib下，光放在工程的WEB-INF/lib下是不够的。
  
      ResourceLink 的配置有多种：

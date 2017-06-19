@@ -22,54 +22,52 @@ date: 2017-02-06
 
 >直接看代码
 
-```
-private Connection getConnection(String sql) {
-		Properties properties = new Properties();
-		try {
-				//获取配置文件中的数据库信息
-				properties.load(this.getClass().getClassLoader().getResourceAsStream("com/jdbc/jdbc.properties"));
-		} catch (IOException e) {
-				e.printStackTrace();
-		}
-
-		String dirverClass = properties.getProperty("driver");
-		String url = properties.getProperty("jdbc_url");
-		String user = properties.getProperty("user");
-		String password = properties.getProperty("password");
-		
-		Connection connection = null;
-        Statement state = null;
-        try {
-            //加载数据库驱动 
-            Class.forName(dirverClass);
-            //获取数据库连接
-            connection = DriverManager.getConnection(url, user, password);
-						
-			//获取Statment对象
-            state = connection.createStatement();
-			//执行sql语句
-            state.execute(sql);
-
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
-        if (state != null) {//关闭statment对象,释放资源
+    private Connection getConnection(String sql) {
+            Properties properties = new Properties();
             try {
-                state.close();
-            } catch (SQLException e) {
-                System.out.println(e);
+                    //获取配置文件中的数据库信息
+                    properties.load(this.getClass().getClassLoader().getResourceAsStream("com/jdbc/jdbc.properties"));
+            } catch (IOException e) {
+                    e.printStackTrace();
             }
-        }
-        if (null != connection) {//关闭connction对象,释放资源
+    
+            String dirverClass = properties.getProperty("driver");
+            String url = properties.getProperty("jdbc_url");
+            String user = properties.getProperty("user");
+            String password = properties.getProperty("password");
+            
+            Connection connection = null;
+            Statement state = null;
             try {
-                connection.close();
-            } catch (SQLException e) {
+                //加载数据库驱动 
+                Class.forName(dirverClass);
+                //获取数据库连接
+                connection = DriverManager.getConnection(url, user, password);
+                            
+                //获取Statment对象
+                state = connection.createStatement();
+                //执行sql语句
+                state.execute(sql);
+    
+            } catch (SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
-        }
-}
-```
+    
+            if (state != null) {//关闭statment对象,释放资源
+                try {
+                    state.close();
+                } catch (SQLException e) {
+                    System.out.println(e);
+                }
+            }
+            if (null != connection) {//关闭connction对象,释放资源
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+    }
 
 
 ---
@@ -86,53 +84,54 @@ Statement对象创建之后,没执行一次都会重新编译一次sql语句(sql
 	6.    ResultSet pSet = preStatement.executeQuery();
 看出，PreparedStatement有预编译的过程,已经绑定sql,之后无论执行多少遍,都不会再去进行编译,效率高
 
-```
-   private static Connection connection = null;
-    private static PreparedStatement prep = null;
 
-    private void getConnection(String sql) {
-        Properties properties = new Properties();
-        try {
-            //获取配置文件中的数据库信息
-            properties.load(this.getClass().getClassLoader().getResourceAsStream("com/jdbc/jdbc.properties"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String dirverClass = properties.getProperty("driver");
-        String url = properties.getProperty("jdbc_url");
-        String user = properties.getProperty("user");
-        String password = properties.getProperty("password");
-
-        try {
-            //加载数据库驱动
-            Class.forName(dirverClass);
-            //获取数据库连接
-            connection = DriverManager.getConnection(url, user, password);
-            prep = connection.prepareStatement(sql);
-            prep.execute();//这里是更新操作的事例 如果是查询等其他则调用方法有不同
-
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-//执行数据库操作之后必须关闭各个对象(按顺序)
-    public void close(Statement state, Connection connection) {
-        if (state != null) {
+        private static Connection connection = null;
+        private static PreparedStatement prep = null;
+    
+        private void getConnection(String sql) {
+            Properties properties = new Properties();
             try {
-                state.close();
-            } catch (SQLException e) {
-                System.out.println(e);
+                //获取配置文件中的数据库信息
+                properties.load(this.getClass().getClassLoader().getResourceAsStream("com/jdbc/jdbc.properties"));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }
-        if (null != connection) {
+    
+            String dirverClass = properties.getProperty("driver");
+            String url = properties.getProperty("jdbc_url");
+            String user = properties.getProperty("user");
+            String password = properties.getProperty("password");
+    
             try {
-                connection.close();
-            } catch (SQLException e) {
+                //加载数据库驱动
+                Class.forName(dirverClass);
+                //获取数据库连接
+                connection = DriverManager.getConnection(url, user, password);
+                prep = connection.prepareStatement(sql);
+                prep.execute();//这里是更新操作的事例 如果是查询等其他则调用方法有不同
+    
+            } catch (SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         }
-    }
-```
+
+
+//执行数据库操作之后必须关闭各个对象(按顺序)
+
+
+        public void close(Statement state, Connection connection) {
+            if (state != null) {
+                try {
+                    state.close();
+                } catch (SQLException e) {
+                    System.out.println(e);
+                }
+            }
+            if (null != connection) {
+                try {
+                    connection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }

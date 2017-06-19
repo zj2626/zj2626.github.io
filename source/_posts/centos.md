@@ -23,12 +23,12 @@ date: 2017-02-05 #文章生成時間
     
     4.安装 :    yum install -y mysql-server mysql mysql-devel
 
-```
+  
         在CentOS7下安装mysql 可能会提示“No package mysql-server available.”
         
         解决办法: rpm -Uvh http://dev.mysql.com/get/mysql-community-release-el7-5.noarch.rpm
                 然后再安装 mysql-server
-```
+  
     
     5.查看安装好的mysql信息: rpm -qi mysql-server
     

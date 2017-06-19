@@ -34,51 +34,51 @@ protected Object initialValue()返回该线程局部变量的初始值，该方�
 
 <!--more-->
 
-```
-package com.test;  
-  
-public class TestNum {  
-    // ①通过匿名内部类覆盖ThreadLocal的initialValue()方法，指定初始值  
-    private static ThreadLocal<Integer> seqNum = new ThreadLocal<Integer>() {  
-        public Integer initialValue() {  
-            return 0;  
-        }  
-    };  
-  
-    // ②获取下一个序列值  
-    public int getNextNum() {  
-        seqNum.set(seqNum.get() + 1);  
-        return seqNum.get();  
-    }  
-  
-    public static void main(String[] args) {  
-        TestNum sn = new TestNum();  
-        // ③ 3个线程共享sn，各自产生序列号  
-        TestClient t1 = new TestClient(sn);  
-        TestClient t2 = new TestClient(sn);  
-        TestClient t3 = new TestClient(sn);  
-        t1.start();  
-        t2.start();  
-        t3.start();  
-    }  
-  
-    private static class TestClient extends Thread {  
-        private TestNum sn;  
-  
-        public TestClient(TestNum sn) {  
-            this.sn = sn;  
-        }  
-  
-        public void run() {  
-            for (int i = 0; i < 3; i++) {  
-                // ④每个线程打出3个序列值  
-                System.out.println("thread[" + Thread.currentThread().getName() + "] --> sn["  
-                         + sn.getNextNum() + "]");  
+
+        package com.test;  
+          
+        public class TestNum {  
+            // ①通过匿名内部类覆盖ThreadLocal的initialValue()方法，指定初始值  
+            private static ThreadLocal<Integer> seqNum = new ThreadLocal<Integer>() {  
+                public Integer initialValue() {  
+                    return 0;  
+                }  
+            };  
+          
+            // ②获取下一个序列值  
+            public int getNextNum() {  
+                seqNum.set(seqNum.get() + 1);  
+                return seqNum.get();  
+            }  
+          
+            public static void main(String[] args) {  
+                TestNum sn = new TestNum();  
+                // ③ 3个线程共享sn，各自产生序列号  
+                TestClient t1 = new TestClient(sn);  
+                TestClient t2 = new TestClient(sn);  
+                TestClient t3 = new TestClient(sn);  
+                t1.start();  
+                t2.start();  
+                t3.start();  
+            }  
+          
+            private static class TestClient extends Thread {  
+                private TestNum sn;  
+          
+                public TestClient(TestNum sn) {  
+                    this.sn = sn;  
+                }  
+          
+                public void run() {  
+                    for (int i = 0; i < 3; i++) {  
+                        // ④每个线程打出3个序列值  
+                        System.out.println("thread[" + Thread.currentThread().getName() + "] --> sn["  
+                                 + sn.getNextNum() + "]");  
+                    }  
+                }  
             }  
         }  
-    }  
-}  
-```
+
 
  通常我们通过匿名内部类的方式定义ThreadLocal的子类，提供初始的变量值，如例子中①处所示。TestClient线程产生一组序列号，在③处，我们生成3个TestClient，它们共享同一个TestNum实例。运行以上代码，在控制台上输出以下的结果：
 thread[Thread-0] --> sn[1]
@@ -106,120 +106,114 @@ Thread同步机制的比较
 代码清单3 TestDao：非线程安全
 [java] view plain copy print?在CODE上查看代码片派生到我的代码片
 
-```
-package com.test;  
-  
-import java.sql.Connection;  
-import java.sql.SQLException;  
-import java.sql.Statement;  
-  
-public class TestDao {  
-    private Connection conn;// ①一个非线程安全的变量  
-  
-    public void addTopic() throws SQLException {  
-        Statement stat = conn.createStatement();// ②引用非线程安全变量  
-        // …  
-    }  
-}  
+        package com.test;  
+          
+        import java.sql.Connection;  
+        import java.sql.SQLException;  
+        import java.sql.Statement;  
+          
+        public class TestDao {  
+            private Connection conn;// ①一个非线程安全的变量  
+          
+            public void addTopic() throws SQLException {  
+                Statement stat = conn.createStatement();// ②引用非线程安全变量  
+                // …  
+            }  
+        }  
 
 
 
 由于①处的conn是成员变量，因为addTopic()方法是非线程安全的，必须在使用时创建一个新TopicDao实例（非singleton）。下面使用ThreadLocal对conn这个非线程安全的“状态”进行改造：
 代码清单4 TestDao：线程安全
-[java] view plain copy print?在CODE上查看代码片派生到我的代码片
-package com.test;  
-  
-import java.sql.Connection;  
-import java.sql.SQLException;  
-import java.sql.Statement;  
-  
-public class TestDaoNew {  
-    // ①使用ThreadLocal保存Connection变量  
-    private static ThreadLocal<Connection> connThreadLocal = new ThreadLocal<Connection>();  
-  
-    public static Connection getConnection() {  
-        // ②如果connThreadLocal没有本线程对应的Connection创建一个新的Connection，  
-        // 并将其保存到线程本地变量中。  
-        if (connThreadLocal.get() == null) {  
-            Connection conn = getConnection();  
-            connThreadLocal.set(conn);  
-            return conn;  
-        } else {  
-            return connThreadLocal.get();// ③直接返回线程本地变量  
-        }  
-    }  
-  
-    public void addTopic() throws SQLException {  
-        // ④从ThreadLocal中获取线程对应的Connection  
-        Statement stat = getConnection().createStatement();  
-    }  
-}  
-```
 
-　　不同的线程在使用TopicDao时，先判断connThreadLocal.get()是否是null，如果是null，则说明当前线程还没有对应的Connection对象，这时创建一个Connection对象并添加到本地线程变量中；如果不为null，则说明当前的线程已经拥有了Connection对象，直接使用就可以了。这样，就保证了不同的线程使用线程相关的Connection，而不会使用其它线程的Connection。因此，这个TopicDao就可以做到singleton共享了。
-　　当然，这个例子本身很粗糙，将Connection的ThreadLocal直接放在DAO只能做到本DAO的多个方法共享Connection时不发生线程安全问题，但无法和其它DAO共用同一个Connection，要做到同一事务多DAO共享同一Connection，必须在一个共同的外部类使用ThreadLocal保存Connection。
+        package com.test;  
+          
+        import java.sql.Connection;  
+        import java.sql.SQLException;  
+        import java.sql.Statement;  
+          
+        public class TestDaoNew {  
+            // ①使用ThreadLocal保存Connection变量  
+            private static ThreadLocal<Connection> connThreadLocal = new ThreadLocal<Connection>();  
+          
+            public static Connection getConnection() {  
+                // ②如果connThreadLocal没有本线程对应的Connection创建一个新的Connection，  
+                // 并将其保存到线程本地变量中。  
+                if (connThreadLocal.get() == null) {  
+                    Connection conn = getConnection();  
+                    connThreadLocal.set(conn);  
+                    return conn;  
+                } else {  
+                    return connThreadLocal.get();// ③直接返回线程本地变量  
+                }  
+            }  
+          
+            public void addTopic() throws SQLException {  
+                // ④从ThreadLocal中获取线程对应的Connection  
+                Statement stat = getConnection().createStatement();  
+            }  
+        }  
+
+不同的线程在使用TopicDao时，先判断connThreadLocal.get()是否是null，如果是null，则说明当前线程还没有对应的Connection对象，这时创建一个Connection对象并添加到本地线程变量中；如果不为null，则说明当前的线程已经拥有了Connection对象，直接使用就可以了。这样，就保证了不同的线程使用线程相关的Connection，而不会使用其它线程的Connection。因此，这个TopicDao就可以做到singleton共享了。
+当然，这个例子本身很粗糙，将Connection的ThreadLocal直接放在DAO只能做到本DAO的多个方法共享Connection时不发生线程安全问题，但无法和其它DAO共用同一个Connection，要做到同一事务多DAO共享同一Connection，必须在一个共同的外部类使用ThreadLocal保存Connection。
 
 
 ConnectionManager.java
-[java] view plain copy print?在CODE上查看代码片派生到我的代码片
 
-```
-package com.test;  
-  
-import java.sql.Connection;  
-import java.sql.DriverManager;  
-import java.sql.SQLException;  
-  
-public class ConnectionManager {  
-  
-    private static ThreadLocal<Connection> connectionHolder = new ThreadLocal<Connection>() {  
-        @Override  
-        protected Connection initialValue() {  
-            Connection conn = null;  
-            try {  
-                conn = DriverManager.getConnection(  
-                        "jdbc:mysql://localhost:3306/test", "username",  
-                        "password");  
-            } catch (SQLException e) {  
-                e.printStackTrace();  
+        package com.test;  
+          
+        import java.sql.Connection;  
+        import java.sql.DriverManager;  
+        import java.sql.SQLException;  
+          
+        public class ConnectionManager {  
+          
+            private static ThreadLocal<Connection> connectionHolder = new ThreadLocal<Connection>() {  
+                @Override  
+                protected Connection initialValue() {  
+                    Connection conn = null;  
+                    try {  
+                        conn = DriverManager.getConnection(  
+                                "jdbc:mysql://localhost:3306/test", "username",  
+                                "password");  
+                    } catch (SQLException e) {  
+                        e.printStackTrace();  
+                    }  
+                    return conn;  
+                }  
+            };  
+          
+            public static Connection getConnection() {  
+                return connectionHolder.get();  
             }  
-            return conn;  
+          
+            public static void setConnection(Connection conn) {  
+                connectionHolder.set(conn);  
+            }  
         }  
-    };  
-  
-    public static Connection getConnection() {  
-        return connectionHolder.get();  
-    }  
-  
-    public static void setConnection(Connection conn) {  
-        connectionHolder.set(conn);  
-    }  
-}  
-```
+        
 
 java.lang.ThreadLocal<T>的具体实现
 那么到底ThreadLocal类是如何实现这种“为每个线程提供不同的变量拷贝”的呢？先来看一下ThreadLocal的set()方法的源码是如何实现的：
 [java] view plain copy print?在CODE上查看代码片派生到我的代码片
-
-```
-/** 
-    * Sets the current thread's copy of this thread-local variable 
-    * to the specified value.  Most subclasses will have no need to 
-    * override this method, relying solely on the {@link #initialValue} 
-    * method to set the values of thread-locals. 
-    * 
-    * @param value the value to be stored in the current thread's copy of 
-    *        this thread-local. 
-    */  
-   public void set(T value) {  
-       Thread t = Thread.currentThread();  
-       ThreadLocalMap map = getMap(t);  
-       if (map != null)  
-           map.set(this, value);  
-       else  
-           createMap(t, value);  
-   }  
-```
+        
+        /** 
+            * Sets the current thread's copy of this thread-local variable 
+            * to the specified value.  Most subclasses will have no need to 
+            * override this method, relying solely on the {@link #initialValue} 
+            * method to set the values of thread-locals. 
+            * 
+            * @param value the value to be stored in the current thread's copy of 
+            *        this thread-local. 
+            */  
+           public void set(T value) {  
+               Thread t = Thread.currentThread();  
+               ThreadLocalMap map = getMap(t);  
+               if (map != null)  
+                   map.set(this, value);  
+               else  
+                   createMap(t, value);  
+           }  
 
 在这个方法内部我们看到，首先通过getMap(Thread t)方法获取一个和当前线程相关的ThreadLocalMap，然后将变量的值设置到这个ThreadLocalMap对象中，当然如果获取到的ThreadLocalMap对象为空，就通过createMap方法创建。
 
@@ -230,76 +224,75 @@ java.lang.ThreadLocal<T>的具体实现
 为了加深理解，我们接着看上面代码中出现的getMap和createMap方法的实现：
 [java] view plain copy print?在CODE上查看代码片派生到我的代码片
 
-```
-/** 
- * Get the map associated with a ThreadLocal. Overridden in 
- * InheritableThreadLocal. 
- * 
- * @param  t the current thread 
- * @return the map 
- */  
-ThreadLocalMap getMap(Thread t) {  
-    return t.threadLocals;  
-}  
-  
-/** 
- * Create the map associated with a ThreadLocal. Overridden in 
- * InheritableThreadLocal. 
- * 
- * @param t the current thread 
- * @param firstValue value for the initial entry of the map 
- * @param map the map to store. 
- */  
-void createMap(Thread t, T firstValue) {  
-    t.threadLocals = new ThreadLocalMap(this, firstValue);  
-}  
-```
+        
+        /** 
+         * Get the map associated with a ThreadLocal. Overridden in 
+         * InheritableThreadLocal. 
+         * 
+         * @param  t the current thread 
+         * @return the map 
+         */  
+        ThreadLocalMap getMap(Thread t) {  
+            return t.threadLocals;  
+        }  
+          
+        /** 
+         * Create the map associated with a ThreadLocal. Overridden in 
+         * InheritableThreadLocal. 
+         * 
+         * @param t the current thread 
+         * @param firstValue value for the initial entry of the map 
+         * @param map the map to store. 
+         */  
+        void createMap(Thread t, T firstValue) {  
+            t.threadLocals = new ThreadLocalMap(this, firstValue);  
+        }  
+        
 
 接下来再看一下ThreadLocal类中的get()方法:
 [java] view plain copy print?在CODE上查看代码片派生到我的代码片
 
-```
-/** 
- * Returns the value in the current thread's copy of this 
- * thread-local variable.  If the variable has no value for the 
- * current thread, it is first initialized to the value returned 
- * by an invocation of the {@link #initialValue} method. 
- * 
- * @return the current thread's value of this thread-local 
- */  
-public T get() {  
-    Thread t = Thread.currentThread();  
-    ThreadLocalMap map = getMap(t);  
-    if (map != null) {  
-        ThreadLocalMap.Entry e = map.getEntry(this);  
-        if (e != null)  
-            return (T)e.value;  
-    }  
-    return setInitialValue();  
-}  
-```
+        
+        /** 
+         * Returns the value in the current thread's copy of this 
+         * thread-local variable.  If the variable has no value for the 
+         * current thread, it is first initialized to the value returned 
+         * by an invocation of the {@link #initialValue} method. 
+         * 
+         * @return the current thread's value of this thread-local 
+         */  
+        public T get() {  
+            Thread t = Thread.currentThread();  
+            ThreadLocalMap map = getMap(t);  
+            if (map != null) {  
+                ThreadLocalMap.Entry e = map.getEntry(this);  
+                if (e != null)  
+                    return (T)e.value;  
+            }  
+            return setInitialValue();  
+        }  
+
 
 再来看setInitialValue()方法：
-[java] view plain copy print?在CODE上查看代码片派生到我的代码片
 
-```
-/** 
-    * Variant of set() to establish initialValue. Used instead 
-    * of set() in case user has overridden the set() method. 
-    * 
-    * @return the initial value 
-    */  
-   private T setInitialValue() {  
-       T value = initialValue();  
-       Thread t = Thread.currentThread();  
-       ThreadLocalMap map = getMap(t);  
-       if (map != null)  
-           map.set(this, value);  
-       else  
-           createMap(t, value);  
-       return value;  
-   }  
-```
+        
+        /** 
+            * Variant of set() to establish initialValue. Used instead 
+            * of set() in case user has overridden the set() method. 
+            * 
+            * @return the initial value 
+            */  
+           private T setInitialValue() {  
+               T value = initialValue();  
+               Thread t = Thread.currentThread();  
+               ThreadLocalMap map = getMap(t);  
+               if (map != null)  
+                   map.set(this, value);  
+               else  
+                   createMap(t, value);  
+               return value;  
+           }  
+
 
 　　获取和当前线程绑定的值时，ThreadLocalMap对象是以this指向的ThreadLocal对象为键进行查找的，这当然和前面set()方法的代码是相呼应的。
 
@@ -309,37 +302,36 @@ public T get() {
 小结
 　　ThreadLocal是解决线程安全问题一个很好的思路，它通过为每个线程提供一个独立的变量副本解决了变量并发访问的冲突问题。在很多情况下，ThreadLocal比直接使用synchronized同步机制解决线程安全问题更简单，更方便，且结果程序拥有更高的并发性。
 ConnectionManager.java
-[java] view plain copy print?在CODE上查看代码片派生到我的代码片
-```
-package com.test;  
-  
-import java.sql.Connection;  
-import java.sql.DriverManager;  
-import java.sql.SQLException;  
-  
-public class ConnectionManager {  
-  
-    private static ThreadLocal<Connection> connectionHolder = new ThreadLocal<Connection>() {  
-        @Override  
-        protected Connection initialValue() {  
-            Connection conn = null;  
-            try {  
-                conn = DriverManager.getConnection(  
-                        "jdbc:mysql://localhost:3306/test", "username",  
-                        "password");  
-            } catch (SQLException e) {  
-                e.printStackTrace();  
+
+        
+        package com.test;  
+          
+        import java.sql.Connection;  
+        import java.sql.DriverManager;  
+        import java.sql.SQLException;  
+          
+        public class ConnectionManager {  
+          
+            private static ThreadLocal<Connection> connectionHolder = new ThreadLocal<Connection>() {  
+                @Override  
+                protected Connection initialValue() {  
+                    Connection conn = null;  
+                    try {  
+                        conn = DriverManager.getConnection(  
+                                "jdbc:mysql://localhost:3306/test", "username",  
+                                "password");  
+                    } catch (SQLException e) {  
+                        e.printStackTrace();  
+                    }  
+                    return conn;  
+                }  
+            };  
+          
+            public static Connection getConnection() {  
+                return connectionHolder.get();  
             }  
-            return conn;  
+          
+            public static void setConnection(Connection conn) {  
+                connectionHolder.set(conn);  
+            }  
         }  
-    };  
-  
-    public static Connection getConnection() {  
-        return connectionHolder.get();  
-    }  
-  
-    public static void setConnection(Connection conn) {  
-        connectionHolder.set(conn);  
-    }  
-}  
-```

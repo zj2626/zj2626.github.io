@@ -46,12 +46,13 @@ date: 2017-03-1
 	V. > cd conf
 	VI. > touch mongodb.conf
 	VII. > vim mongodb.conf
-```
-port = 27017
-dbpath = data
-logpath = log/mongod.log
-fork = true
-```
+	
+	
+        port = 27017
+        dbpath = data
+        logpath = log/mongod.log
+        fork = true
+
 
 # 启动
 7. 配置完毕 启动服务 
@@ -62,20 +63,23 @@ fork = true
 9. mongodb中用户是归属于数据库的 ,可以说是为数据库设置自己的用户,并设置权限,一般一个用户只是管理一个数据库
 	(当然,可以设置一个超级管理员用来管理所有的数据库)
 	*下面的意思是为admin数据库设置一个用户名为"root",密码为"root"的用户,用户权限(角色) 是root(超级管理员)*
-```
-> use admin
-> db.createUser(
-...   {
-...     user: "root",
-...     pwd: "root",
-...     roles: [ { role: "root", db: "admin" } ]
-...   }
-... )
-```
+
+
+        > use admin
+        > db.createUser(
+        ...   {
+        ...     user: "root",
+        ...     pwd: "root",
+        ...     roles: [ { role: "root", db: "admin" } ]
+        ...   }
+        ... )
+        
+        
 *上面是mongodb3.0的新建用户方式, 2.x的方式有所不同,自行查阅*
 
 下面是mongodb内置的角色
-```
+
+
     1. 数据库用户角色：read、readWrite;
     2. 数据库管理角色：dbAdmin、dbOwner、userAdmin；
     3. 集群管理角色：clusterAdmin、clusterManager、clusterMonitor、hostManager；
@@ -84,6 +88,7 @@ fork = true
     6. 超级用户角色：root  
     // 这里还有几个角色间接或直接提供了系统超级用户的访问（dbOwner 、userAdmin、userAdminAnyDatabase）
     7. 内部角色：__system
+	
 	
 Read：允许用户读取指定数据库
 readWrite：允许用户读写指定数据库
@@ -96,73 +101,78 @@ userAdminAnyDatabase：只在admin数据库中可用，赋予用户所有数据�
 dbAdminAnyDatabase：只在admin数据库中可用，赋予用户所有数据库的dbAdmin权限。
 root：只在admin数据库中可用。超级账号，超级权限
 
-```
 
-    也可以创建角色:
-```
-    > db.createRole(
-    ... {
-    ...     role: "manageOpRole",
-    ...     privileges: [ 
-    ...         { resource: { cluster: true }, actions: [ "killop", "inprog" ] }, 
-    ...         { resource: { db: "my_test", collection: "my_collection" }, 
-    ...            actions: [ "insert", "update", "remove", "compact"] } 
-    ...                 ],
-    ...     roles: [] 
-    ...     }
-    ... )
+
+        也可以创建角色:
     
-    {
-    	"role" : "manageOpRole",
-    	"privileges" : [
-    		{
-    			"resource" : {
-    				"cluster" : true
-    			},
-    			"actions" : [
-    				"killop",
-    				"inprog"
-    			]
-    		},
-    		{
-    			"resource" : {
-    				"db" : "my_test",
-    				"collection" : "my_collection"
-    			},
-    			"actions" : [
-    				"insert", 
-    				"update", 
-    				"remove", 
-    				"compact"
-    			]
-    		}
-    	],
-    	"roles" : [ ]
-    }
-    > 
+    
+        > db.createRole(
+        ... {
+        ...     role: "manageOpRole",
+        ...     privileges: [ 
+        ...         { resource: { cluster: true }, actions: [ "killop", "inprog" ] }, 
+        ...         { resource: { db: "my_test", collection: "my_collection" }, 
+        ...            actions: [ "insert", "update", "remove", "compact"] } 
+        ...                 ],
+        ...     roles: [] 
+        ...     }
+        ... )
+        
+        {
+            "role" : "manageOpRole",
+            "privileges" : [
+                {
+                    "resource" : {
+                        "cluster" : true
+                    },
+                    "actions" : [
+                        "killop",
+                        "inprog"
+                    ]
+                },
+                {
+                    "resource" : {
+                        "db" : "my_test",
+                        "collection" : "my_collection"
+                    },
+                    "actions" : [
+                        "insert", 
+                        "update", 
+                        "remove", 
+                        "compact"
+                    ]
+                }
+            ],
+            "roles" : [ ]
+        }
+        > 
 
-```
 
 *可以添加几个其他角色的用户来测试权限*
 
 10. 要用用户登录的服务 so先关闭服务: > db.shutdownServer()
 
 11. 启动带权限验证的mongodb服务: 
-```
-> /usr/local/mongodb/bin/mongod --dbpath=/usr/local/mongodb/data/  --port=12345  --fork --logpath=/usr/local/mongodb/log/mongodb.log -auth
-```
+
+
+        > /usr/local/mongodb/bin/mongod --dbpath=/usr/local/mongodb/data/  --port=12345  --fork --logpath=/usr/local/mongodb/log/mongodb.log -auth
+        
+        
 	如果报错too many positional options是由于--的原因,需要写英文的两个-
 12. 连接 > mongo 127.0.0.1:12345/admin
 13. 使用数据库 use admin
 14. 进行一些数据库操作 比如 > show dbs 此时就会报错 用用户名密码验证权限
-```
-> db.auth('root','anyao112233')
-```
+
+        
+        > db.auth('root','anyao112233')
+        
+        
 	返回1表示成功 返回0表示失败 ; 此时再输入:
-```
+	
 > show dbs
 > show collections
-```
+
+
 	就会返回正常结果;
 
 
