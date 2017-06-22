@@ -6,7 +6,6 @@ comments: true
 tags: mysql
 
 categories: 
-    - Linux
     - 数据库
 
 description:  转载的,最简单的centos装mysql的教程

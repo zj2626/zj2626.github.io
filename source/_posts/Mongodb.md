@@ -8,7 +8,6 @@ tags:
 
 categories: 
     - 数据库
-    - 程序安装与配置
 
 description: Mongodb的安装,配置,启动以及部分常见问题的解决方法
 
