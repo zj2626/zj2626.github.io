@@ -5,10 +5,11 @@
 # Site
 title: AY_BLOG
 subtitle: Silence的博客
-description:
+description: 欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问
 author: 一起沉默
 language: zh-CN
 timezone: Asia/Shanghai
+keywords: 一起沉默,Silence的博客,一起沉默2626,安瑶,瑶瑶,zj2626,AY_BLOG,AY,ay,ay2626,张晋
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
