@@ -105,35 +105,12 @@ qiniu:
   css:
     folder: css
 
-#live2d:
-#  model: nipsilon
-#  bottom: -60
-#
-#
-#html_minifier:
-#  enable: true
-#  exclude:
-#
-#css_minifier:
-#  enable: true
-#  exclude:
-#    - '*.min.css'
-#
-#js_minifier:
-#  enable: true
-#  mangle: true
-#  output:
-#  compress:
-#  exclude:
-#    - '*.min.js'
-#
-#image_minifier:
-#  enable: true
-#  interlaced: false
-#  multipass: false
-#  optimizationLevel: 2
-#  pngquant: false
-#  progressive: false
+cdn:
+  enable: true
+  base: //okow3aoov.bkt.clouddn.com
+  tags:
+#    'img[data-orign]':  data-orign
+
 
 # Deployment  #部署到github
 ## Docs: https://hexo.io/docs/deployment.html
