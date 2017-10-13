@@ -21,7 +21,7 @@ public class SelectionSort {
 
     private static void sort(int[] s) {
         for (int i = 0; i < s.length - 1; i++) {
-            for (int j = i + 1; j < s.length; j++) {
+            for (int j = i + 1; j < s.length; j++) { // 每次循环把i位置的值与后面的值比较, 把最小(大)的移动到i的位置
                 if (s[i] > s[j]) { //改为 < 则为逆序排序
                     int temp = s[i];
                     s[i] = s[j];
