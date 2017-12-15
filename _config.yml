@@ -3,13 +3,13 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: AY_BLOG
+title: ZJ_BLOG
 subtitle: Silence的博客
 description: 欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问
 author: 一起沉默
 language: zh-CN
 timezone: Asia/Shanghai
-keywords: 一起沉默,Silence的博客,一起沉默2626,安瑶,瑶瑶,zj2626,AY_BLOG,AY,ay,ay2626,张晋
+keywords: 一起沉默,Silence的博客,一起沉默2626,安瑶,zj2626,AY_BLOG,AY,ay,ay2626,张晋,晋
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
@@ -64,7 +64,7 @@ pagination_dir: page #分页目录
 # Extensions
 ## Plugins: https://hexo.io/plugins/  插件
 ## Themes: https://hexo.io/themes/    主题
-theme: material-flow   #当前主题名称
+theme: maupassant   #当前主题名称
 
 search:
 	path: search.xml
@@ -88,7 +88,7 @@ search:
 qiniu:
   offline: false
   sync: true
-  bucket: ay-blog
+  bucket: zj-blog
 #  secret_file: sec/qn.json or C:
   access_key: Px7rL5TvQOwnSBCcL0fNBDP0ryLaVp13gh2YMP7z
   secret_key: YlhzLqJ7LiN_KUNotxfvU4CH3rpcktUGCJMOO0OP
