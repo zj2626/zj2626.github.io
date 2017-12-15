@@ -17,7 +17,7 @@ date: 2017-02-05 #文章生成時間
 
 
 **这是被解析的xml文档示例**
-```
+```xml
         <?xml version="1.0" encoding="UTF-8" standalone="no"?>
         <书架>
             <书>
@@ -39,7 +39,7 @@ date: 2017-02-05 #文章生成時間
 
 <!--more-->
 
-```
+```java
     package cn.xml;
     
     import java.io.File;

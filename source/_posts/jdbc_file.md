@@ -22,7 +22,7 @@ date: 2017-02-10
 
 <!--more-->
 
-```
+```java
 package com.jdbc;
 
 import org.junit.Test;

@@ -18,7 +18,7 @@ date: 2017-02-07
 
 <!--more-->
 
-```
+```java
 package com.jdbc;
 
 import org.apache.commons.collections.map.HashedMap;

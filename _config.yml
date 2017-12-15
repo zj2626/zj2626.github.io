@@ -95,7 +95,7 @@ qiniu:
   dirPrefix: static
   urlPrefix: http://okow3aoov.bkt.clouddn.com/static
   up_host: http://up-z1.qiniu.com
-  local_dir: static
+  local_dir: /static
   update_exist: true
   image:
     folder: images

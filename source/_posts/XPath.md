@@ -18,7 +18,7 @@ date: 2017-02-05 #文章生成時間
 <!--more-->
 
 **这是被解析的xml文档示例**
-```
+```xml
     <?xml version="1.0" encoding="UTF-8" standalone="no"?>
     <用户>
         <user id="1"  username="aaa" password="123"  email="abc.com"/>
@@ -40,7 +40,7 @@ date: 2017-02-05 #文章生成時間
 ```
 ------------------------------------------------------------------------------
 
-```
+```java
     package cn.xml;
     
     import java.io.File;

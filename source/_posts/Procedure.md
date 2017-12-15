@@ -26,7 +26,7 @@ date: 2017-02-05 #文章生成時間
 
 <!--more-->
 
-```
+```sql
 BEGIN
     DECLARE pidCard varchar(20); /*存放idCard*/
 DECLARE pmemo varchar(255);  /*存放memo*/
@@ -48,6 +48,7 @@ DECLARE pmemo varchar(255);  /*存放memo*/
     end loop myLoop; 
     CLOSE cur;
 ```
+
 **更新成功!!!!!!**
 **ps:在导入excel表到数据库的时候(通过navicat软件),出现中文乱码, 解决方案: **
 
