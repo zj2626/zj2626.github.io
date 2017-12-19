@@ -1,4 +1,4 @@
-layout: about 
+layout: about
 title: my love 
 ---
 
