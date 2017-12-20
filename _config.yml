@@ -13,7 +13,7 @@ keywords: 一起沉默,Silence的博客,一起沉默2626,安瑶,zj2626,AY_BLOG,A
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://www.ay2626.me/
+url: http://zj2626.com/
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
