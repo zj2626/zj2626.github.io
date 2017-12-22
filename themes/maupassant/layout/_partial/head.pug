@@ -19,7 +19,7 @@ head
     script(type='text/javascript', src='http://p18j2ow6f.bkt.clouddn.com/static/js/instantclick.min.js')
     script.
         InstantClick.init();
-        /*InstantClick.on('change', function (isInitialLoad) {
+        InstantClick.on('change', function (isInitialLoad) {
                  if (isInitialLoad === false) {
                  if (typeof MathJax !== 'undefined') // support MathJax
                  MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
@@ -30,7 +30,7 @@ head
                  if (typeof ga !== 'undefined')  // support google analytics
                  ga('send', 'pageview', location.pathname + location.search);
                  }
-         });*/
+         });
 
     if config.feed
       link(rel='alternate', type=feed_type, href=url_for(config.feed.path))
