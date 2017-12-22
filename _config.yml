@@ -96,13 +96,13 @@ qiniu:
   access_key: Px7rL5TvQOwnSBCcL0fNBDP0ryLaVp13gh2YMP7z
   secret_key: YlhzLqJ7LiN_KUNotxfvU4CH3rpcktUGCJMOO0OP
   dirPrefix: static
-  urlPrefix: http://okow3aoov.bkt.clouddn.com/static
+  urlPrefix: http://p18j2ow6f.bkt.clouddn.com/static
   up_host: http://up-z1.qiniu.com
-  local_dir: /static
+  local_dir: static
   update_exist: true
   image:
     folder: images
-    extend: ?imageView2/2/w/500
+    extend: ?imageView2/2/w/800
   js:
     folder: js
   css:
@@ -110,7 +110,7 @@ qiniu:
 
 cdn:
   enable: true
-  base: //okow3aoov.bkt.clouddn.com
+  base: //p18j2ow6f.bkt.clouddn.com
   tags:
 #    'img[data-orign]':  data-orign
 
