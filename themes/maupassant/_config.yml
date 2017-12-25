@@ -27,18 +27,18 @@ swiftype:  # Your swiftype_key, e.g. m7b11ZrsT8Me7gzApciT
 tinysou:  # Your tinysou_key, e.g. 4ac092ad8d749fdc6293
 self_search: true  # Use a jQuery-based local search engine, true/false.
 google_analytics:  # Your Google Analytics tracking id, e.g. UA-42425684-2
-baidu_analytics:   # Your Baidu Analytics tracking id, e.g. 8006843039519956000
+baidu_analytics: c9a692191e9aca9e30daa3f6326cc789  # Your Baidu Analytics tracking id, e.g. 8006843039519956000
 show_category_count: true  # If you want to show the count of categories in the sidebar widget please set the value to true.
 toc_number: true  # If you want to add list number to toc please set the value to true.
 shareto: true  # If you want to use the share button please set the value to true, you must have hexo-helper-qrcode installed.
-busuanzi: true  # If you want to use Busuanzi page views please set the value to true.
+busuanzi: false  # If you want to use Busuanzi page views please set the value to true.
 widgets_on_small_screens: true  # Set to true to enable widgets on small screens.
 canvas_nest:
   enable: true  # If you want to use dynamic background please set the value to true, you can also fill the following parameters to customize the dynamic effect, or just leave them blank to keep the default effect.
   color: 190 190 190 # RGB value of the color, e.g. "100,99,98"
   opacity:  0.4  # Transparency of lines, e.g. "0.7"
   zIndex:  -1  # The z-index property of the background, e.g. "-1"
-  count:  50  # Quantity of lines, e.g. "150"
+  count:  100  # Quantity of lines, e.g. "150"
 donate:
   enable: false  # If you want to show the donate button after each post, please set the value to true and fill the following items according to your need. You can also enable donate button in a page by adding a "donate: true" item to the front-matter.
   github:  # GitHub URL, e.g. https://github.com/Kaiyuan/donate-page
@@ -87,7 +87,7 @@ js: js
 css: css
 
 # Theme version
-version: 0.0.0
+version: 0.0.1
 
 # 关于 node-gyp 安装缺少 vcbuild.exe 问题的解决方案：
 # npm config set msvs_version 2015 --global
