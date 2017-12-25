@@ -69,9 +69,9 @@ pagination_dir: page #分页目录
 ## Themes: https://hexo.io/themes/    主题
 theme: maupassant   #当前主题名称
 
-#search:
-#	path: search.xml
-#	field: post
+search:
+	path: search.xml
+	field: post
 
 #七牛云存储设置
 ##offline       是否离线. 离线状态将使用本地地址渲染
