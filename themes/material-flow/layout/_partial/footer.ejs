@@ -1,0 +1,37 @@
+<footer id="footer" class="clearfix">
+
+    <div class="social-wrapper">
+        <% if (theme.social) { %>
+        <% theme.social.forEach(function(value, key) {
+        if (value.url && value.slug) { %>
+        <a href="<%= value.url %>" class="social <%= value.slug %>"
+           target="_blank" rel="external">
+            <span class="icon icon-<%= value.slug %>"></span>
+        </a>
+        <% } }); %>
+        <% } %>
+    </div>
+
+    <div>Theme <a href='https://github.com/stkevintan/hexo-theme-material-flow' class="codename">MaterialFlow</a>
+        designed by <a href="http://ay2626.me/" target="_blank">zj2626</a>.
+    </div>
+
+    <!--快速响应-->
+    <script src="http://p18j2ow6f.bkt.clouddn.com/static/css/instantclick.min.js" data-no-instant></script>
+    <script data-no-instant>
+        /*InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+         });*/
+        InstantClick.init();
+    </script>
+</footer>
+
