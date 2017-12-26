@@ -3,9 +3,10 @@ Thumbs.db
 .deploy_git
 node_modules
 node_modules/
-db.json
-*.log
-public/
+.idea/
+.idea/**.xml
 .deploy*/
+public/
+*.log
 /*.iml
 *.iml
