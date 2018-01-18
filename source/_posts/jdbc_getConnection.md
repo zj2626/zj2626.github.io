@@ -116,7 +116,7 @@ jdbc其实就是一种规范(基准),根据其可以自己构建更高级的框�
 ## **2,升级版本**
 
 配置文件内容
-![](http://www.ay2626.me/wp-content/uploads/2017/02/aaa.png)(如图,地址要加字符编码,防止中文乱码)
+![](http://www.zj2626.com/wp-content/uploads/2017/02/aaa.png)(如图,地址要加字符编码,防止中文乱码)
 
             
         @Test

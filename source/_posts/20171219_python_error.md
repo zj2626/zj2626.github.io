@@ -73,4 +73,4 @@ print (type(s4))
 
 > 转载自 链接地址: http://blog.csdn.net/bible_reader/article/details/53047550
 
-> 个人博客 欢迎来访： http://ay2626.me
+> 个人博客 欢迎来访： http://zj2626.com

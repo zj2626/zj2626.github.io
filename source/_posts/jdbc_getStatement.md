@@ -16,7 +16,7 @@ date: 2017-02-06
 ---
 
 # **Statement类 **
-获取connection(见 http://www.ay2626.me/index.php/2017/02/06/cxxxjdbc/) 之后, 需要获得sql语句并发送然后执行sql语句,所以有了本章
+获取connection(见 http://www.zj2626.com/index.php/2017/02/06/cxxxjdbc/) 之后, 需要获得sql语句并发送然后执行sql语句,所以有了本章
 
 <!--more-->
 

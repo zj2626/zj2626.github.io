@@ -23,7 +23,7 @@ date: 2017-02-08
 ----
 
 
-![](http://www.ay2626.me/wp-content/uploads/2017/02/jdbc.png)
+![](http://www.zj2626.com/wp-content/uploads/2017/02/jdbc.png)
 
 <!--more-->
 
@@ -44,7 +44,7 @@ date: 2017-02-08
         
         public class utilsTest {
             @Test
-            public void test() {<img src="http://www.ay2626.me/wp-content/uploads/2017/02/jdbc-300x115.png" alt="" width="300" height="115" class="alignnone size-medium wp-image-233" />
+            public void test() {<img src="http://www.zj2626.com/wp-content/uploads/2017/02/jdbc-300x115.png" alt="" width="300" height="115" class="alignnone size-medium wp-image-233" />
                 /**
                  * 带占位符和别名的sql语句 查询
                  * 别名是为了匹配数据库中字段名与实体类中属性的差异(如数据库表中列f_id对应类中id属性)
