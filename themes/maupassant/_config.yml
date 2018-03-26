@@ -36,9 +36,9 @@ widgets_on_small_screens: true  # Set to true to enable widgets on small screens
 canvas_nest:
   enable: true  # If you want to use dynamic background please set the value to true, you can also fill the following parameters to customize the dynamic effect, or just leave them blank to keep the default effect.
   color: 190 190 190 # RGB value of the color, e.g. "100,99,98"
-  opacity:  0.4  # Transparency of lines, e.g. "0.7"
+  opacity:  0.1  # Transparency of lines, e.g. "0.7"
   zIndex:  -1  # The z-index property of the background, e.g. "-1"
-  count:  100  # Quantity of lines, e.g. "150"
+  count:  80  # Quantity of lines, e.g. "150"
 donate:
   enable: false  # If you want to show the donate button after each post, please set the value to true and fill the following items according to your need. You can also enable donate button in a page by adding a "donate: true" item to the front-matter.
   github:  # GitHub URL, e.g. https://github.com/Kaiyuan/donate-page
@@ -55,12 +55,12 @@ menu:
   - page: archive
     directory: archives/
     icon: fa-archive
-  - page: about
-    directory: about/
-    icon: fa-user
-  - page: rss
-    directory: atom.xml
-    icon: fa-rss
+#  - page: about
+#    directory: about/
+#    icon: fa-user
+#  - page: rss
+#    directory: atom.xml
+#    icon: fa-rss
 
 widgets:  # Six widgets in sidebar provided: search, category, tag, recent_posts, rencent_comments and links.
   - search
@@ -73,8 +73,6 @@ widgets:  # Six widgets in sidebar provided: search, category, tag, recent_posts
 links:
   - title: github
     url: https://github.com/zj2626/
-  - title: zhihu
-    url: https://www.zhihu.com/
 
 timeline:
   - num: 1
