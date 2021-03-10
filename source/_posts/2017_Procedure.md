@@ -17,9 +17,9 @@ date: 2017-02-05 #文章生成時間
 ---
 
 **这是目标表 **
-![](http://115.159.40.33/wp-content/uploads/2017/02/1.png)
+{% asset_img 1.png 图片标题 %}
 **这是来源表 **
-![](http://115.159.40.33/wp-content/uploads/2017/02/2.png)
+{% asset_img 2.png 图片标题 %}
 **目的:要把exam_add表中的memo字段根据idCard字段对应更新到w_secondary_score表的memo
 
 **
@@ -53,10 +53,10 @@ DECLARE pmemo varchar(255);  /*存放memo*/
 **ps:在导入excel表到数据库的时候(通过navicat软件),出现中文乱码, 解决方案: **
 
 **方法1.**把excel表格编码修改为与数据库相同的编码(我的是utf-8),像这样 
-![](http://115.159.40.33/wp-content/uploads/2017/02/3.png)
+{% asset_img 3.png 图片标题 %}
 (百度说可以, 然而我试了依然乱码) 
 
 **方法2**:我看到navicat可以导入.txt文件 那么可以把excel先转为.txt文件设置编码为utf-8,然后再导入—–>成功!
-![](http://115.159.40.33/wp-content/uploads/2017/02/4.png)
-![](http://115.159.40.33/wp-content/uploads/2017/02/5.png)
-![](http://115.159.40.33/wp-content/uploads/2017/02/6.png)
+{% asset_img 4.png 图片标题 %}
+{% asset_img 5.png 图片标题 %}
+{% asset_img 6.png 图片标题 %}

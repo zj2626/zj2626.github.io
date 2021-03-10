@@ -18,11 +18,11 @@ toc: true
 
 > 问题分析: 该问题主要是由于当前操作的字符串是bytes类型的字符串对象，并对该bytes类型的字符串对象进行按照str类型的操作。
 
-{% qnimg 20171226111345.png title:问题 alt:问题 extend:?imageView2/2/w/600 %}
+{% asset_img 20171226111345.png 问题 alt:问题 extend:?imageView2/2/w/600 %}
 
 * 解决办法，将s转码成为str类型
 
-{% qnimg 20171226111804.png title:问题 alt:问题 extend:?imageView2/2/w/600 %}
+{% asset_img 20171226111804.png 问题 alt:问题 extend:?imageView2/2/w/600 %}
 
 <!--more-->
 
@@ -44,7 +44,7 @@ b3 = str.encode(s)
 print (type(b3))
 ```
 
-{% qnimg 20171226115104.png title:问题 alt:问题 extend:?imageView2/2/w/600 %}
+{% asset_img 20171226115104.png 问题 alt:问题 extend:?imageView2/2/w/600 %}
 
 > bytes to str
 
@@ -67,7 +67,7 @@ s4 = bytes.decode(b)
 print (type(s4))
 ```
 
-{% qnimg 20171226115528.png title:问题 alt:问题 extend:?imageView2/2/w/600 %}
+{% asset_img 20171226115528.png 问题 alt:问题 extend:?imageView2/2/w/600 %}
 
 
 
