@@ -13,7 +13,7 @@ keywords: 一起沉默,Silence的博客,一起沉默2626,安瑶,zj2626,AY_BLOG,A
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
-url: http://zj2626.com/
+url: http://zj2626.github.io/
 root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
@@ -108,10 +108,10 @@ qiniu:
   css:
     folder: css
 
-cdn:
-  enable: true
-  base: //p18j2ow6f.bkt.clouddn.com
-  tags:
+#cdn:
+#  enable: true
+#  base: //p18j2ow6f.bkt.clouddn.com
+#  tags:
 #    'img[data-orign]':  data-orign
 
 
