@@ -1,0 +1,129 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>DBCP连接池介绍(转载) | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="http://p18j2ow6f.bkt.clouddn.com/static/css/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">DBCP连接池介绍(转载)</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">DBCP连接池介绍(转载)</h1><div class="post-meta">Feb 12, 2017<span> | </span><span class="category"><a href="/categories/数据库连接池/">数据库连接池</a></span></div><div class="post-content"><p><em>文章发表时间: 2014-03-07,现在情况可能不同</em>   <a href="http://www.myhack58.com/Article/60/61/2014/42761.htm" target="_blank" rel="noopener">http://www.myhack58.com/Article/60/61/2014/42761.htm</a></p>
+<p> DBCP连接池介绍</p>
+<hr>
+<p>目前 DBCP 有两个版本分别是 1.3 和 1.4。<br>DBCP 1.3 版本需要运行于 JDK 1.4-1.5 ，支持 JDBC 3。<br>DBCP 1.4 版本需要运行于 JDK 1.6 ，支持 JDBC 4。<br>1.3和1.4基于同一套源代码，含有所有的bug修复和新特性。因此在选择DBCP版本的时候，要看你用的是什么JDK版本。<br>DBCP1.2版本性能一般，比c3p0差挺多。DBCP1.4和1.3，配合（依赖）commons pool 1.6的jar包,各方面功能、性能推进到新的高峰。相对1.2版本提高不少。超越(或相当)了c3p0.建议使用DBCP1.4或1.3 +  commons pool 1.6</p>
+<p>Tomcat7 中保留DBCP连接池，以兼容已有应用。并提供了新的Tomcat JDBC pool作为DBCP的可选替代。新出的Tomcat JDBC pool，据说比DBCP 1.4要好，未接触，也不在本文讨论范围内。</p>
+<p>DBCP连接池配置参数讲解</p>
+<hr>
+<a id="more"></a>
+<p>一、Apache官方DBCP文档给出的配置示例：<br>可参见：<a href="http://tomcat.apache.org/tomcat-6.0-doc/jndi-datasource-examples-howto.html" target="_blank" rel="noopener">http://tomcat.apache.org/tomcat-6.0-doc/jndi-datasource-examples-howto.html</a></p>
+<context><br>  <resource name="jdbc/TestDB" auth="Container" type="javax.sql.DataSource" maxactive="100" maxidle="30" maxwait="10000" username="javauser" password="javadude" driverclassname="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost:3306/javatest"><br></resource></context>
+
+
+<p>二、常用参数说明：<br>可参见：<a href="http://elf8848.iteye.com/blog/337981" target="_blank" rel="noopener">http://elf8848.iteye.com/blog/337981</a></p>
+<pre><code>&lt;Resource
+    name=&quot;jdbc/TestDB&quot;  JNDI数据源的name
+    type=&quot;javax.sql.DataSource&quot;
+
+    driverClassName=&quot;com.mysql.jdbc.Driver&quot; JDBC驱动类
+    url=&quot;&quot;
+    username=&quot;&quot; 访问数据库用户名
+    password=&quot;&quot; 访问数据库的密码
+
+    maxActive=&quot;80&quot; 最大活动连接 //我使用版本是2.1,最大连接名称变为maxTotal
+    initialSize=&quot;10&quot;  初始化连接
+    maxIdle=&quot;60&quot;   最大空闲连接
+    minIdle=&quot;10&quot;   最小空闲连接
+    maxWait=&quot;3000&quot; 从池中取连接的最大等待时间，单位ms.
+
+    validationQuery = &quot;SELECT 1&quot;  验证使用的SQL语句
+    testWhileIdle = &quot;true&quot;      指明连接是否被空闲连接回收器(如果有)进行检验.如果检测失败,则连接将被从池中去除.
+    testOnBorrow = &quot;false&quot;   借出连接时不要测试，否则很影响性能
+    timeBetweenEvictionRunsMillis = &quot;30000&quot;  每30秒运行一次空闲连接回收器
+    minEvictableIdleTimeMillis = &quot;1800000&quot;  池中的连接空闲30分钟后被回收
+    numTestsPerEvictionRun=&quot;3&quot; 在每次空闲连接回收器线程(如果有)运行时检查的连接数量
+
+    removeAbandoned=&quot;true&quot;  连接泄漏回收参数，当可用连接数少于3个时才执行
+    removeAbandonedTimeout=&quot;180&quot;  连接泄漏回收参数，180秒，泄露的连接可以被删除的超时值
+/&gt;
+</code></pre><p>DBCP连接池的自我检测</p>
+<hr>
+<p>默认配置的DBCP连接池，是不对池中的连接做测试的，有时连接已断开了，但DBCP连接池不知道，还以为连接是好的呢。<br>应用从池中取出这样的连接访问数据库一定会报错。这也是好多人不喜欢DBCP的原因。</p>
+<p>问题例一：<br>MySQL8小时问题，Mysql服务器默认连接的“wait_timeout”是8小时，也就是说一个connection空闲超过8个小时，Mysql将自动断开该 connection。<br>但是DBCP连接池并不知道连接已经断开了，如果程序正巧使用到这个已经断开的连接，程序就会报错误。</p>
+<p>问题例二：<br>    以前还使用Sybase数据库，由于某种原因，数据库死了后重启、或断网后恢复。<br>    等了约10分钟后，DBCP连接池中的连接还都是不能使用的（断开的），访问数据应用一直报错，最后只能重启Tomcat问题才解决 。</p>
+<p>解决方案：<br>    方案1、定时对连接做测试，测试失败就关闭连接。<br>    方案2、控制连接的空闲时间达到N分钟，就关闭连接，（然后可再新建连接）。<br>    以上两个方案使用任意一个就可以解决以述两类问题。如果只使用方案2，建议 N &lt;= 5分钟。连接断开后最多5分钟后可恢复。<br>    也可混合使用两个方案，建议 N = 30分钟。</p>
+<pre><code>下面就是DBCP连接池，同时使用了以上两个方案的配置配置
+
+validationQuery = &quot;SELECT 1&quot;  验证连接是否可用，使用的SQL语句
+testWhileIdle = &quot;true&quot;      指明连接是否被空闲连接回收器(如果有)进行检验.如果检测失败,则连接将被从池中去除.
+testOnBorrow = &quot;false&quot;   借出连接时不要测试，否则很影响性能
+      timeBetweenEvictionRunsMillis = &quot;30000&quot;  每30秒运行一次空闲连接回收器
+minEvictableIdleTimeMillis = &quot;1800000&quot;  池中的连接空闲30分钟后被回收,默认值就是30分钟。
+numTestsPerEvictionRun=&quot;3&quot; 在每次空闲连接回收器线程(如果有)运行时检查的连接数量，默认值就是3.
+
+解释：
+配置timeBetweenEvictionRunsMillis = &quot;30000&quot;后，每30秒运行一次空闲连接回收器（独立纯种）。并每次检查3个连接，如果连接空闲时间超过30分钟就销毁。销毁连接后，连接数量就少了，如果小于minIdle数量，就新建连接，维护数量不少于minIdle，过行了新老更替。
+testWhileIdle = &quot;true&quot; 表示每30秒，取出3条连接，使用validationQuery = &quot;SELECT 1&quot; 中的SQL进行测试 ，测试不成功就销毁连接。销毁连接后，连接数量就少了，如果小于minIdle数量，就新建连接。
+testOnBorrow = &quot;false&quot; 一定要配置，因为它的默认值是true。false表示每次从连接池中取出连接时，不需要执行validationQuery = &quot;SELECT 1&quot; 中的SQL进行测试。若配置为true,对性能有非常大的影响，性能会下降7-10倍。所在一定要配置为false.
+每30秒，取出numTestsPerEvictionRun条连接（本例是3，也是默认值），发出&quot;SELECT 1&quot; SQL语句进行测试 ，测试过的连接不算是“被使用”了，还算是空闲的。连接空闲30分钟后会被销毁。
+</code></pre><hr>
+<p>DBCP连接池配置参数注意事项  </p>
+<p>maxIdle值与maxActive值应配置的接近。<br>因为，当连接数超过maxIdle值后，刚刚使用完的连接（刚刚空闲下来）会立即被销毁。而不是我想要的空闲M秒后再销毁起一个缓冲作用。这一点DBCP做的可能与你想像的不一样。<br>若maxIdle应与maxActive相差较大，在高负载的系统中会导致频繁的创建、销毁连接，连接数在maxIdle与maxActive间快速频繁波动，这不是我想要的。<br>高负载的系统的maxIdle值可以设置为与maxActive相同或设置为-1(-1表示不限制)，让连接数量在minIdle与maxIdle间缓冲慢速波动。</p>
+<p>timeBetweenEvictionRunsMillis建议设置值<br>initialSize=”5”，会在tomcat一启动时，创建5条连接，效果很理想。<br>但同时我们还配置了minIdle=”10”，也就是说，最少要保持10条连接，那现在只有5条连接，哪什么时候再创建少的5条连接呢？<br>1、等业务压力上来了， DBCP就会创建新的连接。<br>2、配置timeBetweenEvictionRunsMillis=“时间”,DBCP会启用独立的工作线程定时检查，补上少的5条连接。销毁多余的连接也是同理。</p>
+<hr>
+<p>连接销毁的逻辑</p>
+<p>DBCP的连接数会在  0 - minIdle - maxIdle - maxActive  之间变化。变化的逻辑描述如下：</p>
+<p>默认未配置initialSize(默认值是0)和timeBetweenEvictionRunsMillis参数时，刚启动tomcat时，连接数是0。当应用有一个并发访问数据库时DBCP创建一个连接。<br>目前连接数量还未达到minIdle，但DBCP也不自动创建新连接已使数量达到minIdle数量（没有一个独立的工作线程来检查和创建）。<br>随着应用并发访问数据库的增多，连接数也增多，但都与minIdle值无关，很快minIdle被超越，minIdle值一点用都没有。<br>直到连接的数量达到maxIdle值，这时的连接都是只增不减的。 再继续发展，连接数再增多并超过maxIdle时，使用完的连接（刚刚空闲下来的）会立即关闭，总体连接的数量稳定在maxIdle但不会超过maxIdle。<br>但活动连接（在使用中的连接）可能数量上瞬间超过maxIdle，但永远不会超过maxActive。<br>这时如果应用业务压力小了，访问数据库的并发少了，连接数也不会减少（没有一个独立的线程来检查和销毁），将保持在maxIdle的数量。</p>
+<p>默认未配置initialSize(默认值是0)，但配置了timeBetweenEvictionRunsMillis=“30000”（30秒）参数时，刚启动tomcat时，连接数是0。马上应用有一个并发访问数据库时DBCP创建一个连接。<br>目前连接数量还未达到minIdle，每30秒DBCP的工作线程检查连接数是否少于minIdle数量，若少于就创建新连接直到达到minIdle数量。<br>随着应用并发访问数据库的增多，连接数也增多，直到达到maxIdle值。这期间每30秒DBCP的工作线程检查连接是否空闲了30分钟，若是就销毁。但此时是业务的高峰期，是不会有长达30分钟的空闲连接的，工作线程查了也是白查，但它在工作。到这里连接数量一直是呈现增长的趋势。<br>当连接数再增多超过maxIdle时，使用完的连接(刚刚空闲下来)会立即关闭，总体连接的数量稳定在maxIdle。停止了增长的趋势。但活动连接（在使用中的连接）可能数量上瞬间超过maxIdle，但永远不会超过maxActive。<br>这时如果应用业务压力小了，访问数据库的并发少了，每30秒DBCP的工作线程检查连接(默认每次查3条)是否空闲达到30分钟(这是默认值)，若连接空闲达到30分钟，就销毁连接。这时连接数减少了，呈下降趋势，将从maxIdle走向minIdle。当小于minIdle值时，则DBCP创建新连接已使数量稳定在minIdle，并进行着新老更替。</p>
+<p>配置initialSize=“10”时，tomcat一启动就创建10条连接。其它同上。</p>
+<p>minIdle要与timeBetweenEvictionRunsMillis配合使用才有用,单独使用minIdle不会起作用。</p>
+<hr>
+<p>Tomcat中配置DBCP连接池</p>
+<p>Tomcat自带DBCP的包，是$CATALINA_HOME/lib/tomcat-dbcp.jar。<br>omcat-dbcp.jar含有commons pool、commons DBCP两个包的内容。但只含有与连接池有关的类。<br>数据源配置在context.xml文件中， 要在tomcat的lib目录中放jdbc 驱动包<br>数据源配置在server.xml的host中，不需要在tomcat的lib目录中放jdbc 驱动包，只使用工程中的jdbc驱动包</p>
+<p>JNDI配置:更改tomcat的server.xml或context.xml</p>
+<pre><code>全局的数据源：
+如果需要配置全局的 Resource，则在server.xml的GlobalNamingResources节点里加入Resource，再在Context节点里加入ResourceLink的配置。
+全局的resource只是为了重用，方便所有该tomcat下的web工程的数据源管理，但如果你的tomcat不会同时加载多个web工程，也就是说一个tomcat只加载一个web工程时，是没有必要配置全局的resource的。
+</code></pre><p>每个web工程一个数据源：<br>在$CATALINA_HOME/conf/context.xml的根节点Context里加入Resource配置。这种配置方法，你在context.xml配置了一个数据源，但Tomcat中有同时运行着5个工程，那了就坏事儿了，这个在Tomcat启动时数据源被创建了5份，每个工程1份数据源。连接数会是你配置的参数的5倍。<br>只有在你的Tomcat只加载一个web工程时,才可以直接以context.xml配置数据源。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Resource</span> <span class="attr">name</span>=<span class="string">"jdbc/testDB"</span>       //指定的<span class="attr">jndi</span>名称，会用于<span class="attr">spring</span>数据源<span class="attr">bean</span>的配置和<span class="attr">ResourceLink</span>的配置</span></span><br><span class="line"><span class="tag">               <span class="attr">type</span>=<span class="string">"javax.sql.DataSource"</span>   //数据源床型，使用标准的<span class="attr">javax.sql.DataSource</span></span></span><br><span class="line"><span class="tag">               <span class="attr">driverClassName</span>=<span class="string">"com.mysql.jdbc.Driver"</span>    //<span class="attr">JDBC</span>驱动器 </span></span><br><span class="line"><span class="tag">               <span class="attr">url</span>=<span class="string">"jdbc:mysql://localhost:3306/test"</span> //数据库<span class="attr">URL</span>地址             </span></span><br><span class="line"><span class="tag">               <span class="attr">username</span>=<span class="string">"test"</span>     //数据库用户名</span></span><br><span class="line"><span class="tag">               <span class="attr">password</span>=<span class="string">"test"</span>   //数据库密码</span></span><br><span class="line"><span class="tag">               <span class="attr">maxIdle</span>=<span class="string">"40"</span>   //最大的空闲连接数</span></span><br><span class="line"><span class="tag">               <span class="attr">maxWait</span>=<span class="string">"4000"</span> //当池的数据库连接已经被占用的时候，最大等待时间</span></span><br><span class="line"><span class="tag">               <span class="attr">maxActive</span>=<span class="string">"40"</span> //连接池当中最大的数据库连接</span></span><br><span class="line"><span class="tag">               <span class="attr">removeAbandoned</span>=<span class="string">"true"</span> </span></span><br><span class="line"><span class="tag">               <span class="attr">removeAbandonedTimeout</span>=<span class="string">"180"</span></span></span><br><span class="line"><span class="tag">               <span class="attr">logAbandoned</span>=<span class="string">"true"</span> //被丢弃的数据库连接是否做记录，以便跟踪</span></span><br><span class="line"><span class="tag">               <span class="attr">factory</span>=<span class="string">"org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<pre><code> 这里的factory指的是该Resource 配置使用的是哪个数据源配置类，这里使用的是tomcat自带的标准数据源Resource配置类，这个类也可以自己写，实现javax.naming.spi.ObjectFactory 接口即可。某些地方使用的commons-dbcp.jar中的org.apache.commons.dbcp.BasicDataSourceFactory，如果使用这个就需把commons-dbcp.jar及其依赖的jar包，都放在tomcat的lib下，光放在工程的WEB-INF/lib下是不够的。
+
+ResourceLink 的配置有多种：
+
+1)tomcat安装目录下的conf/context.xml，把全局的resource直接公开给该tomcat下的所有web工程，在Context节点中加入：
+</code></pre><p><resourcelink global="jdbc/testMDB" name="jdbc/testMDB" type="javax.sql.DataSource"><br>不建议在此文件中，不使用<resourcelink>，而使用<resource>直接配置数据源，原因上面已说明了。   </resource></resourcelink></resourcelink></p>
+<pre><code>2)tomcat安装目录下的conf/server.xml，该方法可以指定把哪些source绑定到哪个web工程下。
+</code></pre><!-- 新增，第一行为加载的工程配置，第二行是该工程需要的ResourceLink配置 -->
+<p><context docbase="/web/webapps/phoenix" path reloadable="false"><br>      <resourcelink global="jdbc/testMDB" name="jdbc/testMDB" type="javax.sql.DataSource"><br></resourcelink></context><br>也可在此文件中，不使用<resourcelink>，而使用<resource>直接配置数据源。</resource></resourcelink></p>
+<pre><code>3)安装目录下的conf/localhost/下建立一个xml文件，文件名是&lt;yourAppName&gt;.xml。比如工程名为test，则该xml名为test.xml。
+</code></pre><p>&lt;?xml version=”1.0” encoding=”UTF-8”?&gt;</p>
+<p><context><br>    <resourcelink global="jdbc/testMDB" name="jdbc/testMDB" type="javax.sql.DataSource"><br></resourcelink></context><br>也可在此文件中，不使用<resourcelink>，而使用<resource>直接配置数据源。</resource></resourcelink></p>
+<pre><code>4)tomcat安装目录下的\webapps\test\META-INF\context.xml的Context节点中增加:
+</code></pre><p><resourcelink global="jdbc/testMDB" name="jdbc/testMDB" type="javax.sql.DataSource"><br>也可在此文件中，不使用<resourcelink>，而使用<resource>直接配置数据源。</resource></resourcelink></resourcelink></p>
+<p>本文内容都在tomcat6.0上运行测试过，还下载了commons DBCP的源码，加入了跟踪日志，用于验证本文的理论。</p>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2017/02/12/2017_DBCP/" data-id="ckpcswakh008c0oujp8jqlyxf" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACMElEQVR42u3aMY7DMAxE0dz/0t42W8j5QzoBRH1Xi43j6LkYUBRfL3xdb9fq/++frv7Pn/n6xiVDhoxtGdftdX9Puqz755P7l69GhgwZBzBWCba6h7DveSSCydpkyJAhI2XwaCZLlyFDhowag4QsD1OClCFDhgy+ia11ush296d7cRkyZGzI4F333//9lfMNGTJkbMWobURrrTd+kBmvSoYMGaMZPOB4cVY7KkjLPhkyZJzDSIcqahHMqXx0rJjZMmTI2JbBDyzT9n1tOIO35P4FrgwZMoYySIymG9Q0Rsmd6FMZMmQcwOiUjGQwotN0Q0+TIUPGaMZ9wVdrtHVeECoE0xNXGTJkbM7oD0CQO/lC0/afDBkyZPASsB/ZtZiWIUPGbAYJwbT1lh4P1MrKZb9QhgwZQxk1QBqyabzyiJchQ8ZpjAc2k+EWl7Tw4pkRGTJkDGKQx/HArX23FbWkqydDhowRDN4U6xxPdoYqEEyGDBmjGeToMV16/wizOHghQ4aMoYza4FdaLPJl8aBfnnLIkCFjNIMHZfpjfDtaLBNlyJBxACMtBNMtblp0prtUGTJkTGVc4cULxLTgIy8rrm1lyJAxglE74ExbbLWt8rPlpgwZMnZn8ADt82qBjgJXhgwZBzDS4CPf4hmfbmKXgStDhgwZ4Q+nY2Gtdp4MGTJkhEeYabCSOP5AlSFDxgGMtNHfj9f0pTzWbpMhQ8aGjM6kRofKB9H6IxoyZMjYlvEHXHSodmtJydUAAAAASUVORK5CYII=">分享</a><div class="tags"><a href="/tags/DBCP/">DBCP</a></div><div class="post-nav"><a class="pre" href="/2017/02/13/2017_three_pools/">dbcp,c3p0,druid简单实例(包含配置介绍)</a><a class="next" href="/2017/02/12/2017_ljc/">数据库连接池作用(转载)</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/31/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018030701/">构建逻辑回归模型实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171225_regular/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171222_crawler4/">Python 爬虫实战（4）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171219_python_error/">TypeError, a bytes-like object is required, not 'str'</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171219_crawler3/">Python 爬虫实战（3）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171219_crawler2/">Python 爬虫实战（2）</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>

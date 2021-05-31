@@ -1,0 +1,241 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>网络协议记录 | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="http://p18j2ow6f.bkt.clouddn.com/static/css/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">网络协议记录</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">网络协议记录</h1><div class="post-meta">Jan 15, 2020<span> | </span><span class="category"><a href="/categories/计算机网络/">计算机网络</a></span></div><div class="post-content"><p>　　<img src="/2020/01/15/20170918_protocol/11185081040.jpg" title="ISO七层模型与对应协议"></p>
+<p>　　<img src="/2020/01/15/20170918_protocol/11187081041.jpg" title="ISO七层模型与对应协议"></p>
+<a id="more"></a>  
+<blockquote>
+<p>ISO: (International Organization for Standards) 国际标准化组织</p>
+</blockquote>
+<blockquote>
+<p>OSI(参考模型): (Open Systems Interconnection) 开放式通信系统互联网参考模型：把通信功能划分为7个分层</p>
+</blockquote>
+<blockquote>
+<p>OSI协议: OSI协议以OSI参考模型为基础界定了每个阶层的协议和每个阶层之间接口相关的标准；遵循OSI协议的的产品为OSI产品；</p>
+</blockquote>
+<blockquote>
+<p>MAC地址: (Media Access Control)介质访问控制；也叫物理地址、硬件地址；</p>
+</blockquote>
+<blockquote>
+<p>Unicast: 单播；Broadcast: 广播；Multicast: 多播；Anycast: 任播</p>
+</blockquote>
+<blockquote>
+<p>网卡: NIC(Network Interface Card)，使计算机联网的设备</p>
+</blockquote>
+<blockquote>
+<p>中继器: (Repeater) ，物理层上延长网络的设备(处于第一层)</p>
+</blockquote>
+<pre><code>由电缆传过来的电信号或光信号经由中继器的波形调整和放大再传给另一个电缆
+</code></pre><blockquote>
+<p>网桥: (Bridge) 也叫2层交换机，从数据链路层上延长网络的设备(处于第二层)，根据MAC地址进行处理</p>
+</blockquote>
+<pre><code>能识别数据帧，并把数据帧临时存储于内存，并重新生成信号作为新的帧转发给相连的另一个网段
+
+地址自学机制 地址过滤功能
+</code></pre><blockquote>
+<p>路由器: (Router) 也叫3层交换机，通过网络层转发分组数据的设备(处于第三层)，根据IP地址处理</p>
+</blockquote>
+<blockquote>
+<p>4~7层交换机：处理传输层以上各层网络传输的设备</p>
+</blockquote>
+<blockquote>
+<p>网关: (Gateway) 转换协议的设备，协议转换，数据转发(从传输层到应用层的数据转换、转发)</p>
+</blockquote>
+<blockquote>
+<p>FCS: (Frame Check Sequence) 帧检验序列，(网桥)校验数据是否正确的送达目的地</p>
+</blockquote>
+<blockquote>
+<p>CRC: (Cyclic Redundancy Check) 循环冗余校验码，CRC循环冗余码校验FCS帧检验序列</p>
+</blockquote>
+<blockquote>
+<p>ATM: (Asynchronous Transfer Mode) 异步传输</p>
+</blockquote>
+<blockquote>
+<p>网络协议族: (Internet Protocol Suite) 组成网际协议的一组协议</p>
+</blockquote>
+<blockquote>
+<p>IETF: (The Internet Engineering Task Force) 国际互联网工程任务组，一个公开性质的大型民间国际团体</p>
+</blockquote>
+<blockquote>
+<p>RFC: (Request For Comment) 记录TCP/IP协议及其实现和运用信息</p>
+</blockquote>
+<blockquote>
+<p>互联网: (The Internet) </p>
+</blockquote>
+<blockquote>
+<p>NOC: (Network Operation Center) 网络操作中心，互联网中每个网络由NOC相连 </p>
+</blockquote>
+<blockquote>
+<p>IX: (Internet Exchange) 网络交换中心，连接异构网络(不同运营商导致)需要IX支持</p>
+</blockquote>
+<blockquote>
+<p>ISP: (Internet Service Provider) 互联网服务提供商</p>
+</blockquote>
+<blockquote>
+<p>IP: (Internet Protocol)跨越网络传送数据包(分组交换)</p>
+</blockquote>
+<blockquote>
+<p>ICMP: (Internet Control Message Protocol) Internet控制报文协议，</p>
+</blockquote>
+<pre><code>当IP数据包发送途中发生异常无法达到目的地址，需要给发送端发送一个异常的通知(可以诊断网络健康状况)
+</code></pre><blockquote>
+<p>ARP: (Address Resolution Protocol)从分组数据包的IP地址中解析出物理地址(MAC地址)的一种协议</p>
+</blockquote>
+<blockquote>
+<p>TCP: (Transmission Control Protocol)  传输控制协议，面向有连接，传输层协议，</p>
+</blockquote>
+<blockquote>
+<p>UDP: (User Datagram Protocol) 用户数据报协议，面向无连接，传输层协议，</p>
+</blockquote>
+<blockquote>
+<p>WWW: (World Wide Web) </p>
+</blockquote>
+<blockquote>
+<p>HTTP: (HyperText Transfer Protocol) 超文本传输协议 </p>
+</blockquote>
+<blockquote>
+<p>SMTP: (Simple Mail Transfer Protocol)  </p>
+</blockquote>
+<blockquote>
+<p>MIME: () (表示层协议)</p>
+</blockquote>
+<blockquote>
+<p>FTP: (File Transfer Protocol) 文件传输协议</p>
+</blockquote>
+<blockquote>
+<p>TELNET: 网络远程登陆协议 </p>
+</blockquote>
+<blockquote>
+<p>SSH: (Secure Shell)   </p>
+</blockquote>
+<blockquote>
+<p>SNMP: (Simple Network Management Protocol) 简单网络管理协议 (应用层协议)</p>
+</blockquote>
+<pre><code>在TCP/IP中进行网络管理， 采用SNMP管理的主机、网桥、路由器称为SNMP代理(Agent)，进行管理的那一段叫做管理器(Manager)
+Agent和Manager用到该协议
+在SNMP代理端，保存网络接口的信息、通信数据量、异常数据量等信息
+可以及时检查网络拥堵情况
+</code></pre><blockquote>
+<p>MIB: () (表示层协议)</p>
+</blockquote>
+<blockquote>
+<p>CSMA: (Carrier Sense Multiple Access) 载波侦听多路访问，争夺获取数据传输的权力</p>
+</blockquote>
+<blockquote>
+<p>CSMA/CD: 相对于CSMA，要求每个站提前检测冲突，发生冲突，则尽早释放信道</p>
+</blockquote>
+<blockquote>
+<p>FDDI: (Fiber Distributed Data Interface) 光纤分布式数据接口</p>
+</blockquote>
+<blockquote>
+<p>BPDU: (Bridge Protocol Data Unit) 生成树方式中，每个网桥必须在每1-10秒内小胡交换BPDU包，用来判断哪些端口使用哪些不使用，以便消除环路</p>
+</blockquote>
+<blockquote>
+<p>RSTP: (Rapid Spanning Tree Protocol) 能将发生环路时的恢复时间缩短到几秒之内 </p>
+</blockquote>
+<blockquote>
+<p>无线PAN: (Personal Area Network) 通信距离10米左右，应用：蓝牙</p>
+</blockquote>
+<blockquote>
+<p>无线LAN: (Local Area Network) 通信距离100米左右，应用：Wi-Fi</p>
+</blockquote>
+<blockquote>
+<p>无线MAN: (Metropolitan Area Network) 通信距离1km-100km，应用：WiMAX</p>
+</blockquote>
+<blockquote>
+<p>无线RAN: (Regional Area Network) 通信距离200k-700km</p>
+</blockquote>
+<blockquote>
+<p>无线WAN: (Wide Area Network) 应用3G,LTE,4G等</p>
+</blockquote>
+<blockquote>
+<p>PPP: (Point to Point Protocol) 点对点协议，相当于2层的数据链路层</p>
+</blockquote>
+<pre><code>ppp协议的主要功能中主要包括两个协议：
+
+    1.LCP：(Link Control Protocol)，不依赖上层，
+
+        通过两次握手进行用户名密码验证，明文传输密码，不安全
+
+        主要负责建立和断开连接，设置最大接受单元（MRU，Maximum Receive Unit），
+        设置验证协议[PAP(Password Authentication Protocol) 或 CHAP(Challenge Handshake Authentication Protocol)]，
+        设置进行通信质量监控与否
+
+    2.NCP: (Network Control Protocol)， 
+
+        依赖上层，如果上层是IP，则此时NCP也叫IPCP
+
+        使用一次性密码OTP(One Time Password)， 安全，防止窃听
+
+        IPCP主要IP地址设置以及是否进行TCP/IP首部压缩等设置
+
+
+    ppp协议连接时，需要进行用户名密码验证
+</code></pre><blockquote>
+<p>PPPoE: (PPP over Ethernet) 互联网接入服务商在以太网上提供PPP功能，可以提供计费功能</p>
+</blockquote>
+<blockquote>
+<p>ADSL: (Asymmetric Digital Subscriber Line) 非对称数字用户环路</p>
+</blockquote>
+<blockquote>
+<p>FTTH: (Fiber To The Home) 光纤到户</p>
+</blockquote>
+<blockquote>
+<p>VPN: (Virtual Private Network) 虚拟专用网络</p>
+</blockquote>
+<blockquote>
+<p>MTU: (Maximum Transmission Unit)  最大传输单元</p>
+</blockquote>
+<blockquote>
+<p>CIDR: (Classless Inter-Domain Routing) 无类型域间选路</p>
+</blockquote>
+<blockquote>
+<p>CIDR: (Border Gateway Protocol) 边界网关协议</p>
+</blockquote>
+<blockquote>
+<p>VLSM: (Variable Length Subnet Mask) 可变长子网掩码</p>
+</blockquote>
+<blockquote>
+<p>ICANN: (Internet Corporation for Assigned Names and Numbers) 互联网名称与数字地址分配机构</p>
+</blockquote>
+<blockquote>
+<p>NAT: (Network Address Translation) 网络地址转换</p>
+</blockquote>
+<hr>
+<hr>
+<blockquote>
+<p>个人博客 欢迎来访： <a href="http://zj2626.github.io">http://zj2626.github.io</a></p>
+</blockquote>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2020/01/15/20170918_protocol/" data-id="ckpcswaby00290oujrabads1c" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLUlEQVR42u3aS1LkMBAFQO5/6Z4NCyIYm/dUzUxYSq0IY2ylF4Xq8/ERr9eX9fXK93uu7r9/8v2Vty0MDIzHMl636+qe+yckb0k+ULI3DAyMcxj3oTAJi8lWkrfcv/fyOgYGBsZtkG2DYx7QMTAwMNYYybbalPg/BFwMDIwHMpIktk0y28A6CeIYGBh7M/IQ+e9//pX+BgYGxqMYr3L9Xt9wbT+ff4uBgbE1Iw9wa8X9tlXQjmhgYGCcyWgT2rUCXH4QLFJWDAyMgxl1gX5w7MubBHXAxcDAeCwjf9zaINe7Au4Pv8XAwNia0W53MhjRluSSQIyBgXEmYzIqsdaMzNsPb2hnYmBgPJbRNizzolublOYthL+8EQMD4wDGqCg/CKaTYygGBsYJjHa4IS+6rY1u5JjL/xgYGBibMpJHt2G3HX7NP1nRKcXAwNiIsTbosPZp2sS1HrbAwMA4gBFlvfEW80JeW/iLKnkYGBgbMZJD2HuHxubDFhgYGOcwkjDXlunzgYm2PPdDUo2BgXEMY16mT663x8EoncbAwDiAMSm0tWnw5JNdhmwMDIyDGWvBNwfPj4kYGBh7M17lmofdyaBGdLbFwMDYjjEf82rDa97IzAcyMDAwTmC0QXZS+m/HO/LUFwMD4wRGkfWWkXutANeGfgwMDIx5OzPfVj0QhoGBgbG09cm7FqkYGBgHMJIkNr/eBtxJ8Q4DA+MExmhSY6mhWJfS4p1gYGBsx/gD6ndLqeoIgJUAAAAASUVORK5CYII=">分享</a><div class="tags"><a href="/tags/定义/">定义</a></div><div class="post-nav"><a class="pre" href="/2020/01/15/20170922_map/">图</a><a class="next" href="/2020/01/15/20170911_syc/">待完成</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/31/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018030701/">构建逻辑回归模型实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171225_regular/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171222_crawler4/">Python 爬虫实战（4）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171219_python_error/">TypeError, a bytes-like object is required, not 'str'</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171219_crawler3/">Python 爬虫实战（3）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171219_crawler2/">Python 爬虫实战（2）</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>

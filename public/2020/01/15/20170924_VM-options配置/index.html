@@ -1,0 +1,199 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>VM options配置 | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="http://p18j2ow6f.bkt.clouddn.com/static/css/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">VM options配置</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">VM options配置</h1><div class="post-meta">Jan 15, 2020<span> | </span><span class="category"><a href="/categories/java虚拟机/">java虚拟机</a></span></div><div class="post-content"><blockquote>
+<p>转载自 链接地址: <a href="http://www.cnblogs.com/mingforyou/archive/2012/03/03/2378143.html" target="_blank" rel="noopener">http://www.cnblogs.com/mingforyou/archive/2012/03/03/2378143.html</a><br>转载自 链接地址: <a href="http://unixboy.iteye.com/blog/174173/" target="_blank" rel="noopener">http://unixboy.iteye.com/blog/174173/</a></p>
+</blockquote>
+<a id="more"></a>
+<h1 id="文章一"><a href="#文章一" class="headerlink" title="文章一"></a>文章一</h1><p>Eclipse崩溃，错误提示：<br>MyEclipse has detected that less than 5% of the 64MB of Perm<br>Gen (Non-heap memory) space remains. It is strongly recommended<br>that you exit and restart MyEclipse with new virtual machine memory<br>paramters to increase this memory.   Failure to do so can result in<br>data loss. The recommended Eclipse memory parameters are:<br>eclipse.exe -vmargs -Xms128M -Xmx512M -XX:PermSize=64M -XX:MaxPermSize=128M</p>
+<p>1.参数的含义<br>-vmargs -Xms128M -Xmx512M -XX:PermSize=64M -XX:MaxPermSize=128M<br>-vmargs 说明后面是VM的参数，所以后面的其实都是JVM的参数了<br>-Xms128m JVM初始分配的堆内存<br>-Xmx512m JVM最大允许分配的堆内存，按需分配<br>-XX:PermSize=64M JVM初始分配的非堆内存<br>-XX:MaxPermSize=128M JVM最大允许分配的非堆内存，按需分配</p>
+<p>我们首先了解一下JVM内存管理的机制，然后再解释每个参数代表的含义。</p>
+<h2 id="堆-Heap-和非堆-Non-heap-内存"><a href="#堆-Heap-和非堆-Non-heap-内存" class="headerlink" title="堆(Heap)和非堆(Non-heap)内存"></a>堆(Heap)和非堆(Non-heap)内存</h2><p> 按照官方的说法：“Java 虚拟机具有一个堆，堆是运行时数据区域，所有类实例和数组的内存均从此处分配。堆是在 Java 虚拟机启动时创建的。”“在JVM中堆之外的内存称为非堆内存(Non-heap memory)”。<br> 可以看出JVM主要管理两种类型的内存：堆和非堆。简单来说堆就是Java代码可及的内存，是留给开发人员使用的；非堆就是JVM留给自己用的，<br> 所以方法区、JVM内部处理或优化所需的内存(如JIT编译后的代码缓存)、每个类结构(如运行时常数池、字段和方法数据)以及方法和构造方法的代码都在非堆内存中。 </p>
+<h3 id="堆内存分配"><a href="#堆内存分配" class="headerlink" title="堆内存分配"></a>堆内存分配</h3><p> JVM初始分配的堆内存由-Xms指定，默认是物理内存的1/64；JVM最大分配的堆内存由-Xmx指定，默认是物理内存的1/4。默认空余堆内存小于40%时，JVM就会增大堆直到-Xmx的最大限制；<br> 空余堆内存大于70%时，JVM会减少堆直到-Xms的最小限制。因此服务器一般设置-Xms、-Xmx 相等以避免在每次GC 后调整堆的大小。<br> 说明：如果-Xmx 不指定或者指定偏小，应用可能会导致java.lang.OutOfMemory错误，此错误来自JVM，不是Throwable的，无法用try…catch捕捉。 </p>
+<h3 id="非堆内存分配"><a href="#非堆内存分配" class="headerlink" title="非堆内存分配"></a>非堆内存分配</h3><p> JVM使用-XX:PermSize设置非堆内存初始值，默认是物理内存的1/64；由XX:MaxPermSize设置最大非堆内存的大小，默认是物理内存的1/4。（还有一说：MaxPermSize缺省值和-server -client选项相关，<br> -server选项下默认MaxPermSize为64m，-client选项下默认MaxPermSize为32m。这个我没有实验。）<br> 上面错误信息中的PermGen space的全称是Permanent Generation space，是指内存的永久保存区域。还没有弄明白PermGen space是属于非堆内存，还是就是非堆内存，但至少是属于了。<br>XX:MaxPermSize设置过小会导致java.lang.OutOfMemoryError: PermGen space 就是内存益出。<br>说说为什么会内存益出：<br>（1）这一部分内存用于存放Class和Meta的信息，Class在被 Load的时候被放入PermGen space区域，它和存放Instance的Heap区域不同。<br>（2）GC(Garbage Collection)不会在主程序运行期对PermGen space进行清理，所以如果你的APP会LOAD很多CLASS 的话,就很可能出现PermGen space错误。<br>  这种错误常见在web服务器对JSP进行pre compile的时候。  </p>
+<h2 id="JVM内存限制-最大值"><a href="#JVM内存限制-最大值" class="headerlink" title="JVM内存限制(最大值)"></a>JVM内存限制(最大值)</h2><p> 首先JVM内存限制于实际的最大物理内存，假设物理内存无限大的话，JVM内存的最大值跟操作系统有很大的关系。简单的说就32位处理器虽然可控内存空间有4GB,但是具体的操作系统会给一个限制，<br> 这个限制一般是2GB-3GB（一般来说Windows系统下为1.5G-2G，Linux系统下为2G-3G），而64bit以上的处理器就不会有限制了。</p>
+<ol start="2">
+<li><p>为什么有的机器我将-Xmx和-XX:MaxPermSize都设置为512M之后Eclipse可以启动，而有些机器无法启动？<br>通过上面对JVM内存管理的介绍我们已经了解到JVM内存包含两种：堆内存和非堆内存，另外JVM最大内存首先取决于实际的物理内存和操作系统。所以说设置VM参数导致程序无法启动主要有以下几种原因：<br>1) 参数中-Xms的值大于-Xmx，或者-XX:PermSize的值大于-XX:MaxPermSize；<br>2) -Xmx的值和-XX:MaxPermSize的总和超过了JVM内存的最大限制，比如当前操作系统最大内存限制，或者实际的物理内存等等。说到实际物理内存这里需要说明一点的是，<br>如果你的内存是1024MB，但实际系统中用到的并不可能是1024MB，因为有一部分被硬件占用了。</p>
+</li>
+<li><p>为何将上面的参数写入到eclipse.ini文件Eclipse没有执行对应的设置？<br>那为什么同样的参数在快捷方式或者命令行中有效而在eclipse.ini文件中是无效的呢？这是因为我们没有遵守eclipse.ini文件的设置规则：<br>参数形如“项 值”这种形式，中间有空格的需要换行书写，如果值中有空格的需要用双引号包括起来。比如我们使用-vm C:/Java/jre1.6.0/bin/javaw.exe参数设置虚拟机，<br>在eclipse.ini文件中要写成这样：</p>
+</li>
+</ol>
+<p>-vm<br>C:/Java/jre1.6.0/bin/javaw.exe<br>-vmargs<br>-Xms128M<br>-Xmx512M<br>-XX:PermSize=64M<br>-XX:MaxPermSize=128M </p>
+<p>实际运行的结果可以通过Eclipse中“Help”-“About Eclipse SDK”窗口里面的“Configuration Details”按钮进行查看。<br>另外需要说明的是，Eclipse压缩包中自带的eclipse.ini文件内容是这样的：<br>-showsplash<br>org.eclipse.platform<br>–launcher.XXMaxPermSize<br>256m<br>-vmargs<br>-Xms40m<br>-Xmx256m<br>其中–launcher.XXMaxPermSize（注意最前面是两个连接线）跟-XX:MaxPermSize参数的含义基本是一样的，我觉得唯一的区别就是前者是eclipse.exe启动的时候设置的参数，<br>而后者是eclipse所使用的JVM中的参数。其实二者设置一个就可以了，所以这里可以把–launcher.XXMaxPermSize和下一行使用#注释掉。</p>
+<ol start="4">
+<li>其他的启动参数。 如果你有一个双核的CPU，也许可以尝试这个参数:<br>-XX:+UseParallelGC<br>让GC可以更快的执行。（只是JDK 5里对GC新增加的参数）</li>
+</ol>
+<p>补充：<br>　　如果你的WEB APP下都用了大量的第三方jar，其大小超过了服务器jvm默认的大小，那么就会产生内存益出问题了。<br>解决方法： 设置MaxPermSize大小<br>可以在myelipse里选中相应的服务器比如tomcat5，展开里面的JDK子项页面，来增加服务器启动的JVM参数设置：</p>
+<p>-Xms128m<br>-Xmx256m<br>-XX:PermSize=128M<br>-XX:MaxNewSize=256m<br>-XX:MaxPermSize=256m</p>
+<p>或者手动设置MaxPermSize大小,比如tomcat，<br>修改TOMCAT_HOME/bin/catalina.bat，在echo “Using CATALINA_BASE: $CATALINA_BASE”上面加入以下行：<br>JAVA_OPTS=”-server -XX:PermSize=64M -XX:MaxPermSize=128m</p>
+<p>建议：将相同的第三方jar文件移置到tomcat/shared/lib目录下，这样可以减少jar 文档重复占用内存</p>
+<h1 id="文章二"><a href="#文章二" class="headerlink" title="文章二"></a>文章二</h1><h2 id="1-堆大小设置"><a href="#1-堆大小设置" class="headerlink" title="1.堆大小设置"></a>1.堆大小设置</h2><p>JVM 中最大堆大小有三方面限制：相关操作系统的数据模型（32-bt还是64-bit）限制；系统的可用虚拟内存限制；系统的可用物理内存限制。32位系统下，一般限制在1.5G~2G；64为操作系统对内存无限制。我在Windows Server 2003 系统，3.5G物理内存，JDK5.0下测试，最大可设置为1478m。</p>
+<h3 id="典型设置："><a href="#典型设置：" class="headerlink" title="典型设置："></a>典型设置：</h3><ul>
+<li>java -Xmx3550m -Xms3550m -Xmn2g -Xss128k</li>
+</ul>
+<p>-Xmx3550m：设置JVM最大可用内存为3550M。<br>-Xms3550m：设置JVM初始内存为3550m。此值可以设置与-Xmx相同，以避免每次垃圾回收完成后JVM重新分配内存。<br>-Xmn2g：设置年轻代大小为2G。整个JVM内存大小=年轻代大小 + 年老代大小 + 持久代大小。持久代一般固定大小为64m，所以增大年轻代后，将会减小年老代大小。此值对系统性能影响较大，Sun官方推荐配置为整个堆的3/8。<br>-Xss128k：设置每个线程的堆栈大小。JDK5.0以后每个线程堆栈大小为1M，以前每个线程堆栈大小为256K。更具应用的线程所需内存大小进行调整。在相同物理内存下，减小这个值能生成更多的线程。但是操作系统对一个进程内的线程数还是有限制的，不能无限生成，经验值在3000~5000左右。</p>
+<ul>
+<li>java -Xmx3550m -Xms3550m -Xss128k -XX:NewRatio=4 -XX:SurvivorRatio=4 -XX:MaxPermSize=16m -XX:MaxTenuringThreshold=0</li>
+</ul>
+<p>-XX:NewRatio=4:设置年轻代（包括Eden和两个Survivor区）与年老代的比值（除去持久代）。设置为4，则年轻代与年老代所占比值为1：4，年轻代占整个堆栈的1/5<br>-XX:SurvivorRatio=4：设置年轻代中Eden区与Survivor区的大小比值。设置为4，则两个Survivor区与一个Eden区的比值为2:4，一个Survivor区占整个年轻代的1/6<br>-XX:MaxPermSize=16m:设置持久代大小为16m。<br>-XX:MaxTenuringThreshold=0：设置垃圾最大年龄。如果设置为0的话，则年轻代对象不经过Survivor区，直接进入年老代。对于年老代比较多的应用，可以提高效率。如果将此值设置为一个较大值，则年轻代对象会在Survivor区进行多次复制，这样可以增加对象再年轻代的存活时间，增加在年轻代即被回收的概论。</p>
+<h2 id="2-回收器选择"><a href="#2-回收器选择" class="headerlink" title="2.回收器选择"></a>2.回收器选择</h2><p>JVM给了三种选择：串行收集器、并行收集器、并发收集器，但是串行收集器只适用于小数据量的情况，所以这里的选择主要针对并行收集器和并发收集器。默认情况下，JDK5.0以前都是使用串行收集器，如果想使用其他收集器需要在启动时加入相应参数。JDK5.0以后，JVM会根据当前系统配置进行判断。</p>
+<h3 id="吞吐量优先的并行收集器"><a href="#吞吐量优先的并行收集器" class="headerlink" title="吞吐量优先的并行收集器"></a>吞吐量优先的并行收集器</h3><p>如上文所述，并行收集器主要以到达一定的吞吐量为目标，适用于科学技术和后台处理等。</p>
+<blockquote>
+<p>典型配置：</p>
+</blockquote>
+<ul>
+<li><p>java -Xmx3800m -Xms3800m -Xmn2g -Xss128k -XX:+UseParallelGC -XX:ParallelGCThreads=20<br>-XX:+UseParallelGC：选择垃圾收集器为并行收集器。此配置仅对年轻代有效。即上述配置下，年轻代使用并发收集，而年老代仍旧使用串行收集。<br>-XX:ParallelGCThreads=20：配置并行收集器的线程数，即：同时多少个线程一起进行垃圾回收。此值最好配置与处理器数目相等。</p>
+</li>
+<li><p>java -Xmx3550m -Xms3550m -Xmn2g -Xss128k -XX:+UseParallelGC -XX:ParallelGCThreads=20 -XX:+UseParallelOldGC<br>-XX:+UseParallelOldGC：配置年老代垃圾收集方式为并行收集。JDK6.0支持对年老代并行收集。</p>
+</li>
+<li><p>java -Xmx3550m -Xms3550m -Xmn2g -Xss128k -XX:+UseParallelGC  -XX:MaxGCPauseMillis=100<br>-XX:MaxGCPauseMillis=100:设置每次年轻代垃圾回收的最长时间，如果无法满足此时间，JVM会自动调整年轻代大小，以满足此值。</p>
+</li>
+<li><p>java -Xmx3550m -Xms3550m -Xmn2g -Xss128k -XX:+UseParallelGC  -XX:MaxGCPauseMillis=100 -XX:+UseAdaptiveSizePolicy<br>-XX:+UseAdaptiveSizePolicy：设置此选项后，并行收集器会自动选择年轻代区大小和相应的Survivor区比例，以达到目标系统规定的最低相应时间或者收集频率等，此值建议使用并行收集器时，一直打开。</p>
+</li>
+</ul>
+<h3 id="响应时间优先的并发收集器"><a href="#响应时间优先的并发收集器" class="headerlink" title="响应时间优先的并发收集器"></a>响应时间优先的并发收集器</h3><p>如上文所述，并发收集器主要是保证系统的响应时间，减少垃圾收集时的停顿时间。适用于应用服务器、电信领域等。</p>
+<blockquote>
+<p>典型配置：</p>
+</blockquote>
+<ul>
+<li>java -Xmx3550m -Xms3550m -Xmn2g -Xss128k -XX:ParallelGCThreads=20 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC<br>-XX:+UseConcMarkSweepGC：设置年老代为并发收集。测试中配置这个以后，-XX:NewRatio=4的配置失效了，原因不明。所以，此时年轻代大小最好用-Xmn设置。<br>-XX:+UseParNewGC:设置年轻代为并行收集。可与CMS收集同时使用。JDK5.0以上，JVM会根据系统配置自行设置，所以无需再设置此值。</li>
+<li>java -Xmx3550m -Xms3550m -Xmn2g -Xss128k -XX:+UseConcMarkSweepGC -XX:CMSFullGCsBeforeCompaction=5 -XX:+UseCMSCompactAtFullCollection<br>-XX:CMSFullGCsBeforeCompaction：由于并发收集器不对内存空间进行压缩、整理，所以运行一段时间以后会产生“碎片”，使得运行效率降低。此值设置运行多少次GC以后对内存空间进行压缩、整理。<br>-XX:+UseCMSCompactAtFullCollection：打开对年老代的压缩。可能会影响性能，但是可以消除碎片</li>
+</ul>
+<blockquote>
+<p>辅助信息</p>
+</blockquote>
+<p>JVM提供了大量命令行参数，打印信息，供调试使用。主要有以下一些：</p>
+<ul>
+<li>-XX:+PrintGC<br>输出形式：[GC 118250K-&gt;113543K(130112K), 0.0094143 secs]<pre><code>[Full GC 121376K-&gt;10414K(130112K), 0.0650971 secs]
+</code></pre></li>
+<li>-XX:+PrintGCDetails<br>输出形式：[GC [DefNew: 8614K-&gt;781K(9088K), 0.0123035 secs] 118250K-&gt;113543K(130112K), 0.0124633 secs]<pre><code>[GC [DefNew: 8614K-&gt;8614K(9088K), 0.0000665 secs][Tenured: 112761K-&gt;10414K(121024K), 0.0433488 secs] 121376K-&gt;10414K(130112K), 0.0436268 secs]
+</code></pre></li>
+<li>-XX:+PrintGCTimeStamps -XX:+PrintGC：PrintGCTimeStamps可与上面两个混合使用<br>输出形式：11.851: [GC 98328K-&gt;93620K(130112K), 0.0082960 secs]</li>
+<li>-XX:+PrintGCApplicationConcurrentTime:打印每次垃圾回收前，程序未中断的执行时间。可与上面混合使用<br>输出形式：Application time: 0.5291524 seconds</li>
+<li>-XX:+PrintGCApplicationStoppedTime：打印垃圾回收期间程序暂停的时间。可与上面混合使用<br>输出形式：Total time for which application threads were stopped: 0.0468229 seconds</li>
+<li>-XX:PrintHeapAtGC:打印GC前后的详细堆栈信息</li>
+</ul>
+<p>输出形式：</p>
+<pre><code>34.702: [GC {Heap before gc invocations=7:
+ def new generation   total 55296K, used 52568K [0x1ebd0000, 0x227d0000, 0x227d0000)
+eden space 49152K,  99% used [0x1ebd0000, 0x21bce430, 0x21bd0000)
+from space 6144K,  55% used [0x221d0000, 0x22527e10, 0x227d0000)
+  to   space 6144K,   0% used [0x21bd0000, 0x21bd0000, 0x221d0000)
+ tenured generation   total 69632K, used 2696K [0x227d0000, 0x26bd0000, 0x26bd0000)
+the space 69632K,   3% used [0x227d0000, 0x22a720f8, 0x22a72200, 0x26bd0000)
+ compacting perm gen  total 8192K, used 2898K [0x26bd0000, 0x273d0000, 0x2abd0000)
+   the space 8192K,  35% used [0x26bd0000, 0x26ea4ba8, 0x26ea4c00, 0x273d0000)
+    ro space 8192K,  66% used [0x2abd0000, 0x2b12bcc0, 0x2b12be00, 0x2b3d0000)
+    rw space 12288K,  46% used [0x2b3d0000, 0x2b972060, 0x2b972200, 0x2bfd0000)
+34.735: [DefNew: 52568K-&gt;3433K(55296K), 0.0072126 secs] 55264K-&gt;6615K(124928K)Heap after gc invocations=8:
+ def new generation   total 55296K, used 3433K [0x1ebd0000, 0x227d0000, 0x227d0000)
+eden space 49152K,   0% used [0x1ebd0000, 0x1ebd0000, 0x21bd0000)
+  from space 6144K,  55% used [0x21bd0000, 0x21f2a5e8, 0x221d0000)
+  to   space 6144K,   0% used [0x221d0000, 0x221d0000, 0x227d0000)
+ tenured generation   total 69632K, used 3182K [0x227d0000, 0x26bd0000, 0x26bd0000)
+the space 69632K,   4% used [0x227d0000, 0x22aeb958, 0x22aeba00, 0x26bd0000)
+ compacting perm gen  total 8192K, used 2898K [0x26bd0000, 0x273d0000, 0x2abd0000)
+   the space 8192K,  35% used [0x26bd0000, 0x26ea4ba8, 0x26ea4c00, 0x273d0000)
+    ro space 8192K,  66% used [0x2abd0000, 0x2b12bcc0, 0x2b12be00, 0x2b3d0000)
+    rw space 12288K,  46% used [0x2b3d0000, 0x2b972060, 0x2b972200, 0x2bfd0000)
+}
+, 0.0757599 secs]
+</code></pre><ul>
+<li>-Xloggc:filename:与上面几个配合使用，把相关日志信息记录到文件以便分析。</li>
+</ul>
+<blockquote>
+<p>常见配置汇总</p>
+</blockquote>
+<p>1.堆设置</p>
+<ul>
+<li>-Xms:初始堆大小</li>
+<li>-Xmx:最大堆大小</li>
+<li>-XX:NewSize=n:设置年轻代大小</li>
+<li>-XX:NewRatio=n:设置年轻代和年老代的比值。如:为3，表示年轻代与年老代比值为1：3，年轻代占整个年轻代年老代和的1/4</li>
+<li>-XX:SurvivorRatio=n:年轻代中Eden区与两个Survivor区的比值。注意Survivor区有两个。如：3，表示Eden：Survivor=3：2，一个Survivor区占整个年轻代的1/5</li>
+<li>-XX:MaxPermSize=n:设置持久代大小</li>
+</ul>
+<p>2.收集器设置</p>
+<ul>
+<li>-XX:+UseSerialGC:设置串行收集器</li>
+<li>-XX:+UseParallelGC:设置并行收集器</li>
+<li>-XX:+UseParalledlOldGC:设置并行年老代收集器</li>
+<li>-XX:+UseConcMarkSweepGC:设置并发收集器</li>
+</ul>
+<p>3.垃圾回收统计信息</p>
+<ul>
+<li>-XX:+PrintGC</li>
+<li>-XX:+PrintGCDetails</li>
+<li>-XX:+PrintGCTimeStamps</li>
+<li>-Xloggc:filename</li>
+</ul>
+<p>4.并行收集器设置</p>
+<ul>
+<li>-XX:ParallelGCThreads=n:设置并行收集器收集时使用的CPU数。并行收集线程数。</li>
+<li>-XX:MaxGCPauseMillis=n:设置并行收集最大暂停时间</li>
+<li>-XX:GCTimeRatio=n:设置垃圾回收时间占程序运行时间的百分比。公式为1/(1+n)</li>
+</ul>
+<p>5.并发收集器设置</p>
+<ul>
+<li>-XX:+CMSIncrementalMode:设置为增量模式。适用于单CPU情况。</li>
+<li>-XX:ParallelGCThreads=n:设置并发收集器年轻代收集方式为并行收集时，使用的CPU数。并行收集线程数。</li>
+</ul>
+<h2 id="调优总结"><a href="#调优总结" class="headerlink" title="调优总结"></a>调优总结</h2><p>1.年轻代大小选择</p>
+<ul>
+<li>响应时间优先的应用：尽可能设大，直到接近系统的最低响应时间限制（根据实际情况选择）。在此种情况下，年轻代收集发生的频率也是最小的。同时，减少到达年老代的对象。</li>
+<li>吞吐量优先的应用：尽可能的设置大，可能到达Gbit的程度。因为对响应时间没有要求，垃圾收集可以并行进行，一般适合8CPU以上的应用。</li>
+</ul>
+<p>2.年老代大小选择</p>
+<ul>
+<li><p>响应时间优先的应用：年老代使用并发收集器，所以其大小需要小心设置，一般要考虑并发会话率和会话持续时间等一些参数。如果堆设置小了，可以会造成内存碎片、高回收频率以及应用暂停而使用传统的标记清除方式；如果堆大了，则需要较长的收集时间。最优化的方案，一般需要参考以下数据获得：</p>
+<pre><code>并发垃圾收集信息
+持久代并发收集次数
+传统GC信息
+花在年轻代和年老代回收上的时间比例
+</code></pre></li>
+</ul>
+<p>减少年轻代和年老代花费的时间，一般会提高应用的效率</p>
+<ul>
+<li>吞吐量优先的应用：一般吞吐量优先的应用都有一个很大的年轻代和一个较小的年老代。原因是，这样可以尽可能回收掉大部分短期对象，减少中期的对象，而年老代尽存放长期存活对象。</li>
+</ul>
+<p>3.较小堆引起的碎片问题<br>因为年老代的并发收集器使用标记、清除算法，所以不会对堆进行压缩。当收集器回收时，他会把相邻的空间进行合并，这样可以分配给较大的对象。但是，当堆空间较小时，运行一段时间以后，就会出现“碎片”，如果并发收集器找不到足够的空间，那么并发收集器将会停止，然后使用传统的标记、清除方式进行回收。如果出现“碎片”，可能需要进行如下配置：</p>
+<ul>
+<li>-XX:+UseCMSCompactAtFullCollection：使用并发收集器时，开启对年老代的压缩。</li>
+<li>-XX:CMSFullGCsBeforeCompaction=0：上面配置开启的情况下，这里设置多少次Full GC后，对年老代进行压缩</li>
+</ul>
+<blockquote>
+<p>个人博客 欢迎来访： <a href="http://zj2626.github.io">http://zj2626.github.io</a></p>
+</blockquote>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2020/01/15/20170924_VM-options配置/" data-id="ckpcswanb009f0oujkyyx2851" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACL0lEQVR42u3aQXLbMAwFUN//0s5Mt42pD0DuVOTTKhMpIp8WCEDg9Yqv959r/fv3X9f6mfV7Xt+4MDAwHst4L69k+fW28ufX6356BgMD4xxGEkzXS1bv5ozoHwAGBgZGnNLlm1h/JgwMDIx7C9ScVw3HGBgYGNUidr1Yfk3S0BtqcQwMjAcyqo2Bf/nzF/sbGBgYD2G8B1f10H/SJLjYCQYGxtaMuw7981SymlAWilsMDIwDGJOF85xt3gb4uCIGBsbWjCSN+3S32iS4650YGBinMdbhLG9SJsnlBHyxWwwMjE0Z1aStSqpuOj96G02ZYWBgPIoxSRbnjcleaMbAwDiNkY+C5RMOvbtVwC+5LQYGxqaM5EgrP9zvPVlNSS+GLTAwMLZjVJuXk3Gu5D29oz0MDIzTGJM6uJzMtWCjpBADA+OBjN5wQ7KhyVxE/qExMDBOYPQO93t3qyG48LEwMDCOYSRJXjV1m6SS5eM2DAyMrRmTduNd4XU0UoaBgbE1o1c0VluMhXp6udHC2zAwMDZizIPsJCgn4TVqiGJgYGzNaEbl+Pl8LCMPwRd/i4GBsR2jl9j1Fq4mhYV/AxgYGFsz7iope6MYyWdqbhcDA2M7RrU9UD2A62292i7FwMA4gZFvLh+VaNbTvUQTAwMDIy5oe0lkL+BiYGBg5ENdedNxUh5fhHUMDIwDGHkRm5egefuhF4hHtTgGBsajGPPGQG+cYjJ29pUWJgYGxv/I+AFCocxSgXaXVgAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/深入了解java虚拟机/">深入了解java虚拟机</a><a href="/tags/java/">java</a></div><div class="post-nav"><a class="pre" href="/2020/01/15/20171214_crawler/">Python 爬虫实战（1）</a><a class="next" href="/2020/01/15/20170924_GC之间的区别/">Minor GC、Major GC和Full GC之间的区别</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/05/31/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/2018030701/">构建逻辑回归模型实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171225_regular/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171222_crawler4/">Python 爬虫实战（4）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171219_python_error/">TypeError, a bytes-like object is required, not 'str'</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171219_crawler3/">Python 爬虫实战（3）</a></li><li class="post-list-item"><a class="post-list-link" href="/2020/01/15/20171219_crawler2/">Python 爬虫实战（2）</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>
