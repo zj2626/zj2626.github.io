@@ -120,5 +120,5 @@ search:
 # Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repository: git@github.com:zj2626/zj2626.github.io.git
+  repository: https://github.com/zj2626/zj2626.github.io.git
   branch: master
