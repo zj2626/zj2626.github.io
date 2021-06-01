@@ -1,0 +1,128 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>使用iframe标签实现局部刷新 | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="/js/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">使用iframe标签实现局部刷新</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">使用iframe标签实现局部刷新</h1><div class="post-meta">Jun 1, 2021<span> | </span><span class="category"><a href="/categories/框架相关/">框架相关</a><a href="/categories/框架相关/前端技术/">前端技术</a></span></div><div class="post-content"><h3 id="Iframe是一种嵌入网页的框架形式，Web页面可以通过更改嵌入的部分，达到部分内容刷新，通过本文和大家一起学习iframe实现局部刷新的几种方法汇总，对iframe局部刷新相关知识感兴趣的朋友一起学习吧"><a href="#Iframe是一种嵌入网页的框架形式，Web页面可以通过更改嵌入的部分，达到部分内容刷新，通过本文和大家一起学习iframe实现局部刷新的几种方法汇总，对iframe局部刷新相关知识感兴趣的朋友一起学习吧" class="headerlink" title="Iframe是一种嵌入网页的框架形式，Web页面可以通过更改嵌入的部分，达到部分内容刷新，通过本文和大家一起学习iframe实现局部刷新的几种方法汇总，对iframe局部刷新相关知识感兴趣的朋友一起学习吧"></a>Iframe是一种嵌入网页的框架形式，Web页面可以通过更改嵌入的部分，达到部分内容刷新，通过本文和大家一起学习iframe实现局部刷新的几种方法汇总，对iframe局部刷新相关知识感兴趣的朋友一起学习吧</h3><h3 id="Iframe是一种嵌入网页的框架形式，Web页面可以通过更改嵌入的部分，达到部分内容刷新。"><a href="#Iframe是一种嵌入网页的框架形式，Web页面可以通过更改嵌入的部分，达到部分内容刷新。" class="headerlink" title="Iframe是一种嵌入网页的框架形式，Web页面可以通过更改嵌入的部分，达到部分内容刷新。"></a>Iframe是一种嵌入网页的框架形式，Web页面可以通过更改嵌入的部分，达到部分内容刷新。</h3><h3 id="Iframe的用法与普通的标签元素DIV类似，可以指定在页面中嵌入的位置、颜色、界面布局等"><a href="#Iframe的用法与普通的标签元素DIV类似，可以指定在页面中嵌入的位置、颜色、界面布局等" class="headerlink" title="Iframe的用法与普通的标签元素DIV类似，可以指定在页面中嵌入的位置、颜色、界面布局等"></a>Iframe的用法与普通的标签元素DIV类似，可以指定在页面中嵌入的位置、颜色、界面布局等</h3><hr>
+<blockquote>
+<p>一、iframe实现局部刷新方法一</p>
+</blockquote>
+<pre><code>&lt;script type=&quot;text/javascript&quot;&gt;
+ $(function(){
+ $(&quot;#a1&quot;).click(function(){
+  var name= $(this).attr(&quot;name&quot;);
+  $(&quot;#iframe&quot;).attr(&quot;src&quot;,name).ready();
+ })
+ $(&quot;#a2&quot;).click(function(){
+  var name= $(this).attr(&quot;name&quot;);
+  $(&quot;#iframe&quot;).attr(&quot;src&quot;,name).ready();
+ })
+})
+&lt;/script&gt;
+&lt;a href=&quot;#&quot; id=&quot;a1&quot; name=&quot;a1.html&quot;&gt;1&lt;/a&gt;
+&lt;a href=&quot;#&quot; id=&quot;a2&quot; name=&quot;a2.html&quot;&gt;2&lt;/a&gt;
+&lt;iframe src=&quot;&quot; id=&quot;iframe&quot;&gt;&lt;/iframe&gt; 
+</code></pre><p> 当点a1时在iframe里显示a1.html的内容，点a2时在iframe里显示a2.html的内容</p>
+<a id="more"></a>
+<hr>
+<blockquote>
+<p>二、iframe实现局部刷新的方法二</p>
+</blockquote>
+<pre><code>&lt;a href=&quot;a1.html&quot; id=&quot;a1&quot; name=&quot;a1.html&quot; target=&quot;i&quot;&gt;1&lt;/a&gt;
+&lt;a href=&quot;a2.html&quot; id=&quot;a2&quot; name=&quot;a2.html&quot; target=&quot;i&quot;&gt;2&lt;/a&gt;
+&lt;iframe src=&quot;&quot; id=&quot;iframe&quot; name=&quot;i&quot;&gt;&lt;/iframe&gt; 
+</code></pre><p>备注： </p>
+<ol>
+<li><p><form> 同样也有target属性，作用和<a>一样 这个方式如果<from>或<a>提交到某个Action中再跳转到a1.html中效果一样，如果在Action中有req.set或session.set，最后在iframe中同样可以显示出来。</a></from></a></form></p>
+</li>
+<li><p>可以加入这些属性 去除iframe的默认样式</p>
+</li>
+</ol>
+<pre><code>frameborder=&quot;no&quot; border=&quot;0&quot;  marginwidth=&quot;0&quot; marginheight=&quot;0&quot; scrolling=&quot;no&quot; allowtransparency=&quot;yes&quot;
+</code></pre><hr>
+<blockquote>
+<p>三：iframe实现局部刷新的方法三:</p>
+</blockquote>
+<pre><code>&lt;iframe src=&quot;1.htm&quot; name=&quot;ifrmname&quot; 
+id=&quot;ifrmid&quot;&gt;&lt;/iframe&gt;
+</code></pre><ol>
+<li>方案一:用iframe的name属性定位</li>
+</ol>
+<pre><code>&lt;input type=&quot;button&quot; name=&quot;Button&quot; value=&quot;Button&quot; onclick=&quot;document.frames(&apos;ifrmname&apos;).location.reload()&quot;&gt;
+</code></pre><p>或</p>
+<pre><code>&lt;input type=&quot;button&quot; name=&quot;Button&quot; value=&quot;Button&quot; onclick=&quot;document.all.ifrmname.document.location.reload()&quot;&gt;
+</code></pre><ol start="2">
+<li>方案二:用iframe的id属性定位</li>
+</ol>
+<pre><code>&lt;input type=&quot;button&quot; name=&quot;Button&quot; value=&quot;Button&quot; onclick=&quot;ifrmid.window.location.reload()&quot;&gt;
+</code></pre><ol start="3">
+<li>方案三:当iframe的src为其它网站地址(跨域操作时)</li>
+</ol>
+<pre><code>&lt;input type=&quot;button&quot; name=&quot;Button&quot; value=&quot;Button&quot; onclick=&quot;window.open(document.all.ifrmname.src,&apos;ifrmname&apos;,&apos;&apos;)&quot;&gt;
+</code></pre><ol start="4">
+<li>方案四:通过和替换iframe的src来实现局部刷新<br>可以用document.getElementById(“iframname”).src=””来进行iframe得重定向；<br>示例代码如下：test.html</li>
+</ol>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;
+&lt;head&gt;
+ &lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot; /&gt;
+ &lt;title&gt;&lt;/title&gt;
+ &lt;script type=&quot;text/javascript&quot;&gt;
+  function partRefresh() {
+   document.getElementById(&quot;iframe1Id&quot;).src = &quot;a2.html&quot;; // 方法一: 通过和替换iframe的src来实现局部刷新
+  }
+ &lt;/script&gt;
+ &lt;/head&gt;
+ &lt;body&gt;
+  &lt;table border=&quot;1&quot; width=&quot;90%&quot; align=&quot;center&quot;&gt;
+   &lt;tr
+    style=&quot;background: #F0F0E4&quot;&gt;&lt;td&gt;方格1&lt;/td&gt;&lt;td&gt;方格2&lt;/td&gt; &lt;td&gt;方格3&lt;/td&gt;
+   &lt;/tr&gt;
+   &lt;tr&gt;
+    &lt;td&gt;
+     &lt;iframe src=&quot;a1.html&quot; id=&quot;iframe1Id&quot; name=&quot;iframe1Name&quot; width=&quot;100%&quot;&gt;&lt;/iframe&gt;
+    &lt;/td&gt;
+    &lt;td&gt;
+     &lt;iframe src=&quot;a2.html&quot; id=&quot;iframe2Id&quot; name=&quot;iframe2Name&quot; width=&quot;100%&quot;&gt;&lt;/iframe&gt;
+    &lt;/td&gt;
+    &lt;td&gt;
+     &lt;iframe src=&quot;a3.html&quot; id=&quot;iframe3Id&quot; name=&quot;iframe3Name&quot; width=&quot;100%&quot;&gt;&lt;/iframe&gt;
+    &lt;/td&gt;
+   &lt;/tr&gt;
+  &lt;/table&gt;
+  &lt;br&gt;
+  &lt;br&gt;
+  &lt;input type=&quot;button&quot; value=&quot;IFRAME局部刷新&quot; style=&quot;margin-left: 70px;&quot; onclick=&quot;partRefresh();&quot;&gt;
+ &lt;/body&gt;
+&lt;/html&gt;
+</code></pre></div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2021/06/01/20170315_iframe/" data-id="ckpe4wbot000h8cuj830qred3" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLklEQVR42u3aQY4jIQwF0Nz/0pnNLFrqSeV/k4xU8Fi1KgnFoyUL2zwe8Xj+GD+fXH/6+/n1nL9n/vDAwMC4LeN5Oa6XdY1pwdfff7M1GBgYBzBeRbDZ1AmvDetv1oyBgYERB9YkOCZsDAwMjBVG+532UIiBgYGxksS2Na424CbPP5CLY2Bg3JCRV93//99f6W9gYGDcivEsxyzIJo3M2Xr+/hYDA2NrRh7g8mPZerNz1kLAwMDYlZEH0xbWBtli19tKHgYGxkaM2fWs9UzzFaYI2RgYGEcy8mCaX5tYCbjF0RADA2NTRptktsntegnvzRsxMDAOYOQJZ4vJk9t8I4a1QAwMjJsz8gUlobAt7eXvfbl+DAyMrRmzJsEKftYiLXgYGBhHMlYOkbPW6UrCjIGBsSujvRjRhs629N8eOjEwMM5hJM3FNtSuJ65F6wIDA2NTRpuUtlco2iJdG6yLbgMGBsZtGXnAzSdNUtP10h4GBsaZjNkr22Ni2zAoNhQDA+MAxiz5zAtts18VaTYGBsYxjLy5mJf72/Znsq1LZ1IMDIybM9qp86sSbRMib5FiYGDszXiWI09ic9hshn/8HzAwMDZl5CNJMleuVnyvUYGBgbEHIw+ybWMgT0dn18IeSd0OAwNjI8bKgvJw3Ca9xaowMDAw4sA3ayEsXQjDwMDACJbbJsP584KKgYFxAKNtBqwcCmfXMj5WbsPAwLghYyV1nKWjX0liMTAw9mT8AUJt8C6O1EK+AAAAAElFTkSuQmCC">分享</a><div class="tags"><a href="/tags/HTML/">HTML</a><a href="/tags/iframe/">iframe</a></div><div class="post-nav"><a class="pre" href="/2021/06/01/20170315_test/">Hexo博客插件安装</a><a class="next" href="/2021/06/01/201703101526_maven/">maven安装与命令</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018030701/">构建逻辑回归模型实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171225_regular/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171222_crawler4/">Python 爬虫实战（4）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171219_python_error/">TypeError, a bytes-like object is required, not 'str'</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171219_crawler3/">Python 爬虫实战（3）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171219_crawler2/">Python 爬虫实战（2）</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>

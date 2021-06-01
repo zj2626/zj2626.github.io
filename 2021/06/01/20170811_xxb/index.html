@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>顺序表实例（全） | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="/js/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">顺序表实例（全）</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">顺序表实例（全）</h1><div class="post-meta">Jun 1, 2021<span> | </span><span class="category"><a href="/categories/数据结构和算法/">数据结构和算法</a></span></div><div class="post-content"><blockquote>
+<p>顺序表的初始化，增加，插入，删除等功能的实例</p>
+</blockquote>
+<blockquote>
+<p>工程一共包含4个文件</p>
+<ol>
+<li>Entity.h ：声明线性表的元素的类型。可以是基本数据类型也可以是结构体</li>
+<li>SeqList.h ：定义线性表结构体，声明全局的宏定义，函数的声明</li>
+<li>SeqList.c ：具体的函数实现</li>
+<li>main.c ： 测试文件</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>参考博客文章： <a href="http://www.cnblogs.com/laojie4321/archive/2012/03/30/2425015.html" target="_blank" rel="noopener">http://www.cnblogs.com/laojie4321/archive/2012/03/30/2425015.html</a><br>参考博客文章： <a href="http://blog.163.com/jiaoruijun07@126/blog/static/68943278201042064246409/" target="_blank" rel="noopener">http://blog.163.com/jiaoruijun07@126/blog/static/68943278201042064246409/</a></p>
+</blockquote>
+<a id="more"></a>
+<blockquote>
+<h4 id="Entity-h"><a href="#Entity-h" class="headerlink" title="Entity.h"></a>Entity.h</h4></blockquote>
+<pre><code>typedef struct{
+    char key[15];   //结点的关键字
+    char name[20];
+    int age;
+} DATA; //定义结点类型 可定义为简单类型或者结构体
+</code></pre><blockquote>
+<h4 id="SeqList-h"><a href="#SeqList-h" class="headerlink" title="SeqList.h"></a>SeqList.h</h4></blockquote>
+<pre><code>/*
+    头文件：数据结构的定义和操作原型
+
+*/
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &quot;Entity.h&quot;
+#define MAXSIZE 100 //定义线性表最大长度
+
+typedef struct {
+    DATA ListData[MAXSIZE + 1]; //保存顺序表的数组(真正的数据从下标为1的位置开始)
+    int ListLen;                //顺序表结点个数（已存结点）；默认为0，表示没有数据
+} SeqListType;
+
+void SeqListInit(SeqListType *SL);                      //初始化顺序表
+int SeqListLength(SeqListType *SL);                     // 返回顺序表的元素数量
+int SeqListAdd(SeqListType *SL, DATA data);             // 向顺序表中添加元素
+int SeqListInsert(SeqListType *SL, int n, DATA data);   // 向顺序表中插入元素
+int SeqListDelete(SeqListType *SL, int n);              // 删除顺序表中的数据
+DATA *SeqListFindByNum(SeqListType *SL, int n);         // 根据序号返回元素
+int SeqListFindByCont(SeqListType *SL, char *key);      // 按关键字查找
+int SeqListAll(SeqListType *SL);                        // 遍历顺序表
+</code></pre><blockquote>
+<h4 id="SeqList-c"><a href="#SeqList-c" class="headerlink" title="SeqList.c"></a>SeqList.c</h4></blockquote>
+<pre><code>/*函数文件：具体的函数实现代码*/
+
+#include &quot;SeqList.h&quot;
+
+/* 初始化顺序表 */
+void SeqListInit(SeqListType *SL){
+    SL-&gt;ListLen = 0;
+}
+
+/* 返回顺序表元素数量 */
+int SeqListLength(SeqListType *SL){
+    return (SL-&gt;ListLen);
+}
+
+/* 添加元素到顺序表尾 */
+int SeqListAdd(SeqListType *SL, DATA data){
+    if(SL-&gt;ListLen  &gt;= MAXSIZE){ // 顺序表已满
+        printf(&quot;顺序表已经满了 不能再添加&quot;);
+        return 0; //返回失败
+    }
+
+    SL-&gt;ListData[++SL-&gt;ListLen] = data; // 把数据插入到下标为（ListLen+1）的位置
+
+    return 1;//返回成功
+}
+
+/* 插入元素到顺序表指定位置 */
+int SeqListInsert(SeqListType *SL, int n, DATA data){
+    int i;
+
+    if(SL-&gt;ListLen  &gt;= MAXSIZE){ // 顺序表已满
+        printf(&quot;顺序表已经满了 不能再插入\n&quot;);
+        return 0;
+    }
+
+    if(n &lt; 1 || n &gt; SL-&gt;ListLen){
+        printf(&quot;要插入的位置错误\n&quot;);
+        return 0;
+    }
+
+    for(i = SL-&gt;ListLen; i&gt;=n; i--){ //移动要插入数据的后面的数据
+        SL-&gt;ListData[i+1] = SL-&gt;ListData[i];
+    }
+    SL-&gt;ListData[n] = data;     //插入数据
+    SL-&gt;ListLen++;              //数据个数加一
+
+    return 1;
+}
+
+int SeqListDelete(SeqListType *SL, int n){
+    int i;
+    if(n &lt; 1 || n &gt; SL-&gt;ListLen+1){
+        printf(&quot;结点错误 不能删除\n&quot;);
+        return 0;
+    }
+
+    for(i=n; i&lt;SL-&gt;ListLen; i++){   //移动要删除数据的后面的数据
+        SL-&gt;ListData[i] = SL-&gt;ListData[i + 1];
+    }
+    SL-&gt;ListLen--;
+
+    return 1;
+}
+
+DATA *SeqListFindByNum(SeqListType *SL, int n){
+    if(n &lt; 1 || n &gt; SL-&gt;ListLen+1){
+        printf(&quot;序号错误 获取失败&quot;);
+        return NULL;
+    }
+
+    return &amp;(SL-&gt;ListData[n]); // 返回指针增加通用性
+}
+
+int SeqListFindByCont(SeqListType *SL, char *key){
+
+    int i;
+    for(i = 0; i &lt;= SL-&gt;ListLen; i++){
+        if(strcmp(SL-&gt;ListData[i].key, key) == 0){
+            return i;
+        }
+    }
+
+    return 0; //遍历没有找到
+}
+</code></pre><blockquote>
+<h4 id="main-c"><a href="#main-c" class="headerlink" title="main.c"></a>main.c</h4></blockquote>
+<pre><code>/* 测试文件：调用测试函数*/
+#include &lt;stdio.h&gt;
+#include &quot;SeqList.h&quot;
+
+/*遍历顺序表中结点*/
+int SeqListAll(SeqListType *SL){
+    int i;
+    for(i = 0; i &lt;= SL-&gt;ListLen; i++){
+        //输出中第一个是0， 即下标为0的位置的存储的数据
+        printf(&quot;(%s %s %d) \n&quot;, SL-&gt;ListData[i].key, SL-&gt;ListData[i].name, SL-&gt;ListData[i].age);
+    }
+
+    return 0;
+}
+
+int main(void){
+    int i, k;
+    SeqListType SL;         //定义顺序表变量
+    DATA data, *data1;      //定义结点保存数据类型变量和指针变量
+    char key[15];           //保存关键字
+
+    SeqListInit(&amp;SL);       //初始化数据表
+
+    do{
+        printf(&quot;请输入学号 姓名 年龄: &quot;);
+        fflush(stdin);      //清空输入缓冲区
+        scanf(&quot;%s %s %d&quot;, &amp;data.key, &amp;data.name, &amp;data.age);
+        if(data.age){       //年龄不是0 退出循环
+            if(!SeqListAdd(&amp;SL, data)){//添加元素到顺序表
+                break;      //当添加失败 退出循环
+            }
+        }else{              //当年龄为0 退出循环
+            break;
+        }
+    }while(1);
+
+    printf(&quot;顺序表为： \n&quot;);
+    SeqListAll(&amp;SL);
+
+    while(1){
+        fflush(stdin);
+        printf(&quot;\n\n输入操作\n1.获取结点位置元素\t2.内容查询\t3.添加\t4.插入\t5.删除\t6.求长度\t7.遍历\t8.退出\n：&quot;);
+        scanf(&quot;%d&quot;, &amp;k);
+        if(k == 8){
+            break;
+        }
+        switch(k){
+            case 1:
+                printf(&quot;输入元素位置：&quot;);
+                scanf(&quot;%d&quot;, &amp;i);
+                data1 = SeqListFindByNum(&amp;SL, i);
+                printf(&quot;元素为：(%s %s %d) \n&quot;, data1-&gt;key, data1-&gt;name, data1-&gt;age);
+                break;
+            case 2:
+                printf(&quot;输入元素key(学号)：&quot;);
+                scanf(&quot;%s&quot;, &amp;key);
+                i = SeqListFindByCont(&amp;SL, key);
+                if(i == 0){
+                    printf(&quot;没有找到对应元素！&quot;);
+                    break;
+                }
+                data1 = SeqListFindByNum(&amp;SL, i);
+                printf(&quot;位置为： %d ,元素为：(%s %s %d) \n&quot;, i, data1-&gt;key, data1-&gt;name, data1-&gt;age);
+                break;
+            case 3:
+                printf(&quot;输入元素内容：&quot;);
+                scanf(&quot;%s %s %d&quot;, &amp;data.key, &amp;data.name, &amp;data.age);
+                SeqListAdd(&amp;SL, data);
+                break;
+            case 4:
+                printf(&quot;输入位置和元素内容：&quot;);
+                scanf(&quot;%d %s %s %d&quot;, &amp;i, &amp;data.key, &amp;data.name, &amp;data.age);
+                SeqListInsert(&amp;SL, i, data);
+                break;
+            case 5:
+                printf(&quot;输入要删除的位置：&quot;);
+                scanf(&quot;%d&quot;, &amp;i);
+                SeqListDelete(&amp;SL, i);
+                break;
+            case 6:
+                printf(&quot;-----%d------\n&quot;, SeqListLength(&amp;SL));
+                break;
+            case 7:
+                SeqListAll(&amp;SL);
+                 break;
+        }
+    }
+
+    return 0;
+}
+</code></pre><blockquote>
+<p>个人博客 欢迎来访： <a href="http://zj2626.github.io">http://zj2626.github.io</a></p>
+</blockquote>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2021/06/01/20170811_xxb/" data-id="ckpe4wbpj001p8cuj1dgjr22f" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACKUlEQVR42u3aS5LCMAwFQO5/6cyWjZMn2UxV7PaKokJCsxD6fT7xub7OqutH1+RPKR8MDIzXMq7bk19TfcoI03wuBgbGAYzRg5PX9+8kvIT08J0xMDAwbm+dB80EgIGBgTHPmAmX9+kdBgYGxj0jKWKraWLvsz+vxTEwMF7I6JWa//P6J/MNDAyMVzGu4knStWq4zK8f3gcDA2NrRh7g8gFA9Sv2VjowMDDOZOStsWrrrdp0a66jYWBgbM1ICtdqzVgdHqwai2JgYOzH6LXs80BcHTP0fkoMDIxzGNVksVfozo8qh11DDAyMrRm9ltmqcjS5w8P9MTAwDmPMh9ReJZ0E4mHiiIGBsTUjLzjzZK7X4cuL4Yd7YmBgbMeYCbW9oUK13I2SSAwMjK0Z9x/I07heWZs8PV9cw8DA2JWRl469Vv6qIUG0bIGBgXEAo5fk9QaQSXAvJKMYGBiHMfIydX5IecWnMAzAwMDYjlFdvKiG7IRULXQX7I9gYGC8kFFdnli72lUNssO/BwwMjAMYM22yXvK3eGcEAwPjMEZy6/kljF7x/LA5goGBsR3jKp58bDDTOMtHmJ/8HwADA+O1jF7Tv5rkJYsU1aBcDfQYGBhvZ/QWvKrFZw9fCLgYGBgHMOYLzqRNNv8PEM03MDAwMIp5ZXX8ObUQhoGBgREnc711sakSGgMD4wBGvjbRa43lqV7+s2JgYJzDqJaO903/agCdx2BgYGzN+AOoGmC+Vt/zUAAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/C语言/">C语言</a></div><div class="post-nav"><a class="pre" href="/2021/06/01/20170812_lb/">普通链表实例（全）</a><a class="next" href="/2021/06/01/20170810_mn/">模拟法 (实例)</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018030701/">构建逻辑回归模型实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171225_regular/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171222_crawler4/">Python 爬虫实战（4）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171219_python_error/">TypeError, a bytes-like object is required, not 'str'</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171219_crawler3/">Python 爬虫实战（3）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171219_crawler2/">Python 爬虫实战（2）</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>

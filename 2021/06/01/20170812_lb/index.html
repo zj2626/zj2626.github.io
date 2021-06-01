@@ -1,0 +1,289 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>普通链表实例（全） | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="/js/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">普通链表实例（全）</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">普通链表实例（全）</h1><div class="post-meta">Jun 1, 2021<span> | </span><span class="category"><a href="/categories/数据结构和算法/">数据结构和算法</a></span></div><div class="post-content"><blockquote>
+<p>链表的插入，删除，遍历等功能的实例</p>
+</blockquote>
+<blockquote>
+<p>工程一共包含4个文件</p>
+<ol>
+<li>Entity.h ：声明表的元素的类型。可以是基本数据类型也可以是结构体</li>
+<li>ChainList.h ：定义表结构体，声明全局的宏定义，函数的声明</li>
+<li>ChainList.c ：具体的函数实现</li>
+<li>main.c ： 测试文件</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>参考博客文章： <a href="http://www.cnblogs.com/laojie4321/archive/2012/03/30/2425015.html" target="_blank" rel="noopener">http://www.cnblogs.com/laojie4321/archive/2012/03/30/2425015.html</a><br>参考博客文章： <a href="http://blog.163.com/jiaoruijun07@126/blog/static/68943278201042064246409/" target="_blank" rel="noopener">http://blog.163.com/jiaoruijun07@126/blog/static/68943278201042064246409/</a></p>
+</blockquote>
+<a id="more"></a>
+<blockquote>
+<h4 id="Entity-h"><a href="#Entity-h" class="headerlink" title="Entity.h"></a>Entity.h</h4></blockquote>
+<pre><code>typedef struct{
+    char key[15];   //结点的关键字
+    char name[20];
+    int age;
+} DATA; //定义结点类型 可定义为简单类型或者结构体
+</code></pre><blockquote>
+<h4 id="ChainList-h"><a href="#ChainList-h" class="headerlink" title="ChainList.h"></a>ChainList.h</h4></blockquote>
+<pre><code>/*
+    头文件：数据结构的定义和操作原型
+
+*/
+#include &lt;stdio.h&gt;
+#include &quot;Entity.h&quot;
+
+typedef struct Node{
+    DATA data;          //数据域
+    struct Node *next;  //指针域，指向下一个结点的地址
+} ChainListType;
+
+ChainListType *ChainListAddEnd(ChainListType *head, DATA data);     //添加结点到链表结尾
+ChainListType *ChainListAddFirst(ChainListType *head, DATA data);   //添加结点到头部
+ChainListType *ChainListInsert(ChainListType *head, char *findKey, DATA data);//把数据插入链表（插入到某个关键字之后）
+ChainListType *ChainListFind(ChainListType *head, char *key);       //按关键字查找
+int ChainListDelete(ChainListType *head, char *key);                //删除指定关键字的结点
+int ChainListLength(ChainListType *head);                           //获取链表结点数量
+</code></pre><blockquote>
+<h4 id="ChainList-c"><a href="#ChainList-c" class="headerlink" title="ChainList.c"></a>ChainList.c</h4></blockquote>
+<pre><code>#include &lt;string.h&gt;
+#include &lt;malloc.h&gt;
+#include &quot;ChainList.h&quot;
+
+/*添加结点到链表结尾*/
+ChainListType *ChainListAddEnd(ChainListType *head, DATA data){
+    ChainListType *node, *h; //临时变量 用于保存新结点的地址和链表当前（头结点和循环时候的）结点的地址（即head）
+
+    if(! (node = (ChainListType *)malloc(sizeof(ChainListType)))){//申请赋予内存地址用来保存新结点
+        //如果失败
+        printf(&quot;申请内存失败\n&quot;);
+        return NULL;
+    }
+    //分配成功
+    node-&gt;data = data;  //设置数据域
+    node-&gt;next = NULL;  //设置指针域指向空（这是一个结点）
+
+    //把新加的结点连接到链表
+    if(head == NULL){   //如果头结点为空 表示没有实际结点
+        head = node; //头结点指向这个新结点
+
+        printf(&quot;|||||&quot;);
+        ChainListLength(head);
+        printf(&quot;|||||&quot;);
+
+        return head;
+    }else{              //头结点不为空 遍历到达当前链表的最后一个结点
+        h = head;
+        while(h-&gt;next != NULL){
+            h = h-&gt;next;
+        }
+        h-&gt;next = node;//到达最后一个结点 赋值
+
+        return head;
+    }
+}
+
+/*添加结点到头部*/
+ChainListType *ChainListAddFirst(ChainListType *head, DATA data){
+    ChainListType *node; //临时变量 用于保存新结点的地址和链表当前（头结点和循环时候的）结点的地址（即head）
+
+    if(! (node = (ChainListType *)malloc(sizeof(ChainListType)))){//申请赋予内存地址用来保存新结点
+        //如果失败
+        printf(&quot;申请内存失败\n&quot;);
+        return NULL;
+    }
+    //分配成功
+    node-&gt;data = data;  //设置数据域
+    node-&gt;next = head;  //设置指针域指向原来头指针指向的地址
+    head = node;        //头结点指向新增结点
+
+    return head;
+}
+
+/*把数据插入链表（插入到某个关键字之后）*/
+ChainListType *ChainListInsert(ChainListType *head, char *findKey, DATA data){
+    ChainListType *node, *node1; //临时变量 用于保存新结点的地址
+
+    if(! (node = (ChainListType *)malloc(sizeof(ChainListType)))){//申请赋予内存地址用来保存新结点
+        //如果失败
+        printf(&quot;申请内存失败\n&quot;);
+        return NULL;
+    }
+    //分配成功
+    node-&gt;data = data;                      //设置数据域
+    node1 = ChainListFind(head, findKey);   //查找指定关键字的结点
+    if(node1){                              //如果找到该结点
+        node-&gt;next = node1-&gt;next;           //把找到的结点的下一个结点的地址赋值给新结点
+        node1-&gt;next = node;                 //把找到的结点的指针域指向新结点
+    }else{
+        free(node);                         //释放内存
+        printf(&quot;没有找到结点&quot;);
+    }
+
+    return head;
+}
+
+/*按关键字查找*/
+ChainListType *ChainListFind(ChainListType *head, char *key){
+    ChainListType *h;
+    h = head;
+    while(h){
+        if(strcmp(h-&gt;data.key, key) == 0){ //字符串对比函数 相同则返回0
+            return h;
+        }
+        h = h-&gt;next;
+    }
+
+    return NULL;
+}
+
+/*删除指定关键字的结点*/
+int ChainListDelete(ChainListType *head, char *key){
+    ChainListType *node, *h; //h指向循环当前结点 node指向h的前一个结点
+    node = h = head;
+    while(h){
+        if(strcmp(h-&gt;data.key, key) == 0){ //字符串对比函数 相同则返回0
+            node-&gt;next = h-&gt;next;
+            free(h);        //释放 删除
+            return 1;
+        }else{
+            node = h;       //把h赋值给node
+            h = h-&gt;next;    //h指向h的下一个结点
+        }
+    }
+
+    return 0;
+}
+
+/*获取链表结点数量*/
+int ChainListLength(ChainListType *head){
+    ChainListType *h;
+    int i = 0;
+    h = head;
+
+    if(h == NULL){
+        printf(&quot;没有数据！！！&quot;);
+        return 0;
+    }
+
+    while(h){
+        h = h-&gt;next;
+        i++;
+    }
+
+    return i;
+}
+</code></pre><blockquote>
+<h4 id="main-c"><a href="#main-c" class="headerlink" title="main.c"></a>main.c</h4></blockquote>
+<pre><code>/* 测试文件：调用测试函数*/
+#include &lt;stdio.h&gt;
+#include &quot;ChainList.h&quot;
+
+/*遍历链表的数据*/
+void ChainListAll(ChainListType *head){
+    ChainListType *h;
+    h = head;
+    printf(&quot;链表所有的数据：\n&quot;);
+    while(h){   //判断当前结点的存在
+        printf(&quot;%s %s %d \t&quot;, h-&gt;data.key, h-&gt;data.name, h-&gt;data.age);
+        h = h-&gt;next;
+    }
+
+    return;
+}
+
+int main(void){
+    ChainListType *node, *head = NULL;
+    DATA data;
+    int k, i;
+    char key[15];
+
+    while(1){
+        fflush(stdin);
+        printf(&quot;\n\n输入操作\n1.插入到末尾\t2.内容查询\t3.插入到头部\t4.插入到指定结点之后\t5.删除\t6.求长度\t7.遍历\t8.退出\n：&quot;);
+        scanf(&quot;%d&quot;, &amp;k);
+        if(k == 8){
+            break;
+        }
+        switch(k){
+            case 1:
+                printf(&quot;插入到末尾：输入元素内容：&quot;);
+                scanf(&quot;%s %s %d&quot;, &amp;data.key, &amp;data.name, &amp;data.age);
+                head = ChainListAddEnd(head, data);
+                printf(&quot;插入的元素为：(%s %s %d) \n&quot;, head-&gt;data.key, head-&gt;data.name, head-&gt;data.age);
+                break;
+            case 2:
+                printf(&quot;输入元素key：&quot;);
+                scanf(&quot;%s&quot;, &amp;key);
+                node = ChainListFind(head, &amp;key);
+                printf(&quot;元素为：(%s %s %d) \n&quot;, node-&gt;data.key, node-&gt;data.name, node-&gt;data.age);
+                break;
+            case 3:
+                printf(&quot;插入到头部：输入元素内容：&quot;);
+                scanf(&quot;%s %s %d&quot;, &amp;data.key, &amp;data.name, &amp;data.age);
+                head = ChainListAddFirst(head, data);
+                printf(&quot;插入的元素为：(%s %s %d) \n&quot;, head-&gt;data.key, head-&gt;data.name, head-&gt;data.age);
+                break;
+            case 4:
+                printf(&quot;插入到指定结点之后：输入位置元素key和元素内容：&quot;);
+                scanf(&quot;%s %s %s %d&quot;, &amp;key, &amp;data.key, &amp;data.name, &amp;data.age);
+                head = ChainListInsert(head, &amp;key, data);
+                printf(&quot;插入的元素为：(%s %s %d) \n&quot;, head-&gt;data.key, head-&gt;data.name, head-&gt;data.age);
+                break;
+            case 5:
+                printf(&quot;输入要删除的元素key：&quot;);
+                scanf(&quot;%s&quot;, &amp;key);
+                i = ChainListDelete(head, &amp;key);
+                if(i == 1){
+                    printf(&quot;删除成功\n&quot;);
+                }else{
+                    printf(&quot;删除失败\n&quot;);
+                }
+                break;
+            case 6:
+                printf(&quot;-----%d------\n&quot;, ChainListLength(head));
+                break;
+            case 7:
+                ChainListAll(head);
+                 break;
+        }
+    }
+
+    return 0;
+}
+</code></pre><blockquote>
+<p>个人博客 欢迎来访： <a href="http://zj2626.com" target="_blank" rel="noopener">http://zj2626.com</a></p>
+</blockquote>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2021/06/01/20170812_lb/" data-id="ckpe4wbph001m8cuj4qmwnbvy" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACMklEQVR42u3aS27DMAwFwNz/0uk2ReDkUZRbSBqvCjdQNSjA8Pd4xM/z5Xl98/m37+8/n/l+8uQHAwNjWcbz4zP3Wvln8rthYGCcw7i61tyrJH/l6pwvd8bAwMC4uHT+VBNNDAwMjH7AzVPGpND9t+8NDAyMpRhJEVvtcVUDbvJ+Qi2OgYGxICPvuv/9z7fMNzAwMJZijBWinfd5u61wKwwMjK0ZeYDLU8bkk3nKmJfEGBgY5zCqg8kEUx05jMEwMDB2ZVQXvDoF5x1jzl8ZLgYGxqaMftO/vyqRBNxWhouBgbEF48ZVrcZ4MgnEGBgYpzHGhpc5vrpmMViRY2BgHMDIy9dOEVtt5FVDPAYGxn6MsSSsvzyRF67RAgcGBsYxjLHCtXrF5FqtKhwDA2MjRh5qqy3+TmlaTkAxMDAOYIyVsmMJXLVwvX1nBAMDY0FGf6BYPaGTaEZVLwYGxhaMPDnrt/XHVi6+5IEYGBhbM5KisVOmlpv78cLH5f8EAwPjSEZ1nFkdM1SD7OXwAAMD4xhGkqKNDQzyBYskMS1EZQwMjI0YUWOr0emqXr06r8TAwNiV0W/o52POnFpeU8PAwNiaMRZYZ7XnxlbNWl8SGBgYyzLywrVzoX6R/CXgYmBgHMAYa4HlBW3ebhssfTEwMDDidLC6YDG2EHZLwMXAwNiIkaeG1fZcXkJfFrEYGBhbM/LCMsfk5yRJ5LR2GwYGxoKMfqDMh4vVdt6sFQ0MDIxlGT9F80HPrixxhQAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/C语言/">C语言</a></div><div class="post-nav"><a class="pre" href="/2021/06/01/20170816_dl/">队列实例（全）</a><a class="next" href="/2021/06/01/20170811_xxb/">顺序表实例（全）</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/2018030701/">构建逻辑回归模型实例</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171225_regular/">正则表达式</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171222_crawler4/">Python 爬虫实战（4）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171219_python_error/">TypeError, a bytes-like object is required, not 'str'</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171219_crawler3/">Python 爬虫实战（3）</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20171219_crawler2/">Python 爬虫实战（2）</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>
