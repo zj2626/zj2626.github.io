@@ -385,6 +385,30 @@
   </entry>
   
   <entry>
+    <title>TypeError, a bytes-like object is required, not &#39;str&#39;</title>
+    <link href="http://zj2626.github.io/2021/03/11/20171219_python_error/"/>
+    <id>http://zj2626.github.io/2021/03/11/20171219_python_error/</id>
+    <published>2021-03-11T02:52:21.981Z</published>
+    <updated>2021-06-01T01:18:34.784Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>问题分析: 该问题主要是由于当前操作的字符串是bytes类型的字符串对象，并对该bytes类型的字符串对象进行按照str类型的操作。</p></blockquote><img src="/2021/03/11/20171219_python_error/20171226111345.png" title="问题 alt:问题 extend:?imageView2/2/w/600"><ul><li>解决办法，将s转码成为str类型</li></ul><img src="/2021/03/11/20171219_python_error/20171226111804.png" title="问题 alt:问题 extend:?imageView2/2/w/600"><a id="more"></a><h2 id="str和bytes类型之间的常用转码方式"><a href="#str和bytes类型之间的常用转码方式" class="headerlink" title="str和bytes类型之间的常用转码方式"></a>str和bytes类型之间的常用转码方式</h2><blockquote><p>str to bytes</p></blockquote><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="string">'ab bbb'</span></span><br><span class="line"><span class="keyword">print</span> (type(s))</span><br><span class="line"></span><br><span class="line">b = bytes(s, encoding = <span class="string">'utf-8'</span>)</span><br><span class="line"><span class="keyword">print</span> (type(b))</span><br><span class="line"></span><br><span class="line">b2 = s.encode(<span class="string">'utf-8'</span>)</span><br><span class="line"><span class="keyword">print</span> (type(b2))</span><br><span class="line"></span><br><span class="line">b3 = str.encode(s)</span><br><span class="line"><span class="keyword">print</span> (type(b3))</span><br></pre></td></tr></table></figure><img src="/2021/03/11/20171219_python_error/20171226115104.png" title="问题 alt:问题 extend:?imageView2/2/w/600"><blockquote><p>bytes to str</p></blockquote><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">b = <span class="string">b'abbbb'</span></span><br><span class="line"><span class="keyword">print</span> (type(b))</span><br><span class="line"></span><br><span class="line">s = str(b, encoding = <span class="string">'utf-8'</span>)</span><br><span class="line"><span class="keyword">print</span> (type(s))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">s2 = b.decode()</span><br><span class="line"><span class="keyword">print</span> (type(s2))</span><br><span class="line"></span><br><span class="line">s3 = b.decode(<span class="string">'utf-8'</span>)</span><br><span class="line"><span class="keyword">print</span> (type(s3))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">s4 = bytes.decode(b)</span><br><span class="line"><span class="keyword">print</span> (type(s4))</span><br></pre></td></tr></table></figure><img src="/2021/03/11/20171219_python_error/20171226115528.png" title="问题 alt:问题 extend:?imageView2/2/w/600"><blockquote><p>转载自 链接地址: <a href="http://blog.csdn.net/bible_reader/article/details/53047550" target="_blank" rel="noopener">http://blog.csdn.net/bible_reader/article/details/53047550</a></p></blockquote><blockquote><p>个人博客 欢迎来访： <a href="http://zj2626.github.io">http://zj2626.github.io</a></p></blockquote>]]></content>
+    
+    <summary type="html">
+    
+      str和bytes类型之间的常用转码方式
+    
+    </summary>
+    
+      <category term="BUG解决" scheme="http://zj2626.github.io/categories/BUG%E8%A7%A3%E5%86%B3/"/>
+    
+    
+      <category term="python" scheme="http://zj2626.github.io/tags/python/"/>
+    
+      <category term="转码" scheme="http://zj2626.github.io/tags/%E8%BD%AC%E7%A0%81/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Python 爬虫实战（3）</title>
     <link href="http://zj2626.github.io/2021/03/11/20171219_crawler3/"/>
     <id>http://zj2626.github.io/2021/03/11/20171219_crawler3/</id>
@@ -411,30 +435,6 @@
       <category term="python" scheme="http://zj2626.github.io/tags/python/"/>
     
       <category term="爬虫" scheme="http://zj2626.github.io/tags/%E7%88%AC%E8%99%AB/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>TypeError, a bytes-like object is required, not &#39;str&#39;</title>
-    <link href="http://zj2626.github.io/2021/03/11/20171219_python_error/"/>
-    <id>http://zj2626.github.io/2021/03/11/20171219_python_error/</id>
-    <published>2021-03-11T02:52:21.981Z</published>
-    <updated>2021-06-01T01:18:34.784Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote><p>问题分析: 该问题主要是由于当前操作的字符串是bytes类型的字符串对象，并对该bytes类型的字符串对象进行按照str类型的操作。</p></blockquote><img src="/2021/03/11/20171219_python_error/20171226111345.png" title="问题 alt:问题 extend:?imageView2/2/w/600"><ul><li>解决办法，将s转码成为str类型</li></ul><img src="/2021/03/11/20171219_python_error/20171226111804.png" title="问题 alt:问题 extend:?imageView2/2/w/600"><a id="more"></a><h2 id="str和bytes类型之间的常用转码方式"><a href="#str和bytes类型之间的常用转码方式" class="headerlink" title="str和bytes类型之间的常用转码方式"></a>str和bytes类型之间的常用转码方式</h2><blockquote><p>str to bytes</p></blockquote><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">s = <span class="string">'ab bbb'</span></span><br><span class="line"><span class="keyword">print</span> (type(s))</span><br><span class="line"></span><br><span class="line">b = bytes(s, encoding = <span class="string">'utf-8'</span>)</span><br><span class="line"><span class="keyword">print</span> (type(b))</span><br><span class="line"></span><br><span class="line">b2 = s.encode(<span class="string">'utf-8'</span>)</span><br><span class="line"><span class="keyword">print</span> (type(b2))</span><br><span class="line"></span><br><span class="line">b3 = str.encode(s)</span><br><span class="line"><span class="keyword">print</span> (type(b3))</span><br></pre></td></tr></table></figure><img src="/2021/03/11/20171219_python_error/20171226115104.png" title="问题 alt:问题 extend:?imageView2/2/w/600"><blockquote><p>bytes to str</p></blockquote><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">b = <span class="string">b'abbbb'</span></span><br><span class="line"><span class="keyword">print</span> (type(b))</span><br><span class="line"></span><br><span class="line">s = str(b, encoding = <span class="string">'utf-8'</span>)</span><br><span class="line"><span class="keyword">print</span> (type(s))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">s2 = b.decode()</span><br><span class="line"><span class="keyword">print</span> (type(s2))</span><br><span class="line"></span><br><span class="line">s3 = b.decode(<span class="string">'utf-8'</span>)</span><br><span class="line"><span class="keyword">print</span> (type(s3))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">s4 = bytes.decode(b)</span><br><span class="line"><span class="keyword">print</span> (type(s4))</span><br></pre></td></tr></table></figure><img src="/2021/03/11/20171219_python_error/20171226115528.png" title="问题 alt:问题 extend:?imageView2/2/w/600"><blockquote><p>转载自 链接地址: <a href="http://blog.csdn.net/bible_reader/article/details/53047550" target="_blank" rel="noopener">http://blog.csdn.net/bible_reader/article/details/53047550</a></p></blockquote><blockquote><p>个人博客 欢迎来访： <a href="http://zj2626.github.io">http://zj2626.github.io</a></p></blockquote>]]></content>
-    
-    <summary type="html">
-    
-      str和bytes类型之间的常用转码方式
-    
-    </summary>
-    
-      <category term="BUG解决" scheme="http://zj2626.github.io/categories/BUG%E8%A7%A3%E5%86%B3/"/>
-    
-    
-      <category term="python" scheme="http://zj2626.github.io/tags/python/"/>
-    
-      <category term="转码" scheme="http://zj2626.github.io/tags/%E8%BD%AC%E7%A0%81/"/>
     
   </entry>
   
