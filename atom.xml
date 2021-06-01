@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://zj2626.github.io/"/>
-  <updated>2021-06-01T01:18:34.852Z</updated>
+  <updated>2021-06-01T13:59:18.176Z</updated>
   <id>http://zj2626.github.io/</id>
   
   <author>
@@ -21,14 +21,17 @@
     <link href="http://zj2626.github.io/2021/06/01/20210601001_OutOfMemoryError/"/>
     <id>http://zj2626.github.io/2021/06/01/20210601001_OutOfMemoryError/</id>
     <published>2021-06-01T01:18:34.851Z</published>
-    <updated>2021-06-01T01:18:34.852Z</updated>
+    <updated>2021-06-01T13:59:18.176Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="1-溢出"><a href="#1-溢出" class="headerlink" title="1. 溢出"></a>1. 溢出</h2><p>虚拟机规范中, 除了程序计数器, 其他部分都可能发生OOM异常</p><h2 id="2-溢出种类"><a href="#2-溢出种类" class="headerlink" title="2.溢出种类"></a>2.溢出种类</h2><h3 id="1-Java堆溢出"><a href="#1-Java堆溢出" class="headerlink" title="1.Java堆溢出"></a>1.Java堆溢出</h3><h3 id="2-虚拟机栈和本地方法栈溢出"><a href="#2-虚拟机栈和本地方法栈溢出" class="headerlink" title="2.虚拟机栈和本地方法栈溢出"></a>2.虚拟机栈和本地方法栈溢出</h3><h3 id="3-方法去和运行时常量池溢出"><a href="#3-方法去和运行时常量池溢出" class="headerlink" title="3.方法去和运行时常量池溢出"></a>3.方法去和运行时常量池溢出</h3><h3 id="4-本机直接内存溢出"><a href="#4-本机直接内存溢出" class="headerlink" title="4.本机直接内存溢出"></a>4.本机直接内存溢出</h3><a id="more"></a>]]></content>
+    <content type="html"><![CDATA[<h2 id="1-溢出"><a href="#1-溢出" class="headerlink" title="1. 溢出"></a>1. 溢出</h2><p>虚拟机规范中, 除了程序计数器, 其他部分都可能发生OOM异常</p><h2 id="2-溢出种类"><a href="#2-溢出种类" class="headerlink" title="2.溢出种类"></a>2.溢出种类</h2><blockquote><p>java堆存储对象实例, 只需不断创建对象且GC Roots到对象可达避免垃圾回收, 达到最大堆限制即溢出</p></blockquote><h3 id="1-Java堆溢出"><a href="#1-Java堆溢出" class="headerlink" title="1.Java堆溢出"></a>1.Java堆溢出</h3><h3 id="2-虚拟机栈和本地方法栈溢出"><a href="#2-虚拟机栈和本地方法栈溢出" class="headerlink" title="2.虚拟机栈和本地方法栈溢出"></a>2.虚拟机栈和本地方法栈溢出</h3><h3 id="3-方法去和运行时常量池溢出"><a href="#3-方法去和运行时常量池溢出" class="headerlink" title="3.方法去和运行时常量池溢出"></a>3.方法去和运行时常量池溢出</h3><h3 id="4-本机直接内存溢出"><a href="#4-本机直接内存溢出" class="headerlink" title="4.本机直接内存溢出"></a>4.本机直接内存溢出</h3><a id="more"></a>]]></content>
     
     <summary type="html">
     
       &lt;h2 id=&quot;1-溢出&quot;&gt;&lt;a href=&quot;#1-溢出&quot; class=&quot;headerlink&quot; title=&quot;1. 溢出&quot;&gt;&lt;/a&gt;1. 溢出&lt;/h2&gt;&lt;p&gt;虚拟机规范中, 除了程序计数器, 其他部分都可能发生OOM异常&lt;/p&gt;
-&lt;h2 id=&quot;2-溢出种类&quot;&gt;&lt;a href=&quot;#2-溢出种类&quot; class=&quot;headerlink&quot; title=&quot;2.溢出种类&quot;&gt;&lt;/a&gt;2.溢出种类&lt;/h2&gt;&lt;h3 id=&quot;1-Java堆溢出&quot;&gt;&lt;a href=&quot;#1-Java堆溢出&quot; class=&quot;headerlink&quot; title=&quot;1.Java堆溢出&quot;&gt;&lt;/a&gt;1.Java堆溢出&lt;/h3&gt;&lt;h3 id=&quot;2-虚拟机栈和本地方法栈溢出&quot;&gt;&lt;a href=&quot;#2-虚拟机栈和本地方法栈溢出&quot; class=&quot;headerlink&quot; title=&quot;2.虚拟机栈和本地方法栈溢出&quot;&gt;&lt;/a&gt;2.虚拟机栈和本地方法栈溢出&lt;/h3&gt;&lt;h3 id=&quot;3-方法去和运行时常量池溢出&quot;&gt;&lt;a href=&quot;#3-方法去和运行时常量池溢出&quot; class=&quot;headerlink&quot; title=&quot;3.方法去和运行时常量池溢出&quot;&gt;&lt;/a&gt;3.方法去和运行时常量池溢出&lt;/h3&gt;&lt;h3 id=&quot;4-本机直接内存溢出&quot;&gt;&lt;a href=&quot;#4-本机直接内存溢出&quot; class=&quot;headerlink&quot; title=&quot;4.本机直接内存溢出&quot;&gt;&lt;/a&gt;4.本机直接内存溢出&lt;/h3&gt;
+&lt;h2 id=&quot;2-溢出种类&quot;&gt;&lt;a href=&quot;#2-溢出种类&quot; class=&quot;headerlink&quot; title=&quot;2.溢出种类&quot;&gt;&lt;/a&gt;2.溢出种类&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;java堆存储对象实例, 只需不断创建对象且GC Roots到对象可达避免垃圾回收, 达到最大堆限制即溢出&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&quot;1-Java堆溢出&quot;&gt;&lt;a href=&quot;#1-Java堆溢出&quot; class=&quot;headerlink&quot; title=&quot;1.Java堆溢出&quot;&gt;&lt;/a&gt;1.Java堆溢出&lt;/h3&gt;&lt;h3 id=&quot;2-虚拟机栈和本地方法栈溢出&quot;&gt;&lt;a href=&quot;#2-虚拟机栈和本地方法栈溢出&quot; class=&quot;headerlink&quot; title=&quot;2.虚拟机栈和本地方法栈溢出&quot;&gt;&lt;/a&gt;2.虚拟机栈和本地方法栈溢出&lt;/h3&gt;&lt;h3 id=&quot;3-方法去和运行时常量池溢出&quot;&gt;&lt;a href=&quot;#3-方法去和运行时常量池溢出&quot; class=&quot;headerlink&quot; title=&quot;3.方法去和运行时常量池溢出&quot;&gt;&lt;/a&gt;3.方法去和运行时常量池溢出&lt;/h3&gt;&lt;h3 id=&quot;4-本机直接内存溢出&quot;&gt;&lt;a href=&quot;#4-本机直接内存溢出&quot; class=&quot;headerlink&quot; title=&quot;4.本机直接内存溢出&quot;&gt;&lt;/a&gt;4.本机直接内存溢出&lt;/h3&gt;
     
     </summary>
     
