@@ -1,0 +1,777 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>Shiro的学习Helloworld | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="http://p18j2ow6f.bkt.clouddn.com/static/css/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Shiro的学习Helloworld</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Shiro的学习Helloworld</h1><div class="post-meta">Mar 11, 2021<span> | </span><span class="category"><a href="/categories/框架相关/">框架相关</a><a href="/categories/框架相关/权限管理/">权限管理</a></span></div><div class="post-content"><h2 id="Apache-Shiro是Java的一个安全框架"><a href="#Apache-Shiro是Java的一个安全框架" class="headerlink" title="Apache Shiro是Java的一个安全框架"></a>Apache Shiro是Java的一个安全框架</h2><h3 id="Shiro可以帮助我们完成：认证、授权、加密、会话管理、与Web集成、缓存等"><a href="#Shiro可以帮助我们完成：认证、授权、加密、会话管理、与Web集成、缓存等" class="headerlink" title="Shiro可以帮助我们完成：认证、授权、加密、会话管理、与Web集成、缓存等"></a>Shiro可以帮助我们完成：认证、授权、加密、会话管理、与Web集成、缓存等</h3>
+<h2 id="Shiro基本功能"><a href="#Shiro基本功能" class="headerlink" title="Shiro基本功能"></a>Shiro基本功能</h2><blockquote>
+<p>Authentication：身份认证/登录，验证用户是不是拥有相应的身份；</p>
+</blockquote>
+<blockquote>
+<p>Authorization：授权，即权限验证，验证某个已认证的用户是否拥有某个权限；即判断用户是否能做事情，常见的如：验证某个用户是否拥有某个角色。或者细粒度的验证某个用户对某个资源是否具有某个权限；</p>
+</blockquote>
+<blockquote>
+<p>Session Manager：会话管理，即用户登录后就是一次会话，在没有退出之前，它的所有信息都在会话中；会话可以是普通JavaSE环境的，也可以是如Web环境的；</p>
+</blockquote>
+<blockquote>
+<p>Cryptography：加密，保护数据的安全性，如密码加密存储到数据库，而不是明文存储；</p>
+</blockquote>
+<blockquote>
+<p>Web Support：Web支持，可以非常容易的集成到Web环境；</p>
+</blockquote>
+<blockquote>
+<p>Caching：缓存，比如用户登录后，其用户信息、拥有的角色/权限不必每次去查，这样可以提高效率；</p>
+</blockquote>
+<blockquote>
+<p>Concurrency：shiro支持多线程应用的并发验证，即如在一个线程中开启另一个线程，能把权限自动传播过去；</p>
+</blockquote>
+<blockquote>
+<p>Testing：提供测试支持；</p>
+</blockquote>
+<blockquote>
+<p>Run As：允许一个用户假装为另一个用户（如果他们允许）的身份进行访问；</p>
+</blockquote>
+<blockquote>
+<p>Remember Me：记住我，这个是非常常见的功能，即一次登录后，下次再来的话不用登录了。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="1-身份认证"><a href="#1-身份认证" class="headerlink" title="1.身份认证"></a>1.身份认证</h2><pre><code>配置文件：
+    ********************************
+    [users]
+    zj2626=123456
+    ay2626=456789
+    ********************************
+
+
+package com.em;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.config.IniSecurityManagerFactory;
+import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.util.Factory;
+
+public class Hello {
+
+    public static void main(String args[]) {
+        //初始化SecurityManager工厂      读取配置文件中的用户名密码
+        Factory&lt;SecurityManager&gt; factory = new IniSecurityManagerFactory(&quot;classpath:shiro.ini&quot;);
+        //获取SecurityManager实例
+        SecurityManager manager = factory.getInstance();
+        //把SecurityManager实例绑定到SecurityUtils
+        SecurityUtils.setSecurityManager(manager);
+        //得到当前执行的用户
+        Subject subject = SecurityUtils.getSubject();
+        //创建token令牌, 用户/密码
+        UsernamePasswordToken token = new UsernamePasswordToken(&quot;zj2626&quot;, &quot;123456&quot;);
+
+        try {
+            //身份认证 登录
+            subject.login(token);
+
+            System.out.println(&quot;登录成功&quot;);
+        } catch (Exception e) {
+            System.out.println(&quot;登录失败&quot;);
+            e.printStackTrace();
+        }
+
+        subject.logout();
+    }
+
+    /*
+        Subject: 认证主体
+        Principals:  身份: 用户名
+        Credentials: 凭证: 密码
+
+        Realm: 域
+            1.jdbc realm | 2.jndi realm | 3.text realm
+
+     */
+}
+</code></pre><p>从数据库中读取用户名密码 实现登录</p>
+<p>1.配置文件: jdbc_realm.ini （代码只需把读取的文件改成此文件即可测试使用）</p>
+<pre><code>[main]
+jdbcRealm=org.apache.shiro.realm.jdbc.JdbcRealm
+dataSource=com.mchange.v2.c3p0.ComboPooledDataSource
+dataSource.driverClass=com.mysql.jdbc.Driver
+dataSource.jdbcUrl=jdbc:mysql://127.0.0.1:3306/test
+dataSource.user=root
+dataSource.password=123456
+jdbcRealm.dataSource=$dataSource
+securityManager.realms=$jdbcRealm
+</code></pre><hr>
+<hr>
+<h2 id="2-权限认证"><a href="#2-权限认证" class="headerlink" title="2.权限认证"></a>2.权限认证</h2><h3 id="核心要素：（资源，）权限，角色，用户"><a href="#核心要素：（资源，）权限，角色，用户" class="headerlink" title="核心要素：（资源，）权限，角色，用户"></a>核心要素：（资源，）权限，角色，用户</h3><p><strong>用户–（分配）–&gt;角色–（拥有）–&gt;权限–（控制）—-&gt;资源</strong></p>
+<ul>
+<li>用户代表访问系统的用户，即subject。</li>
+</ul>
+<blockquote>
+<p><strong>三种授权方式</strong></p>
+</blockquote>
+<pre><code>1. 编程式授权
+    1.1. 基于角色的访问控制
+    1.2. 基于权限的访问控制
+2. 注解式授权
+3.JSP标签授权
+</code></pre><hr>
+<p>####步骤1: 封装一个工具类</p>
+<pre><code>public class ShiroUtils {
+    public static Subject login(String conf, String username, String passowrd) {
+        //初始化SecurityManager工厂 conf是配置文件名称
+        Factory&lt;SecurityManager&gt; factory = new IniSecurityManagerFactory(&quot;classpath:&quot; + conf + &quot;.ini&quot;);
+        //获取SecurityManager实例
+        SecurityManager manager = factory.getInstance();
+        //把SecurityManager实例绑定到SecurityUtils
+        SecurityUtils.setSecurityManager(manager);
+        //得到当前执行的用户
+        Subject subject = SecurityUtils.getSubject();
+        //创建token令牌, 用户/密码
+        UsernamePasswordToken token = new UsernamePasswordToken(username, passowrd);
+
+        try {
+            //身份认证 登录
+            subject.login(token);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return subject;
+    }
+}
+</code></pre><p>####步骤2: 测试多种访问控制</p>
+<pre><code>/*
+    基于角色的访问控制方式1
+
+    配置文件：shiro_role.ini
+    ******************************
+    [users]
+    zj2626=123456,role1,role2
+    py2626=123456,role1
+    ay2626=456789,role3
+    ******************************
+     */
+    @Test
+    public void testHas() {
+        Subject sub = ShiroUtils.login(&quot;shiro_config/shiro_role&quot;, &quot;zj2626&quot;, &quot;123456&quot;);
+
+        //判断有没有权限 返回布尔 表示验证的成功与否
+        boolean bool = sub.hasRole(&quot;role1&quot;);
+        if (bool) {
+            System.out.println(&quot;HAS&quot;);
+        }
+
+        //判断有没有权限,一次多个分别判断 返回布尔数组
+        boolean[] booleans = sub.hasRoles(Arrays.asList(&quot;role1&quot;, &quot;role2&quot;, &quot;role3&quot;));
+        int i = 0;
+        while (booleans[i]) {
+            i++;
+
+            if (booleans.length &lt;= i) {
+                break;
+            }
+        }
+
+        //所有的角色都有才返回true
+        System.out.println(sub.hasAllRoles(Arrays.asList(&quot;role1&quot;, &quot;role2&quot;, &quot;role3&quot;)));
+
+        //判断有没有权限 没有则抛异常
+        sub.checkRole(&quot;role1&quot;);
+        sub.checkRole(&quot;role3&quot;);
+
+        //判断多个权限 有一个没有就抛异常 (2种参数形式)
+        sub.checkRoles(Arrays.asList(&quot;role1&quot;, &quot;role2&quot;, &quot;role3&quot;));
+        sub.checkRoles(&quot;role1&quot;, &quot;role2&quot;, &quot;role3&quot;);
+
+        //退出登陆
+        sub.logout();
+    }
+
+    /*
+    基于权限的访问控制方式(过程同上)
+
+    配置文件：shiro_permision.ini
+    ******************************
+    [users]
+    zj2626=123456,role1,role2
+    py2626=123456,role1
+    ay2626=456789,role3
+    [roles]
+    role1=user:select
+    role2=user:add,user:update,user:delete
+    ******************************
+     */
+    @Test
+    public void testPermition() {
+        Subject sub = ShiroUtils.login(&quot;shiro_config/shiro_permision&quot;, &quot;py2626&quot;, &quot;123456&quot;);
+
+        System.out.println(&quot;用户是否有权限 user:select:&quot; + sub.isPermitted(&quot;user:select&quot;));    //true
+        System.out.println(&quot;用户是否有权限 user:update:&quot; + sub.isPermitted(&quot;user:update&quot;));    //false
+
+        boolean[] booleans = sub.isPermitted(&quot;user:add&quot;, &quot;user:select&quot;);
+        System.out.println(booleans[0] + &quot;____&quot; + booleans[1]);
+
+        System.out.println(sub.isPermittedAll(&quot;user:add&quot;, &quot;user:select&quot;));
+
+        //没有会抛出异常
+        sub.checkPermission(&quot;user:select&quot;);
+        sub.checkPermissions(&quot;user:select&quot;, &quot;user:update&quot;);
+
+        sub.logout();
+    }
+</code></pre><hr>
+<hr>
+<h2 id="3-集成web进行测试"><a href="#3-集成web进行测试" class="headerlink" title="3.集成web进行测试"></a>3.集成web进行测试</h2><h4 id="1-新建一个maven的web项目"><a href="#1-新建一个maven的web项目" class="headerlink" title="1.新建一个maven的web项目"></a>1.新建一个maven的web项目</h4>
+<blockquote>
+<p>web.xml 配置shiro的必须的配置: 监听器,过滤器</p>
+</blockquote>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;web-app xmlns=&quot;http://xmlns.jcp.org/xml/ns/javaee&quot;
+         xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd&quot;
+         version=&quot;3.1&quot;&gt;
+    &lt;display-name&gt;Archetype Created Web Application&lt;/display-name&gt;
+
+    &lt;!--三个servlet配置   /login跳转到登陆页面  /home跳转到主页,即登陆成功页面 /admin用来测试角色和权限--&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;loginServlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;com.servlet.LoginServlet&lt;/servlet-class&gt;
+    &lt;/servlet&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;loginServlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/login&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;homeServlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;com.servlet.HomeServlet&lt;/servlet-class&gt;
+    &lt;/servlet&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;homeServlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/home&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+    &lt;servlet&gt;
+        &lt;servlet-name&gt;adminServlet&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;com.servlet.AdminServlet&lt;/servlet-class&gt;
+    &lt;/servlet&gt;
+    &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;adminServlet&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/admin&lt;/url-pattern&gt;
+    &lt;/servlet-mapping&gt;
+
+    &lt;!--shiro监听--&gt;
+    &lt;listener&gt;
+        &lt;listener-class&gt;org.apache.shiro.web.env.EnvironmentLoaderListener&lt;/listener-class&gt;
+    &lt;/listener&gt;
+
+    &lt;!--shiro过滤器 这里过滤所有的地址 并且指定权限配置文件(一般项目中权限的配置存放在数据库中)--&gt;
+    &lt;filter&gt;
+        &lt;filter-name&gt;ShiroFilter&lt;/filter-name&gt;
+        &lt;filter-class&gt;org.apache.shiro.web.servlet.ShiroFilter&lt;/filter-class&gt;
+        &lt;init-param&gt;
+            &lt;param-name&gt;config&lt;/param-name&gt;
+            &lt;param-value&gt;classpath:shiro.ini&lt;/param-value&gt;
+        &lt;/init-param&gt;
+    &lt;/filter&gt;
+    &lt;filter-mapping&gt;
+        &lt;filter-name&gt;ShiroFilter&lt;/filter-name&gt;
+        &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+    &lt;/filter-mapping&gt;
+
+&lt;/web-app&gt;
+</code></pre><blockquote>
+<p>pom.xml :所需依赖</p>
+</blockquote>
+<pre><code>&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.shiro&lt;/groupId&gt;
+        &lt;artifactId&gt;shiro-web&lt;/artifactId&gt;
+        &lt;version&gt;1.3.2&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.shiro&lt;/groupId&gt;
+        &lt;artifactId&gt;shiro-core&lt;/artifactId&gt;
+        &lt;version&gt;1.3.2&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.shiro&lt;/groupId&gt;
+        &lt;artifactId&gt;shiro-spring&lt;/artifactId&gt;
+        &lt;version&gt;1.3.2&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.apache.tomcat&lt;/groupId&gt;
+        &lt;artifactId&gt;tomcat-servlet-api&lt;/artifactId&gt;
+        &lt;version&gt;8.5.4&lt;/version&gt;
+        &lt;scope&gt;provided&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+        &lt;artifactId&gt;slf4j-log4j12&lt;/artifactId&gt;
+        &lt;version&gt;1.7.7&lt;/version&gt;
+        &lt;scope&gt;compile&lt;/scope&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;commons-logging&lt;/groupId&gt;
+        &lt;artifactId&gt;commons-logging&lt;/artifactId&gt;
+        &lt;version&gt;1.2&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;commons-beanutils&lt;/groupId&gt;
+        &lt;artifactId&gt;commons-beanutils&lt;/artifactId&gt;
+        &lt;version&gt;1.9.3&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;commons-collections&lt;/groupId&gt;
+        &lt;artifactId&gt;commons-collections&lt;/artifactId&gt;
+        &lt;version&gt;3.2.1&lt;/version&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;jstl&lt;/groupId&gt;
+        &lt;artifactId&gt;jstl&lt;/artifactId&gt;
+        &lt;version&gt;1.2&lt;/version&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;
+</code></pre><blockquote>
+<p>shiro.ini: 权限配置文件,配置什么用户有什么角色,什么角色有什么权限</p>
+</blockquote>
+<pre><code>[main]
+authc.loginUrl=/login
+perms.unauthorizedUrl=/noAuth.jsp
+roles.unauthorizedUrl=/noAuth.jsp
+[users]
+zj2626=123456,admin
+ay2626=456789,student
+[roles]
+admin=user:*,student:select
+student:student:*
+[urls]
+/login=anon
+/home=authc
+/admin=roles[admin]
+</code></pre><h5 id="1-authc-loginUrl配置身份认证不通过-未登录时-跳转的地址…-loginUrl是authc的一个属性"><a href="#1-authc-loginUrl配置身份认证不通过-未登录时-跳转的地址…-loginUrl是authc的一个属性" class="headerlink" title="1.authc.loginUrl配置身份认证不通过(未登录时)跳转的地址…(loginUrl是authc的一个属性)"></a><em>1.authc.loginUrl配置身份认证不通过(未登录时)跳转的地址…(loginUrl是authc的一个属性)</em></h5><h5 id="2-roles-unauthorizeUrl配置角色认证不通过跳转的地址…-noAuth-jsp页面目前只有一行字"><a href="#2-roles-unauthorizeUrl配置角色认证不通过跳转的地址…-noAuth-jsp页面目前只有一行字" class="headerlink" title="2.roles.unauthorizeUrl配置角色认证不通过跳转的地址…(noAuth.jsp页面目前只有一行字)"></a><em>2.roles.unauthorizeUrl配置角色认证不通过跳转的地址…(noAuth.jsp页面目前只有一行字)</em></h5><h5 id="3-perms-unauthorizeUrl配置权限认证不通过跳转的地址"><a href="#3-perms-unauthorizeUrl配置权限认证不通过跳转的地址" class="headerlink" title="3.perms.unauthorizeUrl配置权限认证不通过跳转的地址"></a><em>3.perms.unauthorizeUrl配置权限认证不通过跳转的地址</em></h5><h5 id="4-users-下配置用户身份信息以及用户角色"><a href="#4-users-下配置用户身份信息以及用户角色" class="headerlink" title="4.[users]下配置用户身份信息以及用户角色"></a><em>4.[users]下配置用户身份信息以及用户角色</em></h5><h5 id="5-roles-下配置角色以及角色的控制权限"><a href="#5-roles-下配置角色以及角色的控制权限" class="headerlink" title="5.[roles]下配置角色以及角色的控制权限"></a><em>5.[roles]下配置角色以及角色的控制权限</em></h5><h5 id="6-urls-下配置访问地址所需的权限-其中值为”anon过滤器”表示地址不需要登录即可访问-“authc过滤器”表示地址登录才能访问"><a href="#6-urls-下配置访问地址所需的权限-其中值为”anon过滤器”表示地址不需要登录即可访问-“authc过滤器”表示地址登录才能访问" class="headerlink" title="6.[urls]下配置访问地址所需的权限, 其中值为”anon过滤器”表示地址不需要登录即可访问; “authc过滤器”表示地址登录才能访问"></a><em>6.[urls]下配置访问地址所需的权限, 其中值为”anon过滤器”表示地址不需要登录即可访问; “authc过滤器”表示地址登录才能访问</em></h5><h5 id="7-值为-roles-admin-表示-必须有角色为admin的用户才能范围"><a href="#7-值为-roles-admin-表示-必须有角色为admin的用户才能范围" class="headerlink" title="7.值为 roles[admin] 表示 必须有角色为admin的用户才能范围"></a><em>7.值为 roles[admin] 表示 必须有角色为admin的用户才能范围</em></h5><h5 id="8-值为-perms-“student-create”-表示-必须有权限为”student-create”的用户才能范围"><a href="#8-值为-perms-“student-create”-表示-必须有权限为”student-create”的用户才能范围" class="headerlink" title="8.值为 perms[“student:create”] 表示 必须有权限为”student:create”的用户才能范围"></a><em>8.值为 perms[“student:create”] 表示 必须有权限为”student:create”的用户才能范围</em></h5><h5 id="9-多个过滤器用”-”隔开-而且相互为”且”的关系-必须同时满足才能访问"><a href="#9-多个过滤器用”-”隔开-而且相互为”且”的关系-必须同时满足才能访问" class="headerlink" title="9.多个过滤器用”,”隔开 而且相互为”且”的关系(必须同时满足才能访问)"></a><em>9.多个过滤器用”,”隔开 而且相互为”且”的关系(必须同时满足才能访问)</em></h5><h5 id="10-地址可以使用-表示匹配单个任意字符-eg-home-authc-表示可过滤-home1-homef…"><a href="#10-地址可以使用-表示匹配单个任意字符-eg-home-authc-表示可过滤-home1-homef…" class="headerlink" title="10.地址可以使用?表示匹配单个任意字符(eg: /home?=authc 表示可过滤 /home1; /homef…..)"></a><em>10.地址可以使用?表示匹配单个任意字符(eg: /home?=authc 表示可过滤 /home1; /homef…..)</em></h5><h5 id="11-地址可以使用表示匹配任意个任意字符-eg-home-authc-表示可过滤-home123-homeef…"><a href="#11-地址可以使用表示匹配任意个任意字符-eg-home-authc-表示可过滤-home123-homeef…" class="headerlink" title="11.地址可以使用表示匹配任意个任意字符(eg: /home=authc 表示可过滤 /home123; /homeef…..)"></a><em>11.地址可以使用</em>表示匹配任意个任意字符(eg: /home<em>=authc 表示可过滤 /home123; /homeef…..)</em></h5><h5 id="12-地址可以使用表示匹配多路径-eg-home-authc-表示可过滤-home-abc-home-aaa-bbb…"><a href="#12-地址可以使用表示匹配多路径-eg-home-authc-表示可过滤-home-abc-home-aaa-bbb…" class="headerlink" title="12.地址可以使用表示匹配多路径(eg: /home/=authc 表示可过滤 /home/abc; /home/aaa/bbb…..)"></a><em>12.地址可以使用<strong>表示匹配多路径(eg: /home/</strong>=authc 表示可过滤 /home/abc; /home/aaa/bbb…..)</em></h5><h4 id="2-编写sevlet代码"><a href="#2-编写sevlet代码" class="headerlink" title="2.编写sevlet代码"></a>2.编写sevlet代码</h4><blockquote>
+<p>LoginServlet.java :身份验证地址</p>
+</blockquote>
+<pre><code>package com.servlet;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * Created by zj on 2017/4/10.
+ */
+public class LoginServlet extends HttpServlet {
+    /**
+     * 跳转登录界面
+     *
+     * @param req
+     * @param resp
+     * @throws ServletException
+     * @throws IOException
+     */
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println(&quot;user no login&quot;);
+        resp.sendRedirect(&quot;login.jsp&quot;);
+    }
+
+    /**
+     * 进行登录
+     *
+     * @param req
+     * @param resp
+     * @throws ServletException
+     * @throws IOException
+     */
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println(&quot;登录&quot;);
+        String userName = req.getParameter(&quot;userName&quot;);
+        String password = req.getParameter(&quot;password&quot;);
+
+        Subject subject = SecurityUtils.getSubject();
+        //创建token令牌, 用户/密码
+        UsernamePasswordToken token = new UsernamePasswordToken(userName, password);
+        try {
+            //身份认证 登录
+            subject.login(token);
+            System.out.println(&quot;登录成功&quot;);
+            resp.sendRedirect(&quot;success.jsp&quot;);
+        } catch (Exception e) {
+            System.out.println(&quot;账号密码不对&quot;);
+            e.printStackTrace();
+            resp.sendRedirect(&quot;login.jsp&quot;);
+        }
+    }
+}
+
+
+//******************************************************************
+login.jsp
+
+&lt;%@ page language=&quot;java&quot; pageEncoding=&quot;UTF-8&quot; %&gt;
+&lt;%@ taglib uri=&quot;http://java.sun.com/jsp/jstl/core&quot; prefix=&quot;c&quot; %&gt;
+&lt;!DOCTYPE HTML&gt;
+&lt;html&gt;
+&lt;body&gt;
+&lt;h2&gt;Hello World&lt;/h2&gt;
+登录:
+&lt;form action=&quot;/login&quot; method=&quot;post&quot;&gt;
+    &lt;input type=&quot;text&quot; value=&quot;&quot; name=&quot;userName&quot;&gt;
+    &lt;input type=&quot;password&quot; value=&quot;&quot; name=&quot;password&quot;&gt;
+    &lt;input type=&quot;submit&quot; value=&quot;登录&quot;&gt;
+&lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><blockquote>
+<p>HomeServlet.java :登录成功以及退出登录地址</p>
+</blockquote>
+<pre><code>package com.servlet;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * Created by zj on 2017/4/10.
+ */
+public class HomeServlet extends HttpServlet {
+    /**
+     * 进入主页(登陆成功界面)
+     *
+     * @param req
+     * @param resp
+     * @throws ServletException
+     * @throws IOException
+     */
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println(&quot;主页 get&quot;);
+
+        req.getRequestDispatcher(&quot;success.jsp&quot;).forward(req, resp);
+
+    }
+
+    /**
+     * 用来退出登陆
+     *
+     * @param req
+     * @param resp
+     * @throws ServletException
+     * @throws IOException
+     */
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println(&quot;主页 post&quot;);
+
+        System.out.println(&quot;login out&quot;);
+
+        //退出登录
+        Subject subject = SecurityUtils.getSubject();
+        subject.logout();
+
+        resp.sendRedirect(&quot;login.jsp&quot;);
+    }
+}
+
+//******************************************************************
+success.jsp
+
+&lt;%@ page contentType=&quot;text/html;charset=UTF-8&quot; language=&quot;java&quot; %&gt;
+&lt;html&gt;
+&lt;body&gt;
+&lt;h2&gt;Hello World!&lt;/h2&gt; 成功!!!
+&lt;form action=&quot;/home&quot; method=&quot;post&quot;&gt;
+    &lt;input type=&quot;submit&quot; value=&quot;退出登陆&quot;&gt;
+&lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre><blockquote>
+<p>AdminServlet.java</p>
+</blockquote>
+<pre><code>package com.servlet;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * Created by zj on 2017/4/10.
+ */
+public class AdminServlet extends HttpServlet {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        System.out.println(&quot;ADMIN GET&quot;);
+    }
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        System.out.println(&quot;ADMIN POST&quot;);
+    }
+}
+</code></pre><h4 id="3-启动项目"><a href="#3-启动项目" class="headerlink" title="3.启动项目"></a>3.启动项目</h4><h5 id="测试身份认证"><a href="#测试身份认证" class="headerlink" title="测试身份认证"></a>测试身份认证</h5><blockquote>
+<p>不登录情况下输入地址 <a href="http://localhost:8080/home" target="_blank" rel="noopener">http://localhost:8080/home</a> 跳转到 /login地址转向的jsp页面</p>
+</blockquote>
+
+<blockquote>
+<p>输入正确的用户名(ay2626)密码 点击登录 成功; 再次输入地址 <a href="http://localhost:8080/home" target="_blank" rel="noopener">http://localhost:8080/home</a> 跳转到成功的jsp</p>
+</blockquote>
+
+<blockquote>
+<p>点击退出登录 成功; 再次输入地址 <a href="http://localhost:8080/home" target="_blank" rel="noopener">http://localhost:8080/home</a> 跳转到 /login地址转向的jsp页面</p>
+</blockquote>
+<h5 id="测试角色认证"><a href="#测试角色认证" class="headerlink" title="测试角色认证"></a>测试角色认证</h5><blockquote>
+<p>登录 :进行其他认证前先进行身份认证 使用ay2626用户登录(其角色只有student) 登录成功 跳转到success.jsp</p>
+</blockquote>
+<blockquote>
+<p>输入地址<a href="http://localhost:8080/admin" target="_blank" rel="noopener">http://localhost:8080/admin</a> 跳转到 <a href="http://localhost:8080/noAuth.jsp" target="_blank" rel="noopener">http://localhost:8080/noAuth.jsp</a> 表示没有权限访问此地址</p>
+</blockquote>
+<blockquote>
+<p>退出登录 用zj2626再次登录测试 登录成功 再次输入<a href="http://localhost:8080/admin" target="_blank" rel="noopener">http://localhost:8080/admin</a> 控制台打印”ADMIN POST” 表示访问成功</p>
+</blockquote>
+
+<h5 id="测试权限认证"><a href="#测试权限认证" class="headerlink" title="测试权限认证"></a>测试权限认证</h5><blockquote>
+<p>可把配置文件中 /admin的过滤器改为 /admin=perms[“student:create”] 进行测试</p>
+</blockquote>
+<blockquote>
+<p>测试发现 有权限的ay2626用户可以访问而没有权限的zj2626不能访问</p>
+</blockquote>
+<hr>
+<hr>
+<h4 id="自定义Realm"><a href="#自定义Realm" class="headerlink" title="自定义Realm"></a>自定义Realm</h4><blockquote>
+<p>实际开发中用户权限的配置要存放在数据库,so需要使用自定义realm来读取数据库中权限配置然后为用户赋予权限</p>
+</blockquote>
+<h5 id="测试开发步骤"><a href="#测试开发步骤" class="headerlink" title="测试开发步骤"></a>测试开发步骤</h5><blockquote>
+<p>1.添加数据库依赖</p>
+</blockquote>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;mysql&lt;/groupId&gt;
+    &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+    &lt;version&gt;5.1.39&lt;/version&gt;
+    &lt;scope&gt;compile&lt;/scope&gt;
+&lt;/dependency&gt;
+</code></pre><blockquote>
+<p>2.设计构建测试的数据库表:有三个表:分别存储用户,角色,权限 并其他两个都与角色关联, 然后存入部分数据 ,再根据三个表建立对应实体(简单实体)</p>
+</blockquote>
+
+<blockquote>
+<p>3.添加数据库操作类(写的并不完善 仅测试使用)</p>
+</blockquote>
+<pre><code>package com.servlet;
+
+import java.sql.*;
+
+/**
+ * Created by zj on 2017/4/11.
+ */
+public class DBUtil {
+
+    //获取数据库连接
+    private static Connection getConnection() {
+        try {
+            Class.forName(&quot;com.mysql.jdbc.Driver&quot;);
+
+            Connection connection = DriverManager.getConnection(&quot;jdbc:mysql://127.0.0.1:3306/test&quot;, &quot;root&quot;, &quot;fangshuoit&quot;);
+
+            return connection;
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 通过用户名获取用户信息
+     *
+     * @param name
+     * @return
+     * @throws SQLException
+     */
+    public static User getByUserName(String name) throws SQLException {
+        String sql = &quot;select * from ay_user where loginName = ?&quot;;
+
+        PreparedStatement preparedStatement = getConnection().prepareStatement(sql);
+        preparedStatement.setString(1, name);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            return new User(resultSet.getInt(&quot;id&quot;), resultSet.getString(&quot;loginName&quot;), resultSet.getString(&quot;password&quot;));
+        }
+
+        return null;
+    }
+
+    /**
+     * 通过用户名获取用户角色
+     *
+     * @param name
+     * @return
+     * @throws SQLException
+     */
+    public static Role getRolesByUserName(String name) throws SQLException {
+        String sql = &quot;select roleId from ay_user where loginName = ?&quot;;
+
+        PreparedStatement preparedStatement = getConnection().prepareStatement(sql);
+        preparedStatement.setString(1, name);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            Integer id = resultSet.getInt(&quot;roleId&quot;);
+
+            sql = &quot;select * from ay_role where id = ?&quot;;
+            preparedStatement = getConnection().prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                return new Role(resultSet.getInt(&quot;id&quot;), resultSet.getString(&quot;name&quot;));
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 通过角色id获取角色权限
+     *
+     * @param roleId
+     * @return
+     * @throws SQLException
+     */
+    public static Perms getPermsByRole(Integer roleId) throws SQLException {
+        String sql = &quot;select * from ay_perms where roleId = ?&quot;;
+
+        PreparedStatement preparedStatement = getConnection().prepareStatement(sql);
+        preparedStatement.setInt(1, roleId);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            return new Perms(resultSet.getInt(&quot;id&quot;), resultSet.getString(&quot;name&quot;), resultSet.getInt(&quot;roleId&quot;));
+        }
+
+        return null;
+    }
+}
+</code></pre><blockquote>
+<p>3.编写自定义的Realm类 需要AuthorizingRealm类并实现两个方法; 第一个是用来身份验证,第二是用来角色权限验证</p>
+</blockquote>
+<pre><code>public class MyRealm extends AuthorizingRealm {
+
+    /**
+     * 验证当前登录的用户(身份认证), 不再需要在配置文件中配置用户的信息和其角色信息
+     * 
+     * @param token 封装有用户的信息
+     * @return
+     * @throws AuthenticationException
+     */
+    @Override
+    protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
+        String userName = (String) token.getPrincipal();
+
+        System.out.println(&quot;要登录的用户 : &quot; + userName);
+
+        try {
+            User user = DBUtil.getByUserName(userName);//这里只是通过用户名验证并获取用户信息,实际开发中需要用户名以及加密的密码
+            if (user != null) {
+                return new SimpleAuthenticationInfo(user.getLoginName(), user.getPassword(), &quot;XX&quot;);//返回登录信息
+            } else
+                return null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**( 身份验证(登录)以后 )
+     * 为当前用户授予角色和权限(根据登录的用户名,读取数据库中其角色和权限)
+     *
+     * @param principals 封装了身份信息
+     * @return
+     */
+    @Override
+    protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
+        String userName = (String) principals.getPrimaryPrincipal();
+        System.out.println(&quot;要权限的用户 : &quot; + userName);
+
+        SimpleAuthorizationInfo authenticationInfo = new SimpleAuthorizationInfo();
+
+        try {
+            Role role = DBUtil.getRolesByUserName(userName);
+            if (null != role) {
+                Set&lt;String&gt; set = new HashSet&lt;&gt;();
+                System.out.println(&quot;获得的角色: &quot;+ role.getName());
+                set.add(role.getName());
+                authenticationInfo.setRoles(set);//赋予角色
+
+                Perms perms = DBUtil.getPermsByRole(role.getId());
+                Set&lt;String&gt; set2 = new HashSet&lt;&gt;();
+                set2.add(perms.getName());
+                System.out.println(&quot;获得的权限: &quot;+ perms.getName());
+                authenticationInfo.setStringPermissions(set2);//赋予权限
+
+                return authenticationInfo;
+            }
+        } catch (SQLException e) {
+
+        }
+
+        return null;
+    }
+}
+</code></pre><blockquote>
+<p>4.修改配置文件shiro.ini ,引入自定义Realms,并去掉原来的 [users]和[roles]下的配置</p>
+</blockquote>
+<pre><code>[main]
+authc.loginUrl=/login
+perms.unauthorizedUrl=/noAuth.jsp
+roles.unauthorizedUrl=/noAuth.jsp
+
+myRealm=com.servlet.MyRealm
+securityManager.realms=$myRealm
+[urls]
+/login=anon
+/home=authc
+/admin=roles[admin]
+</code></pre><h5 id="1-myRealm指向自定义Realm的位置"><a href="#1-myRealm指向自定义Realm的位置" class="headerlink" title="1.myRealm指向自定义Realm的位置"></a><em>1.myRealm指向自定义Realm的位置</em></h5><h5 id="2-securityManager-realms指向自定义Realm的引用-表明使用自定义Realms进行安全认证-可以指向多个-用”-”隔开"><a href="#2-securityManager-realms指向自定义Realm的引用-表明使用自定义Realms进行安全认证-可以指向多个-用”-”隔开" class="headerlink" title="2.securityManager.realms指向自定义Realm的引用(表明使用自定义Realms进行安全认证),可以指向多个,用”,”隔开"></a><em>2.securityManager.realms指向自定义Realm的引用(表明使用自定义Realms进行安全认证),可以指向多个,用”,”隔开</em></h5><blockquote>
+<p>5.启动项目测试 发现:使用zj2626登录可以访问 /admin地址;而ay2626登录不能访问(没有user角色);而且每次请求都会进行认证(控制台打印信息)</p>
+</blockquote>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2021/03/11/20170326_shiro/" data-id="ckpdh7jl3000hn0ut64t2ydaf" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACL0lEQVR42u3aQZKDMAwFUe5/aeYAJEx/CWbKcnuVSgz4sVAsS8eBx3kZ1++/zSd3vv/msSFDhoxlGeft4HM6T7k+K36uDBkyNmDch8L7OSQEp1S+NhkyZMjgGzgSNO/ny5AhQ8ZTjDT4kg3iPwRcGTJkLMh4KrFMAzE/znssF5chQ8aCDJ5e/v3nV+obMmTIWIpxhiMtZ74Ryj/cR4YMGaMZPMClbRZ8iZ0WDRkyZOzAqKWgtVBLmszQW+dbQxkyZIxj1JLJTqmSXIXKojJkyBjN6Byo8V87Lyv+VYYMGeMYKIQ9Gkz7pcqvp4YyZMgYzeAH97WjMb4FLD5LhgwZoxm8qYLfLi1V8nJCsHGUIUPGIEbaWsFDMF9KGpSDEqYMGTKGMtJQy8uWaetGsImUIUPGZgwyyB6z00jBnyJDhow9GWlTRe0qHnzjnhEZMmSMY9yHXbLoTsmT/wEExQAZMmRswODtX7zmkB7q1V6cDBkydmDwrDAF1/LN+CXKkCFjG0ateavT2lUL9x9mypAhYwNGekyfzqyF16DhQ4YMGRswyKE8SUQPPGrX/tJyIUOGjHGMTptFWobsv+9gUyhDhoxBjDQ48nS3wyNLjwucMmTIWJxR2/bVkljyOopbTxkyZGzA4Ekm2Sb2iwGtXFyGDBnbM2pzyCav2BAmQ4YMGWEyWVsKP8575X9DhgwZizB4qslDZ2crmR7kyZAhYzaj0xjRWXoniS0WMmXIkLEe4wdTT2C+NLpP3QAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/Shiro/">Shiro</a></div><div class="post-nav"><a class="pre" href="/2021/03/11/20170504_jenkins/">linux(centos)下使用jenkins + maven + git码云(或github) 实现自动化构建项目</a><a class="next" href="/2021/03/11/201703101526_maven/">maven安装与命令</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_VM-options配置/">VM options配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM运行原理/">JVM运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM的年轻代以及GC回收细节/">JVM的年轻代以及GC回收细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_GC之间的区别/">Minor GC、Major GC和Full GC之间的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703101259_垃圾收集器与内存分配策略/">垃圾收集器与内存分配策略</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703092017_对象在HotSpot虚拟机中/">对象在HotSpot虚拟机中</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>

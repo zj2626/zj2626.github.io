@@ -1,0 +1,168 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>Mongodb安装与启动 | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="http://p18j2ow6f.bkt.clouddn.com/static/css/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Mongodb安装与启动</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Mongodb安装与启动</h1><div class="post-meta">Mar 1, 2017<span> | </span><span class="category"><a href="/categories/数据库/">数据库</a></span></div><div class="post-content"><h2 id="MongoDB-是一个基于分布式文件存储的数据库。由C-语言编写-是一个介于关系数据库和非关系数据库之间的产品"><a href="#MongoDB-是一个基于分布式文件存储的数据库。由C-语言编写-是一个介于关系数据库和非关系数据库之间的产品" class="headerlink" title="MongoDB 是一个基于分布式文件存储的数据库。由C++语言编写;是一个介于关系数据库和非关系数据库之间的产品"></a><strong>MongoDB</strong> 是一个基于分布式文件存储的数据库。由C++语言编写;是一个介于关系数据库和非关系数据库之间的产品</h2><h2 id="其支持的数据结构非常松散，是类似json的bson格式，因此可以存储比较复杂的数据类型。Mongo最大的特点是他支持的查询语言非常强大，其语法有点类似于面向对象的查询语言，几乎可以实现类似关系数据库单表查询的绝大部分功能，而且还支持对数据建立索引。"><a href="#其支持的数据结构非常松散，是类似json的bson格式，因此可以存储比较复杂的数据类型。Mongo最大的特点是他支持的查询语言非常强大，其语法有点类似于面向对象的查询语言，几乎可以实现类似关系数据库单表查询的绝大部分功能，而且还支持对数据建立索引。" class="headerlink" title="其支持的数据结构非常松散，是类似json的bson格式，因此可以存储比较复杂的数据类型。Mongo最大的特点是他支持的查询语言非常强大，其语法有点类似于面向对象的查询语言，几乎可以实现类似关系数据库单表查询的绝大部分功能，而且还支持对数据建立索引。"></a>其支持的数据结构非常松散，是类似json的bson格式，因此可以存储比较复杂的数据类型。Mongo最大的特点是他支持的查询语言非常强大，其语法有点类似于面向对象的查询语言，几乎可以实现类似关系数据库单表查询的绝大部分功能，而且还支持对数据建立索引。</h2><h1 id="使用原理"><a href="#使用原理" class="headerlink" title="使用原理 :"></a>使用原理 :</h1><blockquote>
+<p><strong>面向集合</strong>: 数据被分组存储在数据集中，被称为一个集合（Collection),每个集合在数据库中都有一个唯一的标识名，并且可以包含无限数目的文档 (类似于传统数据库中的 表(table))</p>
+</blockquote>
+<blockquote>
+<p><strong>模式自由</strong>: 意味着对于存储在mongodb数据库中的文件，我们不需要知道它的任何结构定义;存储在集合中的文档，</p>
+</blockquote>
+<blockquote>
+<p><strong>键-值对的形式</strong>:键用于唯一标识一个文档，为字符串类型，而值则可以是各种复杂的文件类型。我们称这种存储形式为BSON（Binary Serialized Document Format）</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><ol>
+<li>环境:CentOs6.5 64位 远程工具 xsell</li>
+<li><p>下载:官网下载 <a href="https://www.mongodb.com/download-center?jmp=nav#community" target="_blank" rel="noopener">https://www.mongodb.com/download-center?jmp=nav#community</a> 或者<br> 输入命令: &gt; curl -O <a href="https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.0.6.tgz" target="_blank" rel="noopener">https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.0.6.tgz</a></p>
+</li>
+<li><p>解压: &gt; tar -zxvf mongodb-linux-x86_64-3.0.6.tgz</p>
+</li>
+<li>移动到目录 mv  mongodb-linux-x86_64-3.0.6/ /usr/local/mongodb</li>
+<li>把bin目录添加到环境变量PATH中 : vim /etc/profile<br> 添加或修改为: export PATH=”/usr/local/mongodb/bin:$PATH”</li>
+<li>配置自己的数据,日志等目录<br> I.   &gt; cd /usr/local/mongodb<br> II. &gt; mkdir data<br> III. &gt; mkdir log<br> IV. &gt; mkdir conf<br> V. &gt; cd conf<br> VI. &gt; touch mongodb.conf<br> VII. &gt; vim mongodb.conf</li>
+</ol>
+<pre><code>port = 27017
+dbpath = data
+logpath = log/mongod.log
+fork = true
+</code></pre><h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><ol start="7">
+<li>配置完毕 启动服务 <ol>
+<li>可以使用自己的配置文件中的配置 /usr/local/mongodb/bin/mongod -f /usr/local/mongodb/conf/mongodb.conf</li>
+<li>也可以输入配置目录启动 /usr/local/mongodb/bin/mongod –dbpath=/usr/local/mongodb/data/  –port=12345  –fork –logpath=/usr/local/mongodb/log/mongodb.log</li>
+</ol>
+</li>
+<li>启动之后 输入 &gt; mongo 127.0.0.1:12345/admin 连接mongodb服务<br> 目前没有设置用户名密码 所以需要无认证启动, so先设置用户名密码</li>
+<li>mongodb中用户是归属于数据库的 ,可以说是为数据库设置自己的用户,并设置权限,一般一个用户只是管理一个数据库<br> (当然,可以设置一个超级管理员用来管理所有的数据库)<br> <em>下面的意思是为admin数据库设置一个用户名为”root”,密码为”root”的用户,用户权限(角色) 是root(超级管理员)</em></li>
+</ol>
+<pre><code>&gt; use admin
+&gt; db.createUser(
+...   {
+...     user: &quot;root&quot;,
+...     pwd: &quot;root&quot;,
+...     roles: [ { role: &quot;root&quot;, db: &quot;admin&quot; } ]
+...   }
+... )
+</code></pre><p><em>上面是mongodb3.0的新建用户方式, 2.x的方式有所不同,自行查阅</em></p>
+<p>下面是mongodb内置的角色</p>
+<pre><code>1. 数据库用户角色：read、readWrite;
+2. 数据库管理角色：dbAdmin、dbOwner、userAdmin；
+3. 集群管理角色：clusterAdmin、clusterManager、clusterMonitor、hostManager；
+4. 备份恢复角色：backup、restore；
+5. 所有数据库角色：readAnyDatabase、readWriteAnyDatabase、userAdminAnyDatabase、dbAdminAnyDatabase
+6. 超级用户角色：root  
+// 这里还有几个角色间接或直接提供了系统超级用户的访问（dbOwner 、userAdmin、userAdminAnyDatabase）
+7. 内部角色：__system
+</code></pre><p>Read：允许用户读取指定数据库<br>readWrite：允许用户读写指定数据库<br>dbAdmin：允许用户在指定数据库中执行管理函数，如索引创建、删除，查看统计或访问system.profile<br>userAdmin：允许用户向system.users集合写入，可以找指定数据库里创建、删除和管理用户<br>clusterAdmin：只在admin数据库中可用，赋予用户所有分片和复制集相关函数的管理权限。<br>readAnyDatabase：只在admin数据库中可用，赋予用户所有数据库的读权限<br>readWriteAnyDatabase：只在admin数据库中可用，赋予用户所有数据库的读写权限<br>userAdminAnyDatabase：只在admin数据库中可用，赋予用户所有数据库的userAdmin权限<br>dbAdminAnyDatabase：只在admin数据库中可用，赋予用户所有数据库的dbAdmin权限。<br>root：只在admin数据库中可用。超级账号，超级权限</p>
+<pre><code>也可以创建角色:
+
+
+&gt; db.createRole(
+... {
+...     role: &quot;manageOpRole&quot;,
+...     privileges: [ 
+...         { resource: { cluster: true }, actions: [ &quot;killop&quot;, &quot;inprog&quot; ] }, 
+...         { resource: { db: &quot;my_test&quot;, collection: &quot;my_collection&quot; }, 
+...            actions: [ &quot;insert&quot;, &quot;update&quot;, &quot;remove&quot;, &quot;compact&quot;] } 
+...                 ],
+...     roles: [] 
+...     }
+... )
+
+{
+    &quot;role&quot; : &quot;manageOpRole&quot;,
+    &quot;privileges&quot; : [
+        {
+            &quot;resource&quot; : {
+                &quot;cluster&quot; : true
+            },
+            &quot;actions&quot; : [
+                &quot;killop&quot;,
+                &quot;inprog&quot;
+            ]
+        },
+        {
+            &quot;resource&quot; : {
+                &quot;db&quot; : &quot;my_test&quot;,
+                &quot;collection&quot; : &quot;my_collection&quot;
+            },
+            &quot;actions&quot; : [
+                &quot;insert&quot;, 
+                &quot;update&quot;, 
+                &quot;remove&quot;, 
+                &quot;compact&quot;
+            ]
+        }
+    ],
+    &quot;roles&quot; : [ ]
+}
+&gt; 
+</code></pre><p><em>可以添加几个其他角色的用户来测试权限</em></p>
+<ol start="10">
+<li><p>要用用户登录的服务 so先关闭服务: &gt; db.shutdownServer()</p>
+</li>
+<li><p>启动带权限验证的mongodb服务: </p>
+</li>
+</ol>
+<pre><code>    &gt; /usr/local/mongodb/bin/mongod --dbpath=/usr/local/mongodb/data/  --port=12345  --fork --logpath=/usr/local/mongodb/log/mongodb.log -auth
+
+
+如果报错too many positional options是由于--的原因,需要写英文的两个-
+</code></pre><ol start="12">
+<li>连接 &gt; mongo 127.0.0.1:12345/admin</li>
+<li>使用数据库 use admin</li>
+<li>进行一些数据库操作 比如 &gt; show dbs 此时就会报错 用用户名密码验证权限</li>
+</ol>
+<pre><code>    &gt; db.auth(&apos;root&apos;,&apos;anyao112233&apos;)
+
+
+返回1表示成功 返回0表示失败 ; 此时再输入:
+</code></pre><blockquote>
+<p>show dbs<br>show collections</p>
+</blockquote>
+<pre><code>就会返回正常结果;
+</code></pre><h1 id="常见问题解决"><a href="#常见问题解决" class="headerlink" title="常见问题解决"></a>常见问题解决</h1><h5 id="注意-gt-use-test-用来切换别的数据库"><a href="#注意-gt-use-test-用来切换别的数据库" class="headerlink" title="注意 : &gt; use test   //用来切换别的数据库"></a><em>注意</em> : &gt; use test   //用来切换别的数据库</h5><h5 id="此时如果登录的用户没有操作此数据库的权限-show-dbs就会报错"><a href="#此时如果登录的用户没有操作此数据库的权限-show-dbs就会报错" class="headerlink" title="此时如果登录的用户没有操作此数据库的权限 show dbs就会报错"></a>此时如果登录的用户没有操作此数据库的权限 show dbs就会报错</h5><pre><code>#####*注意* : 此时关闭服务&gt;  db.shutdownServer() 可能会报错,它提示没有shutdown的权限
+    解决方法: &gt; db.grantRolesToUser( &quot;root&quot; , [ { role: &quot;hostManager&quot;, db: &quot;admin&quot; } ])
+
+为用户root赋予hostManager角色的权限,然后就可以关闭了
+</code></pre><ol start="15">
+<li><p>输入&gt; exit 退出界面</p>
+<p><em>注</em>:可以用浏览器访问 127.0.0.1:27017<br><em>注</em>:有时候shutdown以后 无法再启动 报错</p>
+<pre><code>原因:1. mongodb没有正常关闭 
+        解决方法:删除mongodb的data目录下的mongod.lock (不能解决就把log目录中日志删除)
+     2.上面试了还是无法启动,那就是mongodb服务可能没有访问data,log等目录的权限
+         解决方法:&gt; chmod -R 777 /usr/local/mongodb/
+</code></pre></li>
+</ol>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2017/03/01/2017_Mongodb/" data-id="ckpdh7l7s005mn0utx0ygxl9w" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACJklEQVR42u3aQW7jMBAEQP//0851gYWV7qEcQGTpZDiWxfKhM8Ph6xVf7w/Xv3/99PnkO/9///WNCwMD47GM9+WVf+auH2L4XAwMjAMYnx7chmDLu743WRsGBgbGdQgmj09KwOQ1BgYGRsuYxWVegGJgYGDMmtgkQFeCdal5xsDA2JqRt5d///or8w0MDIxHMd7ltdLctlFerAoDA2NrRh5w+cGIdonXpWGxHgwMjE0Zs6jNt8natnY4EMXAwDiS0TaZ7aLz4I7KUAwMjGMY+c0rReEscIvSEAMDYzvGbBiQh2lbXOZtMwYGxjmMJM5mhydmG3bt8Y4ilTEwMB7LmN2QN6XrxeL1ej7ONzAwMDZirGzcr4wNZqFcbLdhYGBsxEjib6VZvatMjLpwDAyMrRl1tMXFYh6y7TuvNrkxMDC2Y+SRly+6PTp22z4iBgbGwxnJV9eTz4UwHUYtBgbG1ox2EbMCLtmGaw9bYGBgnMZoI284Kb0M9AT8yxMxMDCOYbTRudLEJrCklcXAwDiH0R6baJeeb67dfNgCAwNja0YbweuzxXbIioGBcQLjXV7tZtzsG/JWtqhYMTAwHsuYxVy+cf+NAxazoMfAwHg6IwnZu8q4Fl+sAQMD4wBGG3x5+K4MQeteHAMDA2OhWGxHmPW5NgwMDIwgfNtR5frm3Q3/NzAwMB7FSJrYGw5v5aVe8LNiYGCcw/jGIYl86fcWrBgYGNsxfgDIspNhUkx0ygAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/Mongodb/">Mongodb</a></div><div class="post-nav"><a class="pre" href="/2017/03/01/2017_Mongodb_curd/">Mongodb的基础操作详解</a><a class="next" href="/2017/03/01/2017_e/">Vue学习笔记</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_VM-options配置/">VM options配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM运行原理/">JVM运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM的年轻代以及GC回收细节/">JVM的年轻代以及GC回收细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_GC之间的区别/">Minor GC、Major GC和Full GC之间的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703101259_垃圾收集器与内存分配策略/">垃圾收集器与内存分配策略</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703092017_对象在HotSpot虚拟机中/">对象在HotSpot虚拟机中</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>

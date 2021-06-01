@@ -1,0 +1,574 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>Mybatis 高级结果映射 ResultMap Association Collection | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="http://p18j2ow6f.bkt.clouddn.com/static/css/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Mybatis 高级结果映射 ResultMap Association Collection</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Mybatis 高级结果映射 ResultMap Association Collection</h1><div class="post-meta">Jun 19, 2017<span> | </span><span class="category"><a href="/categories/框架相关/">框架相关</a></span></div><div class="post-content"><p>转自 <a href="http://blog.csdn.net/ilovejava_2010/article/details/8180521" target="_blank" rel="noopener">http://blog.csdn.net/ilovejava_2010/article/details/8180521</a></p>
+<h1 id="高级结果映射"><a href="#高级结果映射" class="headerlink" title="高级结果映射"></a>高级结果映射</h1><blockquote>
+<p>MyBatis的创建基于这样一个思想：数据库并不是您想怎样就怎样的。虽然我们希望所有的数据库遵守第三范式或BCNF（修正的第三范式），但它们不是。如果有一个数据库能够完美映射到所有应用程序，也将是非常棒的，但也没有。结果集映射就是MyBatis为解决这些问题而提供的解决方案。例如，我们如何映射下面这条语句？</p>
+</blockquote>
+<a id="more"></a>
+<pre><code>&lt;!-- Very Complex Statement --&gt;  
+&lt;select id=&quot;selectBlogDetails&quot; parameterType=&quot;int&quot; resultMap=&quot;detailedBlogResultMap&quot;&gt;  
+select  
+B.id as blog_id,  
+B.title as blog_title,  
+B.author_id as blog_author_id,  
+A.id as author_id,  
+A.username as author_username,  
+A.password as author_password,  
+A.email as author_email,  
+A.bio as author_bio,  
+A.favourite_section as author_favourite_section,  
+P.id as post_id,  
+P.blog_id as post_blog_id,  
+P.author_id as post_author_id,  
+P.created_on as post_created_on,  
+P.section as post_section,  
+P.subject as post_subject,  
+P.draft as draft,  
+P.body as post_body,  
+C.id as comment_id,  
+C.post_id as comment_post_id,  
+C.name as comment_name,  
+C.comment as comment_text,  
+T.id as tag_id,  
+T.name as tag_name  
+from Blog B  
+left outer join Author A on B.author_id = A.id  
+left outer join Post P on B.id = P.blog_id  
+left outer join Comment C on P.id = C.post_id  
+left outer join Post_Tag PT on PT.post_id = P.id  
+left outer join Tag T on PT.tag_id = T.id  
+where B.id = #{id}  
+&lt;/select&gt;  
+&lt;wbr&gt;  
+</code></pre><blockquote>
+<p>您可能想要把它映射到一个智能的对象模型，包括由一个作者写的一个博客，有许多文章（Post，帖子），每个文章由0个或者多个评论和标签。下面是一个复杂ResultMap 的完整例子（假定作者、博客、文章、评论和标签都是别名）。仔细看看这个例子，但是不用太担心，我们会一步步地来分析，一眼看上去可能让人沮丧，但是实际上非常简单的</p>
+</blockquote>
+<pre><code>&lt;!-- Very Complex Result Map --&gt;  
+&lt;resultMap id=&quot;detailedBlogResultMap&quot; type=&quot;Blog&quot;&gt;  
+&lt;constructor&gt;  
+&lt;idArg column=&quot;blog_id&quot; javaType=&quot;int&quot;/&gt;  
+&lt;/constructor&gt;  
+&lt;result property=&quot;title&quot; column=&quot;blog_title&quot;/&gt;  
+&lt;association property=&quot;author&quot; column=&quot;blog_author_id&quot; javaType=&quot; Author&quot;&gt;  
+&lt;id property=&quot;id&quot; column=&quot;author_id&quot;/&gt;  
+&lt;result property=&quot;username&quot; column=&quot;author_username&quot;/&gt;  
+&lt;result property=&quot;password&quot; column=&quot;author_password&quot;/&gt;  
+&lt;result property=&quot;email&quot; column=&quot;author_email&quot;/&gt;  
+&lt;result property=&quot;bio&quot; column=&quot;author_bio&quot;/&gt;  
+&lt;result property=&quot;favouriteSection&quot; column=&quot;author_favourite_section&quot;/&gt;  
+&lt;/association&gt;  
+&lt;collection property=&quot;posts&quot; ofType=&quot;Post&quot;&gt;  
+&lt;id property=&quot;id&quot; column=&quot;post_id&quot;/&gt;  
+&lt;result property=&quot;subject&quot; column=&quot;post_subject&quot;/&gt;  
+&lt;association property=&quot;author&quot; column=&quot;post_author_id&quot; javaType=&quot;Author&quot;/&gt;  
+&lt;collection property=&quot;comments&quot; column=&quot;post_id&quot; ofType=&quot; Comment&quot;&gt;  
+&lt;id property=&quot;id&quot; column=&quot;comment_id&quot;/&gt;  
+&lt;/collection&gt;  
+&lt;collection property=&quot;tags&quot; column=&quot;post_id&quot; ofType=&quot; Tag&quot; &gt;  
+&lt;id property=&quot;id&quot; column=&quot;tag_id&quot;/&gt;  
+&lt;/collection&gt;  
+&lt;discriminator javaType=&quot;int&quot; column=&quot;draft&quot;&gt;  
+&lt;case value=&quot;1&quot; resultType=&quot;DraftPost&quot;/&gt;  
+&lt;/discriminator&gt;  
+&lt;/collection&gt;  
+&lt;/resultMap&gt; &lt;wbr&gt;  
+</code></pre><p>这个resultMap 的元素的子元素比较多，讨论起来比较宽泛。下面我们从概念上概览一下这个resultMap的元素。</p>
+<ul>
+<li>resultMap<ul>
+<li>constructor–实例化的时候通过构造器将结果集注入到类中<ul>
+<li>oidArg– ID 参数; 将结果集标记为ID，以方便全局调用</li>
+<li>oarg–注入构造器的结果集</li>
+</ul>
+</li>
+<li>id–结果集ID，将结果集标记为ID，以方便全局调用</li>
+<li>result–注入一个字段或者javabean属性的结果</li>
+<li>association–复杂类型联合;许多查询结果合成这个类型<ul>
+<li>嵌套结果映射– associations能引用自身,或者从其它地方引用</li>
+</ul>
+</li>
+<li>collection–复杂类型集合<ul>
+<li>嵌套结果映射– collections能引用自身,或者从其它地方引用</li>
+</ul>
+</li>
+<li>discriminator–使用一个结果值以决定使用哪个resultMap<ul>
+<li>ocase–基于不同值的结果映射</li>
+<li>§嵌套结果映射–case也能引用它自身, 所以也能包含这些同样的元素。它也可以从外部引用resultMap</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>最佳实践:逐步地生成resultMap，单元测试对此非常有帮助。如果您尝试一下子就生成像上面这样巨大的resultMap，可能会出错，并且工作起来非常吃力。从简单地开始，再一步步地扩展，并且进行单元测试。使用框架开发有一个缺点，它们有时像是一个黑合。为了确保达到您所预想的行为，最好的方式就是进行单元测试。这对提交bugs 也非常有用。</p>
+</blockquote>
+<p>下一节，我们一步步地查看这些细节。</p>
+<hr>
+<h3 id="id-result元素"><a href="#id-result元素" class="headerlink" title="id, result元素"></a>id, result元素</h3><pre><code>&lt;id property=&quot;id&quot; column=&quot;post_id&quot;/&gt;
+&lt;result property=&quot;subject&quot; column=&quot;post_subject&quot;/&gt;
+</code></pre><blockquote>
+<p>这是最基本的结果集映射。id 和result 将列映射到属性或简单的数据类型字段(String, int, double, Date等)。<br>这两者唯一不同的是，在比较对象实例时id 作为结果集的标识属性。这有助于提高总体性能，特别是应用缓存和嵌套结果映射的时候。</p>
+</blockquote>
+<p>Id、result属性如下：</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th style="text-align:center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>property</td>
+<td style="text-align:center">映射数据库列的字段或属性。如果JavaBean 的属性与给定的名称匹配，就会使用匹配的名字。<br>否则，MyBatis 将搜索给定名称的字段。两种情况下您都可以使用逗点的属性形式。比如，您可以映射到“username”，也可以映射到“address.street.number”。</td>
+</tr>
+<tr>
+<td>column</td>
+<td style="text-align:center">数据库的列名或者列标签别名。与传递给resultSet.getString(columnName)的参数名称相同。</td>
+</tr>
+<tr>
+<td>javaType</td>
+<td style="text-align:center">完整Java类名或别名(参考上面的内置别名列表)。<br>如果映射到一个JavaBean，那MyBatis 通常会自行检测到。然而，如果映射到一个HashMap，<br>那您应该明确指定javaType 来确保所需行为</td>
+</tr>
+<tr>
+<td>jdbcType</td>
+<td style="text-align:center">这张表下面支持的JDBC类型列表列出的JDBC类型。<br>这个属性只在insert，update 或delete 的时候针对允许空的列有用。JDBC 需要这项，但MyBatis 不需要。<br>如果您直接编写JDBC代码，在允许为空值的情况下需要指定这个类型。</td>
+</tr>
+<tr>
+<td>typeHandler</td>
+<td style="text-align:center">我们已经在文档中讨论过默认类型处理器。<br>使用这个属性可以重写默认类型处理器。它的值可以是一个TypeHandler实现的完整类名，也可以是一个类型别名。</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>支持的JDBC类型 MyBatis支持如下的JDBC类型：</p>
+</blockquote>
+<img src="/2017/06/19/20170619_Mybatis/blog_mybatis.png" title="图片标题">
+<blockquote>
+<p>Constructor元素</p>
+</blockquote>
+<pre><code>&lt;constructor&gt;
+    &lt;idArg column=&quot;id&quot; javaType=&quot;int&quot;/&gt;
+    &lt;arg column=”username” javaType=”String”/&gt;
+&lt;/constructor&gt;
+</code></pre><p>当属性与DTO，或者与您自己的域模型一起工作的时候，许多场合要用到不变类。通常，包含引用，或者查找的数据很少或者数据不会改变的的表，适合映射到不变类中。构造器注入允许您在类实例化后给类设值，这不需要通过public方法。MyBatis同样也支持private属性和JavaBeans的私有属性达到这一点，但是一些用户可能更喜欢使用构造器注入。构造器元素可以做到这点。</p>
+<pre><code>考虑下面的构造器：
+
+public class User {
+    //…
+    public User(int id, String username) {
+        //…
+    }
+    //…
+}
+</code></pre><p>为了将结果注入构造器，MyBatis需要使用它的参数类型来标记构造器。Java没有办法通过参数名称来反射获得。因此当创建constructor 元素，确保参数是按顺序的并且指定了正确的类型。</p>
+<pre><code>&lt;constructor&gt;
+    &lt;idArg column=&quot;id&quot; javaType=&quot;int&quot;/&gt;
+    &lt;arg column=”username” javaType=”String”/&gt;
+&lt;/constructor&gt;
+</code></pre><p>其它的属性与规则与id、result元素的一样。</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th style="text-align:center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>column</td>
+<td style="text-align:center">数据库的列名或者列标签别名。<br>与传递给resultSet.getString(columnName)的参数名称相同。</td>
+</tr>
+<tr>
+<td>javaType</td>
+<td style="text-align:center">完整Java类名或别名(参考上面的内置别名列表)。<br>如果映射到一个JavaBean，那MyBatis 通常会自行检测到。<br>然而，如果映射到一个HashMap，那您应该明确指定javaType 来确保所需行为</td>
+</tr>
+<tr>
+<td>jdbcType</td>
+<td style="text-align:center">这张表下面支持的JDBC类型列表列出的JDBC类型。<br>这个属性只在insert，update 或delete 的时候针对允许空的列有用。<br>JDBC 需要这项，但MyBatis 不需要。<br>如果您直接编写JDBC代码，在允许为空值的情况下需要指定这个类型。</td>
+</tr>
+<tr>
+<td>typeHandler</td>
+<td style="text-align:center">我们已经在文档中讨论过默认类型处理器。<br>使用这个属性可以重写默认类型处理器。它的值可以是一个TypeHandler实现的完整类名，也可以是一个类型别名。</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Association元素</p>
+</blockquote>
+<pre><code>&lt;association property=&quot;author&quot; column=&quot;blog_author_id&quot; javaType=&quot; Author&quot;&gt;
+    &lt;id property=&quot;id&quot; column=&quot;author_id&quot;/&gt;
+    &lt;result property=&quot;username&quot; column=&quot;author_username&quot;/&gt;
+&lt;/association&gt;
+</code></pre><p>Association元素处理“has-one”（一对一）这种类型关系。比如在我们的例子中，一个Blog有一个Author。联合映射与其它的结果集映射工作方式差不多，指定property、column、javaType（通常MyBatis会自动识别）、jdbcType（如果需要）、typeHandler。</p>
+<p>不同的地方是您需要告诉MyBatis 如何加载一个联合查询。MyBatis使用两种方式来加载：</p>
+<ul>
+<li>Nested Select:通过执行另一个返回预期复杂类型的映射SQL语句（即引用外部定义好的SQL语句块）。</li>
+<li>Nested Results:通过嵌套结果映射（nested result mappings）来处理联接结果集（joined results）的重复子集。</li>
+</ul>
+<p>首先，让我们检查一下元素属性。正如您看到的，它不同于普通只有select和resultMap属性的结果映射。</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th style="text-align:center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>property</td>
+<td style="text-align:center">映射数据库列的字段或属性。如果JavaBean 的属性与给定的名称匹配，就会使用匹配的名字。<br>否则，MyBatis 将搜索给定名称的字段。两种情况下您都可以使用逗点的属性形式。<br>比如，您可以映射到“username”，也可以映射到“address.street.number”。</td>
+</tr>
+<tr>
+<td>column</td>
+<td style="text-align:center">数据库的列名或者列标签别名。<br>与传递给resultSet.getString(columnName)的参数名称相同。</td>
+</tr>
+<tr>
+<td>javaType</td>
+<td style="text-align:center">完整Java类名或别名(参考上面的内置别名列表)。如果映射到一个JavaBean，那MyBatis 通常会自行检测到。<br>然而，如果映射到一个HashMap，那您应该明确指定javaType 来确保所需行为</td>
+</tr>
+<tr>
+<td>jdbcType</td>
+<td style="text-align:center">这张表下面支持的JDBC类型列表列出的JDBC类型。这个属性只在insert，update 或delete 的时候针对允许空的列有用。<br> JDBC 需要这项，但MyBatis 不需要。<br> 如果您直接编写JDBC代码，在允许为空值的情况下需要指定这个类型。</td>
+</tr>
+<tr>
+<td>typeHandler</td>
+<td style="text-align:center">我们已经在文档中讨论过默认类型处理器。使用这个属性可以重写默认类型处理器。<br>它的值可以是一个TypeHandler实现的完整类名，也可以是一个类型别名。</td>
+</tr>
+<tr>
+<td>select 联合嵌套选择（Nested Select for Association）</td>
+<td style="text-align:center">通过这个属性，通过ID引用另一个加载复杂类型的映射语句。<br>从指定列属性中返回的值，将作为参数设置给目标select 语句。表格下方将有一个例子。<br>注意：在处理组合键时，您可以使用column=”{prop1=col1,prop2=col2}”这样的语法，<br>设置多个列名传入到嵌套语句。这就会把prop1和prop2设置到目标嵌套语句的参数对象中。</td>
+</tr>
+</tbody>
+</table>
+<p> 例如:  </p>
+<pre><code>&lt;resultMap id=”blogResult” type=”Blog”&gt;  
+    &lt;association property=&quot;author&quot; column=&quot;blog_author_id&quot; javaType=&quot;Author&quot;  
+        select=”selectAuthor”/&gt;  
+&lt;/resultMap&gt;  
+
+&lt;select id=”selectBlog” parameterType=”int” resultMap=”blogResult”&gt;  
+SELECT * FROM BLOG WHERE ID = #{id}  
+&lt;/select&gt;  
+
+&lt;select id=”selectAuthor” parameterType=”int” resultType=&quot;Author&quot;&gt;  
+SELECT * FROM AUTHOR WHERE ID = #{id}  
+&lt;/select&gt;  
+&lt;wbr&gt;  
+</code></pre><hr>
+<p>我们使用两个select语句：一个用来加载Blog，另一个用来加载Author。Blog的resultMap 描述了使用“selectAuthor”语句来加载author的属性。<br>如果列名和属性名称相匹配的话，所有匹配的属性都会自动加载。</p>
+<pre><code>译者注：
+上面的例子，首先执行&lt;select id=“selectBlog”&gt;，执行结果存放到&lt;resultMap id=“blogResult”&gt;结果映射中。“blogResult”是一个Blog类型，从&lt;select id=“selectBlog”&gt;查出的数据都会自动赋值给”blogResult”的与列名匹配的属性，这时blog_id，title等就被赋值了。同时“blogResult”还有一个关联属性&quot;Author&quot;，执行嵌套查询select=”selectAuthor”后，Author对象的属性id，username，password，email，bio也被赋于数据库匹配的值。
+
+Blog
+{
+blog_id;
+title;
+Author author
+{
+id;
+username;
+password;
+email;
+bio;
+
+}
+
+}
+</code></pre><blockquote>
+<p>虽然这个方法简单，但是对于大数据集或列表查询，就不尽如人意了。这个问题被称为“N+1 选择问题”（N+1 Selects Problem）。概括地说，N+1选择问题是这样产生的：</p>
+</blockquote>
+<ul>
+<li>您执行单条SQL语句去获取一个列表的记录( “+1”)。</li>
+<li>对列表中的每一条记录，再执行一个联合select 语句来加载每条记录更加详细的信息(“N”)。<br>这个问题会导致成千上万的SQL语句的执行，因此并非总是可取的。</li>
+</ul>
+<p>上面的例子，MyBatis可以使用延迟加载这些查询，因此这些查询立马可节省开销。然而，如果您加载一个列表后立即迭代访问嵌套的数据，这将会调用所有的延迟加载，因此性能会变得非常糟糕。<br>鉴于此，这有另外一种方式。<br>联合嵌套结果集（Nested Results for Association)</p>
+<blockquote>
+<p>resultMap<br>一个可以映射联合嵌套结果集到一个适合的对象视图上的ResultMap 。这是一个替代的方式去调用另一个select 语句。它允许您去联合多个表到一个结果集里。这样的结果集可能包括冗余的、重复的需要分解和正确映射到一个嵌套对象视图的数据组。简言之，MyBatis 让您把结果映射‘链接’到一起，用来处理嵌套结果。举个例子会更好理解，例子在表格下方。</p>
+</blockquote>
+<p>您已经在上面看到了一个非常复杂的嵌套联合的例子，接下的演示的例子会更简单一些。我们把Blog和Author表联接起来查询，而不是执行分开的查询语句：</p>
+<pre><code>&lt;select id=&quot;selectBlog&quot; parameterType=&quot;int&quot; resultMap=&quot;blogResult&quot;&gt;  
+select  
+B.id as blog_id,  
+B.title as blog_title,  
+B.author_id as blog_author_id,  
+A.id as author_id,  
+A.username as author_username,  
+A.password as author_password,  
+A.email as author_email,  
+A.bio as author_bio  
+from Blog B left outer join Author A on B.author_id = A.id  
+where B.id = #{id}  
+&lt;/select&gt; &lt;wbr&gt;  
+
+注意到这个连接（join），要确保所有的别名都是唯一且无歧义的。这使映射容易多了，现在我们来映射结果集：
+
+&lt;resultMap id=&quot;blogResult&quot; type=&quot;Blog&quot;&gt;  
+&lt;id property=”blog_id” column=&quot;id&quot; /&gt;  
+&lt;result property=&quot;title&quot; column=&quot;blog_title&quot;/&gt;  
+&lt;association property=&quot;author&quot; column=&quot;blog_author_id&quot; javaType=&quot;Author&quot;  
+resultMap=”authorResult”/&gt;  
+&lt;/resultMap&gt;  
+
+&lt;resultMap id=&quot;authorResult&quot; type=&quot;Author&quot;&gt;  
+&lt;id property=&quot;id&quot; column=&quot;author_id&quot;/&gt;  
+&lt;result property=&quot;username&quot; column=&quot;author_username&quot;/&gt;  
+&lt;result property=&quot;password&quot; column=&quot;author_password&quot;/&gt;  
+&lt;result property=&quot;email&quot; column=&quot;author_email&quot;/&gt;  
+&lt;result property=&quot;bio&quot; column=&quot;author_bio&quot;/&gt;  
+&lt;/resultMap&gt; &lt;wbr&gt;  
+</code></pre><p>在上面的例子中，您会看到Blog的作者（“author”）联合一个“authorResult”结果映射来加载Author实例。<br><strong>重点提示</strong> :id元素在嵌套结果映射中扮演了非常重要的角色，您应该总是指定一个或多个属性来唯一标识这个结果集。事实上，如果您没有那样做，MyBatis也会工作，但是会导致严重性能开销。选择尽量少的属性来唯一标识结果，而使用主键是最明显的选择（即使是复合主键）。<br>上面的例子使用一个扩展的resultMap 元素来联合映射。这可使Author结果映射可重复使用。然后，如果您不需要重用它，您可以直接嵌套这个联合结果映射。下面例子就是使用这样的方式： </p>
+<pre><code>&lt;resultMap id=&quot;blogResult&quot; type=&quot;Blog&quot;&gt;  
+&lt;id property=”blog_id” column=&quot;id&quot; /&gt;  
+&lt;result property=&quot;title&quot; column=&quot;blog_title&quot;/&gt;  
+&lt;association property=&quot;author&quot; column=&quot;blog_author_id&quot; javaType=&quot;Author&quot;&gt;  
+&lt;id property=&quot;id&quot; column=&quot;author_id&quot;/&gt;  
+&lt;result property=&quot;username&quot; column=&quot;author_username&quot;/&gt;  
+&lt;result property=&quot;password&quot; column=&quot;author_password&quot;/&gt;  
+&lt;result property=&quot;email&quot; column=&quot;author_email&quot;/&gt;  
+&lt;result property=&quot;bio&quot; column=&quot;author_bio&quot;/&gt;  
+&lt;/association&gt;  
+&lt;/resultMap&gt; &lt;wbr&gt;  
+</code></pre><p>在上面的例子中您已经看到如果处理“一对一”（“has one”）类型的联合查询。但是对于“一对多”（“has many”）的情况如果处理呢？这个问题在下一节讨论。</p>
+<h3 id="Collection元素"><a href="#Collection元素" class="headerlink" title="Collection元素"></a>Collection元素</h3><pre><code>&lt;collection property=&quot;posts&quot; ofType=&quot;domain.blog.Post&quot;&gt;  
+&lt;id property=&quot;id&quot; column=&quot;post_id&quot;/&gt;  
+&lt;result property=&quot;subject&quot; column=&quot;post_subject&quot;/&gt;  
+&lt;result property=&quot;body&quot; column=&quot;post_body&quot;/&gt;  
+&lt;/collection&gt;  
+&lt;wbr&gt;
+</code></pre><blockquote>
+<p>collection元素的作用差不多和association元素的作用一样。事实上，它们非常相似，以至于再对相似点进行描述会显得冗余，因此我们只关注它们的不同点。</p>
+</blockquote>
+<p>继续我们上面的例子，一个Blog只有一个Author。但一个Blog有许多帖子（文章）。在Blog类中，会像下面这样定义相应属性： </p>
+<pre><code>private List&lt;Post&gt; posts;
+</code></pre><blockquote>
+<p>映射一个嵌套结果集到一个列表，我们使用collection元素。就像association 元素那样，我们使用嵌套查询，或者从连接中嵌套结果集。<br>集合嵌套选择（Nested Select for Collection）</p>
+</blockquote>
+<p>首先我们使用嵌套选择来加载Blog的文章。 </p>
+<pre><code>&lt;resultMap id=”blogResult” type=”Blog”&gt;  
+&lt;collection property=&quot;posts&quot; javaType=”ArrayList” column=&quot;blog_id&quot;  
+ofType=&quot;Post&quot; select=”selectPostsForBlog”/&gt;  
+&lt;/resultMap&gt;  
+
+&lt;select id=”selectBlog” parameterType=”int” resultMap=”blogResult”&gt;  
+SELECT * FROM BLOG WHERE ID = #{id}  
+&lt;/select&gt;  
+
+&lt;select id=”selectPostsForBlog” parameterType=”int” resultType=&quot;Author&quot;&gt;  
+SELECT * FROM POST WHERE BLOG_ID = #{id}  
+&lt;/select&gt; &lt;wbr&gt;  
+</code></pre><p>一看上去这有许多东西需要注意，但大部分看起与我们在association元素中学过的相似。首先，您会注意到我们使用了collection元素，然后会注意到一个新的属性“ofType”。这个元素是用来区别JavaBean属性（或者字段）类型和集合所包括的类型。因此您会读到下面这段代码。</p>
+<pre><code>&lt;collection property=&quot;posts&quot; javaType=”ArrayList” column=&quot;blog_id&quot;
+ofType=&quot;Post&quot; select=”selectPostsForBlog”/&gt;
+</code></pre><ul>
+<li>理解为:“一个名为posts，类型为Post的ArrayList集合（A collection of posts in an ArrayList of type Post）” 。</li>
+</ul>
+<p>javaType属性不是必须的，通常MyBatis 会自动识别，所以您通常可以简略地写成：</p>
+<pre><code>&lt;collection property=&quot;posts&quot; column=&quot;blog_id&quot; ofType=&quot;Post&quot;
+select=”selectPostsForBlog”/&gt;
+</code></pre><h4 id="集合的嵌套结果集（Nested-Results-for-Collection）"><a href="#集合的嵌套结果集（Nested-Results-for-Collection）" class="headerlink" title="集合的嵌套结果集（Nested Results for Collection）"></a>集合的嵌套结果集（Nested Results for Collection）</h4><p>这时候，您可能已经猜出嵌套结果集是怎样工作的了，因为它与association非常相似，只不过多了一个属性“ofType”。</p>
+<p>让我们看下这个SQL： </p>
+<pre><code>&lt;select id=&quot;selectBlog&quot; parameterType=&quot;int&quot; resultMap=&quot;blogResult&quot;&gt;  
+select  
+B.id as blog_id,  
+B.title as blog_title,  
+B.author_id as blog_author_id,  
+P.id as post_id,  
+P.subject as post_subject,  
+P.body as post_body,  
+from Blog B  
+left outer join Post P on B.id = P.blog_id  
+where B.id = #{id}  
+&lt;/select&gt;  
+&lt;wbr&gt;  
+</code></pre><p>同样，我们把Blog和Post两张表连接在一起，并且也保证列标签名在映射的时候是唯一且无歧义的。现在将Blog和Post的集合映射在一起是多么简单：</p>
+<pre><code>&lt;resultMap id=&quot;blogResult&quot; type=&quot;Blog&quot;&gt;  
+&lt;id property=”id” column=&quot;blog_id&quot; /&gt;  
+&lt;result property=&quot;title&quot; column=&quot;blog_title&quot;/&gt;  
+&lt;collection property=&quot;posts&quot; ofType=&quot;Post&quot;&gt;  
+&lt;id property=&quot;id&quot; column=&quot;post_id&quot;/&gt;  
+&lt;result property=&quot;subject&quot; column=&quot;post_subject&quot;/&gt;  
+&lt;result property=&quot;body&quot; column=&quot;post_body&quot;/&gt;  
+&lt;/collection&gt;  
+&lt;/resultMap&gt;  
+</code></pre><p>再次强调一下，id 元素是非常重要的。如果您忘了或者不知道id 元素的作用，请先读一下上面association 一节。</p>
+<p>如果希望结果映射有更好的可重用性，您可以使用下面的方式：</p>
+<pre><code>&lt;resultMap id=&quot;blogResult&quot; type=&quot;Blog&quot;&gt;  
+&lt;id property=”id” column=&quot;blog_id&quot; /&gt;  
+&lt;result property=&quot;title&quot; column=&quot;blog_title&quot;/&gt;  
+&lt;collection property=&quot;posts&quot; ofType=&quot;Post&quot; resultMap=”blogPostResult”/&gt;  
+&lt;/resultMap&gt;  
+
+&lt;resultMap id=&quot;blogPostResult&quot; type=&quot;Post&quot;&gt;  
+&lt;id property=&quot;id&quot; column=&quot;post_id&quot;/&gt;  
+&lt;result property=&quot;subject&quot; column=&quot;post_subject&quot;/&gt;  
+&lt;result property=&quot;body&quot; column=&quot;post_body&quot;/&gt;  
+&lt;/resultMap&gt;  
+</code></pre><ul>
+<li>Note:在您的映射中没有深度、宽度、联合和集合数目的限制。但应该谨记，在进行映射的时候也要考虑性能的因素。应用程序的单元测试和性能测试帮助您发现最好的方式可能要花很长时间。但幸运的是，MyBatis允许您以后可以修改您的想法，这时只需要修改少量代码就行了。</li>
+</ul>
+<p>关于高级联合和集合映射是一个比较深入的课题，文档只能帮您了解到这里，多做一些实践，一切将很快变得容易理解。</p>
+<h3 id="Discriminator元素"><a href="#Discriminator元素" class="headerlink" title="Discriminator元素"></a>Discriminator元素</h3><pre><code>&lt;discriminator javaType=&quot;int&quot; column=&quot;draft&quot;&gt;
+&lt;case value=&quot;1&quot; resultType=&quot;DraftPost&quot;/&gt;
+&lt;/discriminator&gt;
+</code></pre><blockquote>
+<p>有时候一条数据库查询可能会返回包括各种不同的数据类型的结果集。Discriminator（识别器）元素被设计来处理这种情况，以及其它像类继承层次情况。识别器非常好理解，它就像java里的switch语句。</p>
+</blockquote>
+<p>Discriminator定义要指定column和javaType属性。列是MyBatis将要取出进行比较的值，javaType用来确定适当的测试是否正确运行（虽然String在大部分情况下都可以工作），例：  </p>
+<pre><code>&lt;resultMap id=&quot;vehicleResult&quot; type=&quot;Vehicle&quot;&gt;  
+&lt;id property=”id” column=&quot;id&quot; /&gt;  
+&lt;result property=&quot;vin&quot; column=&quot;vin&quot;/&gt;  
+&lt;result property=&quot;year&quot; column=&quot;year&quot;/&gt;  
+&lt;result property=&quot;make&quot; column=&quot;make&quot;/&gt;  
+&lt;result property=&quot;model&quot; column=&quot;model&quot;/&gt;  
+&lt;result property=&quot;color&quot; column=&quot;color&quot;/&gt;  
+&lt;discriminator javaType=&quot;int&quot; column=&quot;vehicle_type&quot;&gt;  
+&lt;case value=&quot;1&quot; resultMap=&quot;carResult&quot;/&gt;  
+&lt;case value=&quot;2&quot; resultMap=&quot;truckResult&quot;/&gt;  
+&lt;case value=&quot;3&quot; resultMap=&quot;vanResult&quot;/&gt;  
+&lt;case value=&quot;4&quot; resultMap=&quot;suvResult&quot;/&gt;  
+&lt;/discriminator&gt;  
+&lt;/resultMap&gt;  
+&lt;wbr&gt; 
+</code></pre><p>在这个例子中，MyBatis将会从结果集中取出每条记录，然后比较它的vehicle type的值。如果匹配任何discriminator中的case，它将使用由case指定的resultMap。这是排它性的，换句话说，其它的case的resultMap将会被忽略（除非使用我们下面说到的extended）。如果没有匹配到任何case，MyBatis只是简单的使用定义在discriminator块外面的resultMap。所以，如果carResult像下面这样定义：</p>
+<pre><code>&lt;resultMap id=&quot;carResult&quot; type=&quot;Car&quot;&gt;
+&lt;result property=”doorCount” column=&quot;door_count&quot; /&gt;
+&lt;/resultMap&gt;
+</code></pre><p>那么，只有doorCount属性会被加载。这样做是为了与识别器cases群组完全独立开来，哪怕它与上一层的resultMap 一点关系都没有。在刚才的例子里我们当然知道cars和vehicles的关系，a Car is-a Vehicle。因此，我们也要把其它属性加载进来。我们要稍稍改动一下resultMap：</p>
+<pre><code>&lt;resultMap id=&quot;carResult&quot; type=&quot;Car&quot;extends=”vehicleResult”&gt;
+&lt;result property=”doorCount” column=&quot;door_count&quot; /&gt;
+&lt;/resultMap&gt;
+</code></pre><p>现在，vehicleResult和carResult的所有属性都会被加载。<br>可能有人会认为这样扩展映射定义有一点单调了，所以还有一种可选的更加简单明了的映射风格语法。例如：</p>
+<pre><code>&lt;resultMap id=&quot;vehicleResult&quot; type=&quot;Vehicle&quot;&gt;  
+&lt;id property=”id” column=&quot;id&quot; /&gt;  
+&lt;result property=&quot;vin&quot; column=&quot;vin&quot;/&gt;  
+&lt;result property=&quot;year&quot; column=&quot;year&quot;/&gt;  
+&lt;result property=&quot;make&quot; column=&quot;make&quot;/&gt;  
+&lt;result property=&quot;model&quot; column=&quot;model&quot;/&gt;  
+&lt;result property=&quot;color&quot; column=&quot;color&quot;/&gt;  
+&lt;discriminator javaType=&quot;int&quot; column=&quot;vehicle_type&quot;&gt;  
+&lt;case value=&quot;1&quot; resultType=&quot;carResult&quot;&gt;  
+&lt;result property=”doorCount” column=&quot;door_count&quot; /&gt;  
+&lt;/case&gt;  
+&lt;case value=&quot;2&quot; resultType=&quot;truckResult&quot;&gt;  
+&lt;result property=”boxSize” column=&quot;box_size&quot; /&gt;  
+&lt;result property=”extendedCab” column=&quot;extended_cab&quot; /&gt;  
+&lt;/case&gt;  
+&lt;case value=&quot;3&quot; resultType=&quot;vanResult&quot;&gt;  
+&lt;result property=”powerSlidingDoor” column=&quot;power_sliding_door&quot; /&gt;  
+&lt;/case&gt;  
+&lt;case value=&quot;4&quot; resultType=&quot;suvResult&quot;&gt;  
+&lt;result property=”allWheelDrive” column=&quot;all_wheel_drive&quot; /&gt;  
+&lt;/case&gt;  
+&lt;/discriminator&gt;  
+&lt;/resultMap&gt; &lt;wbr&gt;  
+</code></pre><ul>
+<li>记住：对于这么多的结果映射，如果您不指定任何的结果集，那么MyBatis 会自动地将列名与属性相匹配。所以上面所举的例子比实际中需要的要详细。尽管如此，大部分数据库有点复杂，并且它并不是所有情况都是完全可以适用的。</li>
+</ul>
+<h4 id="Cache元素"><a href="#Cache元素" class="headerlink" title="Cache元素"></a>Cache元素</h4><blockquote>
+<p>MyBatis包含一个强大的、可配置、可定制的查询缓存机制。MyBatis 3 的缓存实现有了许多改进，使它更强大更容易配置。默认的情况，缓存是没有开启，除了会话缓存以外，它可以提高性能，且能解决循环依赖。开启二级缓存，您只需要在SQL映射文件中加入简单的一行：</p>
+</blockquote>
+<pre><code>&lt;cache/&gt;
+</code></pre><p>这句简单的语句作用如下：</p>
+<ul>
+<li><p>所有映射文件里的select语句的结果都会被缓存。</p>
+</li>
+<li><p>所有映射文件里的insert、update和delete语句执行都会清空缓存。</p>
+</li>
+<li><p>缓存使用最近最少使用算法(LRU)来回收。</p>
+</li>
+<li><p>缓存不会被设定的时间所清空。</p>
+</li>
+<li><p>每个缓存可以存储1024 个列表或对象的引用（不管查询方法返回的是什么）。</p>
+</li>
+<li><p>缓存将作为“读/写”缓存，意味着检索的对象不是共享的且可以被调用者安全地修改，而不会被其它调用者或者线程干扰。</p>
+</li>
+</ul>
+<p>所有这些特性都可以通过cache元素进行修改。例如：</p>
+<pre><code>&lt;cache
+eviction=&quot;FIFO&quot;
+flushInterval=&quot;60000&quot;
+size=&quot;512&quot;
+readOnly=&quot;true&quot;/&gt;
+</code></pre><p>这种高级的配置创建一个每60秒刷新一次的FIFO 缓存，存储512个结果对象或列表的引用，并且返回的对象是只读的。因此在不用的线程里的调用者修改它们可能会引用冲突。</p>
+<p>可用的回收算法如下：</p>
+<ul>
+<li><p>LRU–最近最少使用：移出最近最长时间内都没有被使用的对象。</p>
+</li>
+<li><p>FIFO–先进先出：移除最先进入缓存的对象。</p>
+</li>
+<li><p>SOFT–软引用: 基于垃圾回收机制和软引用规则来移除对象（空间内存不足时才进行回收）。</p>
+</li>
+<li><p>WEAK–弱引用:基于垃圾回收机制和弱引用规则（垃圾回收器扫描到时即进行回收）。</p>
+</li>
+</ul>
+<p>默认使用LRU。</p>
+<blockquote>
+<p>flushInterval：设置任何正整数，代表一个以毫秒为单位的合理时间。默认是没有设置，因此没有刷新间隔时间被使用，在语句每次调用时才进行刷新。</p>
+</blockquote>
+<blockquote>
+<p>Size：属性可以设置为一个正整数，您需要留意您要缓存对象的大小和环境中可用的内存空间。默认是1024。</p>
+</blockquote>
+<blockquote>
+<p>readOnly：属性可以被设置为true 或false。只读缓存将对所有调用者返回同一个实例。因此这些对象都不能被修改，这可以极大的提高性能。可写的缓存将通过序列化来返回一个缓存对象的拷贝。这会比较慢，但是比较安全。所以默认值是false。</p>
+</blockquote>
+<p>使用自定义缓存</p>
+<p>除了上面已经定义好的缓存方式，您能够通过您自己的缓存实现来完全重写缓存行为，或者通过创建第三方缓存解决方案的适配器。</p>
+<pre><code>&lt;cache type=”com.domain.something.MyCustomCache”/&gt;
+</code></pre><p>这个例子演示了如果自定义缓存实现。由type指定的类必须实现org.mybatis.cache.Cache接口。这个接口是MyBatis框架比较复杂的接口之一，先给个示例：</p>
+<pre><code>public interface Cache {
+String getId();
+int getSize();
+void putObject(Object key, Object value);
+Object getObject(Object key);
+boolean hasKey(Object key);
+Object removeObject(Object key);
+void clear();
+ReadWriteLock getReadWriteLock();
+}
+</code></pre><p>要配置您的缓存，简单地添加一个公共的JavaBeans 属性到您的缓存实现中，然后通过cache 元素设置属性进行传递，下面示例，将在您的缓存实现上调用一个setCacheFile(String file)方法。</p>
+<pre><code>&lt;cache type=”com.domain.something.MyCustomCache”&gt;
+&lt;property name=”cacheFile” value=”/tmp/my-custom-cache.tmp”/&gt;
+&lt;/cache&gt;
+</code></pre><p>您可以使用所有简单的JavaBeans属性，MyBatis会自动进行转换。</p>
+<p>需要牢记的是一个缓存配置和缓存实例都绑定到一个SQL Map 文件命名空间。因此，所有的这个相同命名空间的语句也都和这个缓存绑定。语句可以修改如何与这个缓存相匹配，或者使用两个简单的属性来完全排除它们自己。默认情况下，语句像下面这样来配置：</p>
+<pre><code>&lt;select ... flushCache=”false” useCache=”true”/&gt;
+&lt;insert ... flushCache=”true”/&gt;
+&lt;update ... flushCache=”true”/&gt;
+&lt;delete ... flushCache=”true”/&gt; 
+</code></pre><p>因为有默认值，所以您不需要使用这种方式明确地配置这些语句。如果您想改变默认的动作，只需要设置flushCache和useCache 属性即可。举个例子来说，在许多的场合下您可能排除缓存中某些特定的select语句。或者您想用select语句清空缓存。同样的，您也可能有一些update 语句在执行的时候不需要清空缓存。</p>
+<h4 id="cache-ref元素"><a href="#cache-ref元素" class="headerlink" title="cache-ref元素"></a>cache-ref元素</h4><p>回想上一节，我们仅仅只是讨论在某一个命名空间里使用或者刷新缓存。但有可能您想要在不同的命名空间里共享同一个缓存配置或者实例。在这种情况下，您就可以使用cache-ref 元素来引用另外一个缓存。</p>
+<pre><code>&lt;cache-ref namespace=”com.someone.application.data.SomeMapper”/&gt;
+</code></pre></div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2017/06/19/20170619_Mybatis/" data-id="ckpdh7jm70011n0utzseqyqyb" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLElEQVR42u3aMW7DMAwF0Nz/0umaxc4n6RSQ9DQFhW35eWBJka9XvN4f6/Mv+fX5Nfd3jRYGBsayjPft6jGSXa5e/Wrf+ydgYGCcwLja+Oqa+7t6QTP/WBgYGBh5EEy2712PgYGBMQ+4vXCZpJ4YGBgYkyK2elceTHPeA7U4BgbGgoy8vPz/3z/pb2BgYCzFeBdXkggmYfT+A5XfCgMDY2tGr0DtHZbdg6tNBQwMjNMYeUsyGfPKRysmo2NRDouBgbERo5rkVbfsPbnaFsXAwDiHkb96NUHsHajlIR4DA2NXRnUYotf4fLZVeXlqiIGBsSkjD6x5qtdrgubB/XIvDAyMTRl52pc3DKqF8Tw9xcDA2JtRTQrz0YdqEZunoVELEwMDYzvGZDwiea08yauWzYXcEwMDY3FG9SCsFyLzo//8o2BgYJzASALffAhs3iT48g8AAwPjAEZ+iH9fys6Daf7kQmMAAwNjccYk+auG5slBXrQjBgbGkYzeZgl+PqhR6GxgYGBsyqimg9Ww29v9y2fCwMA4gDEPr0m2Nm9eNoctMDAwNmXkaVw1+P7kLgwMjE0Z7+KajGhUX7RQHmNgYGzNyNdTR2NJcpm8ernBiYGBsTijd9xfTSgn7Yco4GJgYBzAyIvMXpKXHJ89VotjYGBgFJsESVo5GgjDwMDAiFubvVD7WCsUAwPjAEZSxFZbBfkgRe9KDAyMcxjV0rGX2D3Vnhw1MjEwMNZj/AFo4yLg6p7RUQAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/Mybatis/">Mybatis</a></div><div class="post-nav"><a class="pre" href="/2021/03/11/201703092044_annotation/">Java元数据与注解的实现原理</a><a class="next" href="/2017/06/16/20170616_Mybatis/">Mybatis入门学习</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_VM-options配置/">VM options配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM运行原理/">JVM运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM的年轻代以及GC回收细节/">JVM的年轻代以及GC回收细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_GC之间的区别/">Minor GC、Major GC和Full GC之间的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703101259_垃圾收集器与内存分配策略/">垃圾收集器与内存分配策略</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703092017_对象在HotSpot虚拟机中/">对象在HotSpot虚拟机中</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>

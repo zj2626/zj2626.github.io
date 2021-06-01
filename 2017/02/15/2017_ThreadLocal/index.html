@@ -1,0 +1,272 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>彻底理解ThreadLocal(转载) | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="http://p18j2ow6f.bkt.clouddn.com/static/css/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">彻底理解ThreadLocal(转载)</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">彻底理解ThreadLocal(转载)</h1><div class="post-meta">Feb 15, 2017<span> | </span><span class="category"><a href="/categories/多线程/">多线程</a></span></div><div class="post-content"><p><a href="http://blog.csdn.net/lufeng20/article/details/24314381" target="_blank" rel="noopener">http://blog.csdn.net/lufeng20/article/details/24314381</a></p>
+<h2 id="ThreadLocal是什么"><a href="#ThreadLocal是什么" class="headerlink" title="ThreadLocal是什么"></a>ThreadLocal是什么</h2><p>　　早在JDK 1.2的版本中就提供Java.lang.ThreadLocal，ThreadLocal为解决多线程程序的并发问题提供了一种新的思路。使用这个工具类可以很简洁地编写出优美的多线程程序。<br>　　当使用ThreadLocal维护变量时，ThreadLocal为每个使用该变量的线程提供独立的变量副本，所以每一个线程都可以独立地改变自己的副本，而不会影响其它线程所对应的副本。<br>　　从线程的角度看，目标变量就象是线程的本地变量，这也是类名中“Local”所要表达的意思。<br>　　所以，在Java中编写线程局部变量的代码相对来说要笨拙一些，因此造成线程局部变量没有在Java开发者中得到很好的普及。<br>ThreadLocal的接口方法<br>ThreadLocal类接口很简单，只有4个方法，我们先来了解一下：<br>void set(Object value)设置当前线程的线程局部变量的值。<br>public Object get()该方法返回当前线程所对应的线程局部变量。<br>public void remove()将当前线程局部变量的值删除，目的是为了减少内存的占用，该方法是JDK 5.0新增的方法。需要指出的是，当线程结束后，对应该线程的局部变量将自动被垃圾回收，所以显式调用该方法清除线程的局部变量并不是必须的操作，但它可以加快内存回收的速度。<br>protected Object initialValue()返回该线程局部变量的初始值，该方法是一个protected的方法，显然是为了让子类覆盖而设计的。这个方法是一个延迟调用方法，在线程第1次调用get()或set(Object)时才执行，并且仅执行1次。ThreadLocal中的缺省实现直接返回一个null。<br>　　值得一提的是，在JDK5.0中，ThreadLocal已经支持泛型，该类的类名已经变为ThreadLocal<t>。API方法也相应进行了调整，新版本的API方法分别是void set(T value)、T get()以及T initialValue()。<br>　　ThreadLocal是如何做到为每一个线程维护变量的副本的呢？其实实现的思路很简单：在ThreadLocal类中有一个Map，用于存储每一个线程的变量副本，Map中元素的键为线程对象，而值对应线程的变量副本。我们自己就可以提供一个简单的实现版本：<br>[java] view plain copy print?在CODE上查看代码片派生到我的代码片</t></p>
+<a id="more"></a>
+<pre><code>package com.test;  
+
+public class TestNum {  
+    // ①通过匿名内部类覆盖ThreadLocal的initialValue()方法，指定初始值  
+    private static ThreadLocal&lt;Integer&gt; seqNum = new ThreadLocal&lt;Integer&gt;() {  
+        public Integer initialValue() {  
+            return 0;  
+        }  
+    };  
+
+    // ②获取下一个序列值  
+    public int getNextNum() {  
+        seqNum.set(seqNum.get() + 1);  
+        return seqNum.get();  
+    }  
+
+    public static void main(String[] args) {  
+        TestNum sn = new TestNum();  
+        // ③ 3个线程共享sn，各自产生序列号  
+        TestClient t1 = new TestClient(sn);  
+        TestClient t2 = new TestClient(sn);  
+        TestClient t3 = new TestClient(sn);  
+        t1.start();  
+        t2.start();  
+        t3.start();  
+    }  
+
+    private static class TestClient extends Thread {  
+        private TestNum sn;  
+
+        public TestClient(TestNum sn) {  
+            this.sn = sn;  
+        }  
+
+        public void run() {  
+            for (int i = 0; i &lt; 3; i++) {  
+                // ④每个线程打出3个序列值  
+                System.out.println(&quot;thread[&quot; + Thread.currentThread().getName() + &quot;] --&gt; sn[&quot;  
+                         + sn.getNextNum() + &quot;]&quot;);  
+            }  
+        }  
+    }  
+}  
+</code></pre><p> 通常我们通过匿名内部类的方式定义ThreadLocal的子类，提供初始的变量值，如例子中①处所示。TestClient线程产生一组序列号，在③处，我们生成3个TestClient，它们共享同一个TestNum实例。运行以上代码，在控制台上输出以下的结果：<br>thread[Thread-0] –&gt; sn[1]<br>thread[Thread-1] –&gt; sn[1]<br>thread[Thread-2] –&gt; sn[1]<br>thread[Thread-1] –&gt; sn[2]<br>thread[Thread-0] –&gt; sn[2]<br>thread[Thread-1] –&gt; sn[3]<br>thread[Thread-2] –&gt; sn[2]<br>thread[Thread-0] –&gt; sn[3]<br>thread[Thread-2] –&gt; sn[3]<br>考察输出的结果信息，我们发现每个线程所产生的序号虽然都共享同一个TestNum实例，但它们并没有发生相互干扰的情况，而是各自产生独立的序列号，这是因为我们通过ThreadLocal为每一个线程提供了单独的副本。</p>
+<p>Thread同步机制的比较<br>　　ThreadLocal和线程同步机制相比有什么优势呢？ThreadLocal和线程同步机制都是为了解决多线程中相同变量的访问冲突问题。<br>　　在同步机制中，通过对象的锁机制保证同一时间只有一个线程访问变量。这时该变量是多个线程共享的，使用同步机制要求程序慎密地分析什么时候对变量进行读写，什么时候需要锁定某个对象，什么时候释放对象锁等繁杂的问题，程序设计和编写难度相对较大。<br>　　而ThreadLocal则从另一个角度来解决多线程的并发访问。ThreadLocal会为每一个线程提供一个独立的变量副本，从而隔离了多个线程对数据的访问冲突。因为每一个线程都拥有自己的变量副本，从而也就没有必要对该变量进行同步了。ThreadLocal提供了线程安全的共享对象，在编写多线程代码时，可以把不安全的变量封装进ThreadLocal。<br>　　由于ThreadLocal中可以持有任何类型的对象，低版本JDK所提供的get()返回的是Object对象，需要强制类型转换。但JDK 5.0通过泛型很好的解决了这个问题，在一定程度地简化ThreadLocal的使用，代码清单 9 2就使用了JDK 5.0新的ThreadLocal<t>版本。<br>　　概括起来说，对于多线程资源共享的问题，同步机制采用了“以时间换空间”的方式，而ThreadLocal采用了“以空间换时间”的方式。前者仅提供一份变量，让不同的线程排队访问，而后者为每一个线程都提供了一份变量，因此可以同时访问而互不影响。<br>　　spring使用ThreadLocal解决线程安全问题我们知道在一般情况下，只有无状态的Bean才可以在多线程环境下共享，在Spring中，绝大部分Bean都可以声明为singleton作用域。就是因为Spring对一些Bean（如RequestContextHolder、TransactionSynchronizationManager、LocaleContextHolder等）中非线程安全状态采用ThreadLocal进行处理，让它们也成为线程安全的状态，因为有状态的Bean就可以在多线程中共享了。<br>　　一般的Web应用划分为展现层、服务层和持久层三个层次，在不同的层中编写对应的逻辑，下层通过接口向上层开放功能调用。在一般情况下，从接收请求到返回响应所经过的所有程序调用都同属于一个线程，如图9‑2所示：<br>通通透透理解ThreadLocal<br>　　同一线程贯通三层这样你就可以根据需要，将一些非线程安全的变量以ThreadLocal存放，在同一次请求响应的调用线程中，所有关联的对象引用到的都是同一个变量。<br>　　下面的实例能够体现Spring对有状态Bean的改造思路：<br>代码清单3 TestDao：非线程安全<br>[java] view plain copy print?在CODE上查看代码片派生到我的代码片</t></p>
+<pre><code>package com.test;  
+
+import java.sql.Connection;  
+import java.sql.SQLException;  
+import java.sql.Statement;  
+
+public class TestDao {  
+    private Connection conn;// ①一个非线程安全的变量  
+
+    public void addTopic() throws SQLException {  
+        Statement stat = conn.createStatement();// ②引用非线程安全变量  
+        // …  
+    }  
+}  
+</code></pre><p>由于①处的conn是成员变量，因为addTopic()方法是非线程安全的，必须在使用时创建一个新TopicDao实例（非singleton）。下面使用ThreadLocal对conn这个非线程安全的“状态”进行改造：<br>代码清单4 TestDao：线程安全</p>
+<pre><code>package com.test;  
+
+import java.sql.Connection;  
+import java.sql.SQLException;  
+import java.sql.Statement;  
+
+public class TestDaoNew {  
+    // ①使用ThreadLocal保存Connection变量  
+    private static ThreadLocal&lt;Connection&gt; connThreadLocal = new ThreadLocal&lt;Connection&gt;();  
+
+    public static Connection getConnection() {  
+        // ②如果connThreadLocal没有本线程对应的Connection创建一个新的Connection，  
+        // 并将其保存到线程本地变量中。  
+        if (connThreadLocal.get() == null) {  
+            Connection conn = getConnection();  
+            connThreadLocal.set(conn);  
+            return conn;  
+        } else {  
+            return connThreadLocal.get();// ③直接返回线程本地变量  
+        }  
+    }  
+
+    public void addTopic() throws SQLException {  
+        // ④从ThreadLocal中获取线程对应的Connection  
+        Statement stat = getConnection().createStatement();  
+    }  
+}  
+</code></pre><p>不同的线程在使用TopicDao时，先判断connThreadLocal.get()是否是null，如果是null，则说明当前线程还没有对应的Connection对象，这时创建一个Connection对象并添加到本地线程变量中；如果不为null，则说明当前的线程已经拥有了Connection对象，直接使用就可以了。这样，就保证了不同的线程使用线程相关的Connection，而不会使用其它线程的Connection。因此，这个TopicDao就可以做到singleton共享了。<br>当然，这个例子本身很粗糙，将Connection的ThreadLocal直接放在DAO只能做到本DAO的多个方法共享Connection时不发生线程安全问题，但无法和其它DAO共用同一个Connection，要做到同一事务多DAO共享同一Connection，必须在一个共同的外部类使用ThreadLocal保存Connection。</p>
+<p>ConnectionManager.java</p>
+<pre><code>package com.test;  
+
+import java.sql.Connection;  
+import java.sql.DriverManager;  
+import java.sql.SQLException;  
+
+public class ConnectionManager {  
+
+    private static ThreadLocal&lt;Connection&gt; connectionHolder = new ThreadLocal&lt;Connection&gt;() {  
+        @Override  
+        protected Connection initialValue() {  
+            Connection conn = null;  
+            try {  
+                conn = DriverManager.getConnection(  
+                        &quot;jdbc:mysql://localhost:3306/test&quot;, &quot;username&quot;,  
+                        &quot;password&quot;);  
+            } catch (SQLException e) {  
+                e.printStackTrace();  
+            }  
+            return conn;  
+        }  
+    };  
+
+    public static Connection getConnection() {  
+        return connectionHolder.get();  
+    }  
+
+    public static void setConnection(Connection conn) {  
+        connectionHolder.set(conn);  
+    }  
+}  
+</code></pre><p>java.lang.ThreadLocal<t>的具体实现<br>那么到底ThreadLocal类是如何实现这种“为每个线程提供不同的变量拷贝”的呢？先来看一下ThreadLocal的set()方法的源码是如何实现的：<br>[java] view plain copy print?在CODE上查看代码片派生到我的代码片</t></p>
+<pre><code>/** 
+    * Sets the current thread&apos;s copy of this thread-local variable 
+    * to the specified value.  Most subclasses will have no need to 
+    * override this method, relying solely on the {@link #initialValue} 
+    * method to set the values of thread-locals. 
+    * 
+    * @param value the value to be stored in the current thread&apos;s copy of 
+    *        this thread-local. 
+    */  
+   public void set(T value) {  
+       Thread t = Thread.currentThread();  
+       ThreadLocalMap map = getMap(t);  
+       if (map != null)  
+           map.set(this, value);  
+       else  
+           createMap(t, value);  
+   }  
+</code></pre><p>在这个方法内部我们看到，首先通过getMap(Thread t)方法获取一个和当前线程相关的ThreadLocalMap，然后将变量的值设置到这个ThreadLocalMap对象中，当然如果获取到的ThreadLocalMap对象为空，就通过createMap方法创建。</p>
+<p>线程隔离的秘密，就在于ThreadLocalMap这个类。ThreadLocalMap是ThreadLocal类的一个静态内部类，它实现了键值对的设置和获取（对比Map对象来理解），每个线程中都有一个独立的ThreadLocalMap副本，它所存储的值，只能被当前线程读取和修改。ThreadLocal类通过操作每一个线程特有的ThreadLocalMap副本，从而实现了变量访问在不同线程中的隔离。因为每个线程的变量都是自己特有的，完全不会有并发错误。还有一点就是，ThreadLocalMap存储的键值对中的键是this对象指向的ThreadLocal对象，而值就是你所设置的对象了。</p>
+<p>为了加深理解，我们接着看上面代码中出现的getMap和createMap方法的实现：<br>[java] view plain copy print?在CODE上查看代码片派生到我的代码片</p>
+<pre><code>/** 
+ * Get the map associated with a ThreadLocal. Overridden in 
+ * InheritableThreadLocal. 
+ * 
+ * @param  t the current thread 
+ * @return the map 
+ */  
+ThreadLocalMap getMap(Thread t) {  
+    return t.threadLocals;  
+}  
+
+/** 
+ * Create the map associated with a ThreadLocal. Overridden in 
+ * InheritableThreadLocal. 
+ * 
+ * @param t the current thread 
+ * @param firstValue value for the initial entry of the map 
+ * @param map the map to store. 
+ */  
+void createMap(Thread t, T firstValue) {  
+    t.threadLocals = new ThreadLocalMap(this, firstValue);  
+}  
+</code></pre><p>接下来再看一下ThreadLocal类中的get()方法:<br>[java] view plain copy print?在CODE上查看代码片派生到我的代码片</p>
+<pre><code>/** 
+ * Returns the value in the current thread&apos;s copy of this 
+ * thread-local variable.  If the variable has no value for the 
+ * current thread, it is first initialized to the value returned 
+ * by an invocation of the {@link #initialValue} method. 
+ * 
+ * @return the current thread&apos;s value of this thread-local 
+ */  
+public T get() {  
+    Thread t = Thread.currentThread();  
+    ThreadLocalMap map = getMap(t);  
+    if (map != null) {  
+        ThreadLocalMap.Entry e = map.getEntry(this);  
+        if (e != null)  
+            return (T)e.value;  
+    }  
+    return setInitialValue();  
+}  
+</code></pre><p>再来看setInitialValue()方法：</p>
+<pre><code>/** 
+    * Variant of set() to establish initialValue. Used instead 
+    * of set() in case user has overridden the set() method. 
+    * 
+    * @return the initial value 
+    */  
+   private T setInitialValue() {  
+       T value = initialValue();  
+       Thread t = Thread.currentThread();  
+       ThreadLocalMap map = getMap(t);  
+       if (map != null)  
+           map.set(this, value);  
+       else  
+           createMap(t, value);  
+       return value;  
+   }  
+</code></pre><p>　　获取和当前线程绑定的值时，ThreadLocalMap对象是以this指向的ThreadLocal对象为键进行查找的，这当然和前面set()方法的代码是相呼应的。</p>
+<p>　　进一步地，我们可以创建不同的ThreadLocal实例来实现多个变量在不同线程间的访问隔离，为什么可以这么做？因为不同的ThreadLocal对象作为不同键，当然也可以在线程的ThreadLocalMap对象中设置不同的值了。通过ThreadLocal对象，在多线程中共享一个值和多个值的区别，就像你在一个HashMap对象中存储一个键值对和多个键值对一样，仅此而已。</p>
+<p>小结<br>　　ThreadLocal是解决线程安全问题一个很好的思路，它通过为每个线程提供一个独立的变量副本解决了变量并发访问的冲突问题。在很多情况下，ThreadLocal比直接使用synchronized同步机制解决线程安全问题更简单，更方便，且结果程序拥有更高的并发性。<br>ConnectionManager.java</p>
+<pre><code>package com.test;  
+
+import java.sql.Connection;  
+import java.sql.DriverManager;  
+import java.sql.SQLException;  
+
+public class ConnectionManager {  
+
+    private static ThreadLocal&lt;Connection&gt; connectionHolder = new ThreadLocal&lt;Connection&gt;() {  
+        @Override  
+        protected Connection initialValue() {  
+            Connection conn = null;  
+            try {  
+                conn = DriverManager.getConnection(  
+                        &quot;jdbc:mysql://localhost:3306/test&quot;, &quot;username&quot;,  
+                        &quot;password&quot;);  
+            } catch (SQLException e) {  
+                e.printStackTrace();  
+            }  
+            return conn;  
+        }  
+    };  
+
+    public static Connection getConnection() {  
+        return connectionHolder.get();  
+    }  
+
+    public static void setConnection(Connection conn) {  
+        connectionHolder.set(conn);  
+    }  
+}  
+</code></pre></div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2017/02/15/2017_ThreadLocal/" data-id="ckpdh7l7o005gn0utco7p2dyg" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACLUlEQVR42u3aO27DMBAFwNz/0kqbJtJ7XNmAqGEV2ILNcbHZ389PfI4/5+8r+fPnT56/ctvBwMB4LOM4Pf89M/+W5AdK7oaBgfEexnkozMPiXdT8bhgYGBgJKXm+DbIYGBgY84B7nrqdh+m1NBEDAwNjcqHzpDAPrEnxfEMtjoGB8UBGXl5+/++PzDcwMDAexTjKk4we23HCMT4YGBh7M/IAlyeObSK4NiLFwMB4D2PeUDtPH9uydnEgioGB8QJG8mieLCaXniSa/wZcDAyM1zDykcA8EcwD7sW7GBgYL2DkQTMvRCdjzvwmGBgYb2C0y2GTSemXhpoYGBjbMepwFne68gWvNq2sU0MMDIyHM9qAmFy9HRK08fOCh4GBsSljrdE2SR/zAF2XrxgYGJsy2vbWpK3WjjwXa3EMDIyNGEVxWK5B5JfOb3KxbIGBgbE1Y23BtC1l29WN4j8GBgbG1ozzj0va+mvDg3vXMjAwMN7GaBe21oJ1m2IW5TEGBsamjDyMtqG2bee16ePFCBMDA2M7Rh7a2tFm8jPlw8uLZQsMDIytGXmozdv3kyfrT8DAwNiUcZRnvqKxFqYXc1sMDIwtGPMStE3g8p9m1DvEwMDYjpGPGPMG2byIrQMuBgbGCxhtwZl/8dowIF/dwMDAwMgLyEmrblL0YmBgYKzVwWsttjzI3hZwMTAwHsVIiti1UcG8ZL253YaBgfFARrvikAfEogT9wGIHBgbGFoxfGjcsurrLqkwAAAAASUVORK5CYII=">分享</a><div class="tags"><a href="/tags/ThreadLocal/">ThreadLocal</a></div><div class="post-nav"><a class="pre" href="/2017/02/27/2017_Hibernate/">Hibernate配置以及实体映射配置</a><a class="next" href="/2017/02/14/2017_c3p0/">c3p0参数解释(转载)</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_VM-options配置/">VM options配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM运行原理/">JVM运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM的年轻代以及GC回收细节/">JVM的年轻代以及GC回收细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_GC之间的区别/">Minor GC、Major GC和Full GC之间的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703101259_垃圾收集器与内存分配策略/">垃圾收集器与内存分配策略</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703092017_对象在HotSpot虚拟机中/">对象在HotSpot虚拟机中</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>

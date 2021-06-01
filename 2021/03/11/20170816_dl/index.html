@@ -1,0 +1,307 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>队列实例（全） | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="http://p18j2ow6f.bkt.clouddn.com/static/css/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">队列实例（全）</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">队列实例（全）</h1><div class="post-meta">Mar 11, 2021<span> | </span><span class="category"><a href="/categories/数据结构和算法/">数据结构和算法</a></span></div><div class="post-content"><blockquote>
+<p>队列：只允许在前端（队头）进行删除操作，在后端（队尾）进行插入操作，（先进先出）</p>
+</blockquote>
+<blockquote>
+<p>实现银行摇号排队共功能</p>
+</blockquote>
+<a id="more"></a>
+<blockquote>
+<p>工程一共包含4个文件(由于代码不多，未分成头文件和实现)</p>
+<ol>
+<li>Entity.h ：声明线性表的元素的类型。可以是基本数据类型也可以是结构体</li>
+<li>SeqQueue.h ：普通的队列以及一般功能的实现</li>
+<li>CycleQueue.h ：循环队列以及功能的实现（实例）</li>
+<li>main.c ： 测试文件</li>
+</ol>
+</blockquote>
+<pre><code>操作：1.初始化队列
+          2.进队
+          3.出队
+          4.获取长度
+          5.获取第一个元素
+</code></pre><blockquote>
+<h4 id="Entity-h"><a href="#Entity-h" class="headerlink" title="Entity.h"></a>Entity.h</h4></blockquote>
+<pre><code>typedef struct{
+    int num;    //顾客编号
+    long time;  //进入队列时间
+} DATA;
+</code></pre><blockquote>
+<h4 id="main-c"><a href="#main-c" class="headerlink" title="main.c"></a>main.c</h4></blockquote>
+<pre><code>#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;time.h&gt;
+
+#include &quot;CycleQueue.h&quot;
+int num;//顾客编号
+
+void add(CycQueue *q){//新增顾客排序
+    DATA data;
+    if(!CycQueueIsFull(q)){
+        data.num = ++ num;
+        data.time = time(NULL);
+        CycQueueIn(q, data);
+    }
+}
+
+void next(CycQueue *q){ //为当前顾客办理业务并通知下一个顾客准备
+    DATA *data;
+    if(!CycQueueIsEmpty(q)){
+        data = CycQueueOut(q);
+        printf(&quot;\n请编号为%d的顾客办理业务\n&quot;,data-&gt;num);
+    }
+    if(!CycQueueIsEmpty(q)){
+        data = CycQueuePeek(q);
+        printf(&quot;请编号为%d的顾客准备办理\n&quot;, data-&gt;num);
+    }
+}
+
+void CycQueueList(CycQueue *q){ //遍历当前队列
+    int begin, end;
+    begin = q-&gt;head;
+    end = q-&gt;tail;
+    if(!CycQueueIsEmpty(q)){
+        while(1){
+            if(begin != end){
+                printf(&quot;-数组中实际位置(从0开始)：%d；顾客编号：%d \n&quot;,begin, q-&gt;data[begin].num);
+                begin = (begin +1) % QUEUEMAX;
+            }else{
+                break;
+            }
+        }
+    }
+}
+
+int main()
+{
+    CycQueue *queue1;
+    int  n;
+    num = 0; //顾客编号
+    queue1 = CycQueueInit();//初始化
+    if(queue1 == NULL){
+        printf(&quot;初始化队列失败&quot;);
+        return 0;
+    }
+
+    do{
+        printf(&quot;\n\n\n输入操作： 1.新顾客 2.办理业务 3.查看所有等待的顾客 0.退出\n&quot;);
+        fflush(stdin);
+        scanf(&quot;%d&quot;, &amp;n);
+        switch(n){
+            case 1:
+                add(queue1);
+                printf(&quot;当前有%d个顾客等待\n&quot;, CycQueueLen(queue1));
+                break;
+            case 2:
+                next(queue1);
+                printf(&quot;当前有%d个顾客等待\n&quot;, CycQueueLen(queue1));
+                break;
+            case 3:
+                CycQueueList(queue1);
+                break;
+            case 0:
+                break;
+        }
+    }while(1);
+
+    return 0;
+}
+</code></pre><blockquote>
+<h4 id="CycleQueue-c"><a href="#CycleQueue-c" class="headerlink" title="CycleQueue.c"></a>CycleQueue.c</h4></blockquote>
+<pre><code>/*
+    头文件：数据结构的定义和操作原型
+
+*/
+#include &lt;stdio.h&gt;
+#include &lt;malloc.h&gt;
+#include &quot;Entity.h&quot;
+#define QUEUEMAX 15 //设置队列最大容量
+
+typedef struct{
+    DATA data[QUEUEMAX]; //队列数组
+    int head;
+    int tail;
+} CycQueue;
+
+CycQueue *CycQueueInit(){
+    CycQueue *q;
+    if(q = (CycQueue *)malloc(sizeof(CycQueue))){
+        q-&gt;head = 0;
+        q-&gt;tail = 0;
+
+        return q;
+    }else{
+        return NULL;
+    }
+}
+
+void CycQueueFree(CycQueue *q){ //释放队列内存
+    if(q != NULL){
+        free(q);
+    }
+}
+
+int CycQueueIsEmpty(CycQueue *q){//判断队列是否为空
+    return (q-&gt;head == q-&gt;tail);
+}
+
+int CycQueueIsFull(CycQueue *q){ //判断队列是否为满
+    return ((q-&gt;tail+1) % QUEUEMAX == q-&gt;head);
+}
+
+int CycQueueLen(CycQueue *q){ //获取队列长度
+    int n;
+    n = q-&gt;tail - q-&gt;head;
+    if(n &lt; 0){
+        n = QUEUEMAX + n;
+    }
+    return n;
+}
+
+/*入队*/
+int CycQueueIn(CycQueue *q, DATA data){
+    if(CycQueueIsFull(q)){
+        printf(&quot;队列已满！&quot;);
+        return 0;
+    }else{
+        q-&gt;data[q-&gt;tail] = data;
+        q-&gt;tail = (q-&gt;tail+1) % QUEUEMAX;//tail++ 当tail到达最大值后就变1
+        return 1;
+    }
+}
+
+/*出队*/
+DATA *CycQueueOut(CycQueue *q){
+    DATA * data;
+    if(CycQueueIsEmpty(q)){
+        printf(&quot;队列为空&quot;);
+        return 0;
+    }else{
+        data = &amp;(q-&gt;data[q-&gt;head]);
+        q-&gt;head = (q-&gt;head+1) % QUEUEMAX;
+        return data;
+    }
+}
+
+DATA *CycQueuePeek(CycQueue *q){//获取队列头部的元素
+    if(CycQueueIsEmpty(q)){
+        printf(&quot;队列为空&quot;);
+        return NULL;
+    }else{
+        return &amp;(q-&gt;data[(q-&gt;head) % QUEUEMAX]);
+    }
+}
+</code></pre><blockquote>
+<h4 id="SeqQueue-h"><a href="#SeqQueue-h" class="headerlink" title="SeqQueue.h"></a>SeqQueue.h</h4></blockquote>
+<pre><code>/*
+    头文件：数据结构的定义和操作原型
+
+*/
+#include &lt;stdio.h&gt;
+#include &lt;malloc.h&gt;
+#include &quot;Entity.h&quot;
+#define QUEUEMAX 15 //设置队列最大容量
+
+typedef struct{
+    DATA data[QUEUEMAX]; //队列数组
+    int head;
+    int tail;
+} SeqQueue;
+
+SeqQueue *SeqQueueInit(){
+    SeqQueue *q;
+    if(q = (SeqQueue *)malloc(sizeof(SeqQueue))){ // 申请保存队列的内存
+        q-&gt;head = 0;
+        q-&gt;tail = 0;
+
+        return q;
+    }else{
+        return NULL;
+    }
+}
+
+void SeqQueueFree(SeqQueue *q){ //释放队列内存
+    if(q != NULL){
+        free(q);
+    }
+}
+
+int SeqQueueIsEmpty(SeqQueue *q){//判断队列是否为空
+    return (q-&gt;head == q-&gt;tail);
+}
+
+int SeqQueueIsFull(SeqQueue *q){ //判断队列是否为满
+    return (q-&gt;tail == QUEUEMAX);
+}
+
+int SeqQueueLen(SeqQueue *q){ //获取队列长度
+    return (q-&gt;tail - q-&gt;head);
+}
+
+/*入队*/
+int SeqQueueIn(SeqQueue *q, DATA data){
+    if(SeqQueueIsFull(q)){
+        printf(&quot;队列已满！&quot;);
+        return 0;
+    }else{
+        q-&gt;data[q-&gt;tail++] = data;//先插入data数据到tail位置，然后tail++
+        return 1;
+    }
+}
+
+/*出队*/
+DATA *SeqQueueOut(SeqQueue *q){
+    if(SeqQueueIsEmpty(q)){
+        printf(&quot;队列为空&quot;);
+        return 0;
+    }else{
+        return &amp;(q-&gt;data[q-&gt;head++]); //先得到data[head]的元素，然后head++
+    }
+}
+
+DATA *SeqQueuePeek(SeqQueue *q){//获取队列头部的元素
+    if(SeqQueueIsEmpty()){
+        printf(&quot;队列为空&quot;);
+        return NULL;
+    }else{
+        return &amp;(q-&gt;data[q-&gt;head]);
+    }
+}
+</code></pre><blockquote>
+<p>个人博客 欢迎来访： <a href="http://zj2626.github.io">http://zj2626.github.io</a></p>
+</blockquote>
+</div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2021/03/11/20170816_dl/" data-id="ckpdh7l5e0038n0utl3qu98re" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACOUlEQVR42u3aSW7DQAwFUd//0srWQeJ2fVJO0OzSynA0PQcgOD0e+Liejudv1n/9+f2rO6+/ue2QIUPGtoxreazPWVMJ+NU5/N1kyJBxDmMdCklY5OGYI8lVMmTIkNEJiDw0k88yZMiQkTLS4nOdbv5bwJUhQ8ZWDFLE9vtdaXvuI7W4DBkyNmTwrvvff/7IfEOGDBlbMa7wIKkhP79TEn+7pwwZMkYzOmnfejyQLmcQ8JszZciQcQwjHUwSDP9R0Oum2asMGTI2Z/CkrfYS/KramPOXDFeGDBlDGZ0Wf39VggTcN3+VIUPGaAZfnqg14DrjybSpJ0OGjNmMTnAkCVxtzeKGilyGDBlDGZ2yNm3l88/Bc2XIkDGUkZay/YQyDazo6TJkyDiAQRYpOvkYL2jTNQ4ZMmScw0hDbX/MmY4z4ypchgwZIxj8RmnYvatwbe2MyJAhYygjHSvW7sATx3gYIEOGjHGMWsOr0xTrs4v/HxkyZAxi8IZ+2pjjowWy8FFcvJAhQ8a2jFoCx8eWaclK7v9y2UKGDBmjGemCRfpg/tOQpDOIyjJkyBjESINsf3baWeyQIUPGOYwrPPir8DUvvqgR57YyZMgYwegvUnRWKGo/Tdw7lCFDxghGbQyQXpU+i9zthmmGDBkytmLUAl+6qFErkkniKEOGDBnpq/MFi86woRVwZciQMZqRLmekz6olrzJkyDiBwQvLtPXPr0rbcDJkyDiH0Q+UvCmWtvPuWtGQIUPGtowv+5X6COgrkwMAAAAASUVORK5CYII=">分享</a><div class="tags"><a href="/tags/C语言/">C语言</a></div><div class="post-nav"><a class="pre" href="/2021/03/11/20170817_z/">栈实例（转载）</a><a class="next" href="/2021/03/11/20170812_lb/">普通链表实例（全）</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_VM-options配置/">VM options配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM运行原理/">JVM运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM的年轻代以及GC回收细节/">JVM的年轻代以及GC回收细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_GC之间的区别/">Minor GC、Major GC和Full GC之间的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703101259_垃圾收集器与内存分配策略/">垃圾收集器与内存分配策略</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703092017_对象在HotSpot虚拟机中/">对象在HotSpot虚拟机中</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>

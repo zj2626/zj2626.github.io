@@ -1,0 +1,146 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta name="generator" content="Hexo 3.9.0"><meta http-equiv="content-type" content="text/html; charset=utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="description" content="欢迎来到晋的博客,本博客用来收录平时学习笔记,欢迎访问"><title>Java元数据与注解的实现原理 | ZJ_BLOG</title><link rel="stylesheet" type="text/css" href="/css/style.css?v=0.0.1"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/normalize/7.0.0/normalize.min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/pure-min.css"><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/pure/1.0.0/grids-responsive-min.css"><link rel="stylesheet" href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css"><script type="text/javascript" src="//cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script><link rel="Shortcut Icon" type="image/x-icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="apple-touch-icon-precomposed" href="/apple-touch-icon.png"><script type="text/javascript" src="http://p18j2ow6f.bkt.clouddn.com/static/css/instantclick.min.js"></script><script>InstantClick.init();
+InstantClick.on('change', function (isInitialLoad) {
+         if (isInitialLoad === false) {
+         if (typeof MathJax !== 'undefined') // support MathJax
+         MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+         if (typeof prettyPrint !== 'undefined') // support google code prettify
+         prettyPrint();
+         if (typeof _hmt !== 'undefined')  // support 百度统计
+         _hmt.push(['_trackPageview', location.pathname + location.search]);
+         if (typeof ga !== 'undefined')  // support google analytics
+         ga('send', 'pageview', location.pathname + location.search);
+         }
+ });
+</script><link rel="alternate" type="application/atom+xml" href="/atom.xml"></head><body><div class="body_container"><div id="header"><div class="site-name"><h1 class="hidden">Java元数据与注解的实现原理</h1><a id="logo" href="/.">ZJ_BLOG</a><p class="description">Silence的博客</p></div><div id="nav-menu"><a class="current" href="/."><i class="fa fa-home"> 首页</i></a><a href="/archives/"><i class="fa fa-archive"> 归档</i></a></div></div><div class="pure-g" id="layout"><div class="pure-u-1 pure-u-md-3-4"><div class="content_container"><div class="post"><h1 class="post-title">Java元数据与注解的实现原理</h1><div class="post-meta">Mar 11, 2021<span> | </span><span class="category"><a href="/categories/java语言基础/">java语言基础</a></span></div><div class="post-content"><p><em>知识来源</em>: </p>
+<blockquote>
+<p><a href="http://blog.csdn.net/vebasan/article/details/4794699" target="_blank" rel="noopener">http://blog.csdn.net/vebasan/article/details/4794699</a><br><a href="http://www.cnblogs.com/liuyonglong/p/3567786.html" target="_blank" rel="noopener">http://www.cnblogs.com/liuyonglong/p/3567786.html</a><br><a href="http://www.oracle.com/technetwork/cn/topics/linux/hunter-meta-097643-zhs.html" target="_blank" rel="noopener">http://www.oracle.com/technetwork/cn/topics/linux/hunter-meta-097643-zhs.html</a><br><a href="http://developer.51cto.com/art/200909/152828.htm" target="_blank" rel="noopener">http://developer.51cto.com/art/200909/152828.htm</a><br><a href="http://blog.csdn.net/yerenyuan_pku/article/details/52583656" target="_blank" rel="noopener">http://blog.csdn.net/yerenyuan_pku/article/details/52583656</a><br><a href="http://www.cnblogs.com/lzq2016/p/5169475.html" target="_blank" rel="noopener">http://www.cnblogs.com/lzq2016/p/5169475.html</a></p>
+</blockquote>
+<a id="more"></a>
+<h4 id="J2SE-5-0-版本以后新特性-Annotation-注解"><a href="#J2SE-5-0-版本以后新特性-Annotation-注解" class="headerlink" title="J2SE 5.0 版本以后新特性 Annotation(注解)"></a>J2SE 5.0 版本以后新特性 Annotation(注解)</h4><h3 id="定义-元数据-MetaData-是数据的数据。元数据是添加到程序元素如方法、字段、类和包上的额外信息。或者说是从信息资源中抽取出来的用于说明其特征、内容的结构化的数据"><a href="#定义-元数据-MetaData-是数据的数据。元数据是添加到程序元素如方法、字段、类和包上的额外信息。或者说是从信息资源中抽取出来的用于说明其特征、内容的结构化的数据" class="headerlink" title="定义: 元数据(MetaData)是数据的数据。元数据是添加到程序元素如方法、字段、类和包上的额外信息。或者说是从信息资源中抽取出来的用于说明其特征、内容的结构化的数据"></a>定义: 元数据(MetaData)是数据的数据。元数据是添加到程序元素如方法、字段、类和包上的额外信息。或者说是从信息资源中抽取出来的用于说明其特征、内容的结构化的数据</h3><pre><code>&gt;例如：富士苹果有一个属性：它是红色的。假定有一个 FushiApple 类，可以使用 @Color 批注类型的一个批注来指定它的颜色。通过这么做，您就提供了关于苹果的元数据。        
+</code></pre><h3 id="作用-创建文档，跟踪代码中的依赖性，执行编译时检查，代码分析"><a href="#作用-创建文档，跟踪代码中的依赖性，执行编译时检查，代码分析" class="headerlink" title="作用: 创建文档，跟踪代码中的依赖性，执行编译时检查，代码分析"></a>作用: 创建文档，跟踪代码中的依赖性，执行编译时检查，代码分析</h3><pre><code>&gt;例如: spring等框架中可以大量运用注解来替代配置文件进行依赖注入(取代了复杂的XML配置文件)
+&gt;       所以说注解其实就是元数据,本质上也是接口,而且是继承了接口Annotation的接口
+&gt;利用元数据来描述资源后，我们就可以用来做很多的事情。比如确定资源，为资源提供检索点，在不同系统之间进行数据交换。
+&gt;比如:我们把所有的控制层都打注解@Controller,就表示此类为控制层,为springMVC提供定位,表明这是控制器,然后在springMVC配置文件中加入&lt;context:component-scan base-package=&quot;&quot;/&gt;用来识别就可以
+</code></pre><p>##元数据的实现<br>    JDK5.0出来后，java语言中就有了四种类型（TYPE），即类(class)、枚举(enum)、接口(interface)和注解(@interface)，它们是处在同一级别的。java就是通过注解来表示元数据的。<br>    java.lang.annotation.Annotation 本身是接口，而不是注解，当使用关键字@interface 定义一个注解时，该注解隐含的继承了java.lang.annotation.Annotation接口；<br>    如果我们定义一个接口，并且让该接口继承自Annotation，并不能作为注解, 定义注解只能依靠@interface实现</p>
+<h3 id="JDK提供的基本注解"><a href="#JDK提供的基本注解" class="headerlink" title="JDK提供的基本注解"></a>JDK提供的基本注解</h3><ol>
+<li><p>@SuppressWarnings 压制警告</p>
+<pre><code>参数: 
+    1.deprecation ：过时的类或方法警告。 
+    2.unchecked：执行了未检查的转换时警告。 
+    3.fallthrough：当Switch程序块直接通往下一种情况而没有Break时的警告。
+    4.path：在类路径、源文件路径等中有不存在的路径时的警告。
+    5.serial：当在可序列化的类上缺少serialVersionUID定义时的警告。
+    6.finally：任何finally子句不能完成时的警告。
+    7.all：关于以上所有情况的警告。
+</code></pre></li>
+</ol>
+<ol start="2">
+<li>@Deprecated  设置过时</li>
+<li>@Override    表示复写</li>
+</ol>
+<h4 id="元注解-注解的注解-用于修饰一个Annotation的定义"><a href="#元注解-注解的注解-用于修饰一个Annotation的定义" class="headerlink" title="元注解(注解的注解) 用于修饰一个Annotation的定义"></a>元注解(注解的注解) 用于修饰一个Annotation的定义</h4><ol start="4">
+<li>@Retention 设置注解的生命周期  </li>
+</ol>
+<pre><code>RetentionPolicy.SOURCE      java源文件     只在源代码级别保留,编译时就会被忽略
+RetentionPolicy.CLASS       class文件     编译器将把注解记录在class文件中，当运行Java程序时，JVM会忽略注解。这是默认值。
+RetentionPolicy.RUNTIME     内存的字节码  编译器将把注解记录在class文件中。当运行Java程序时，JVM会保留注解，程序可以通过反射获取该注解
+</code></pre><ol start="5">
+<li>@Target 表示该注解可以用在什么地方</li>
+</ol>
+<pre><code>参数:value 
+类型:ElementType   ElementType.METHOD,ElementType.TYPE,ElementType.FIELD,... 分别表示注解的不同的使用地方
+</code></pre><ol start="6">
+<li><p>@Document 将注解包含在javadoc中  指定被该元Annotation修饰的Annotation类将被javadoc工具提取成文档</p>
+</li>
+<li><p>@Inherited    被它修饰的Annotation将具有继承性 允许子类继承父类的注解 其子类将自动具有该注解</p>
+</li>
+</ol>
+<h2 id="注解和XML配置文件对比"><a href="#注解和XML配置文件对比" class="headerlink" title="注解和XML配置文件对比"></a>注解和XML配置文件对比</h2><pre><code>XML配置文件与代码文件分离，不利于一致性维护，缺乏在运行时的反射机制。而Annotation与代码一起被编译器处理，并能够在运行时访问。 
+通常XML配置文件都很复杂而且冗长。Java注释则不同，它是代码的一部分，不需要额外的引用就可以指明配置信息。 
+XML配置文件是文本文件，没有显式的类型支持，需要到运行时刻才能发现隐藏的错误。而Annotation是类型安全的，它会被编译器检查。   
+XML文件可以表达复杂的关系，但是在注释中我们却很难表达复杂的或层次的结构。 
+XML配置文件是在代码之外被单独处理的，也就是说基于XML的配置信息不是硬编码的，可以部署的时候进行修改。而修改Annotation则需要进行重新编译，
+不过我们可以利用AOP提供的机制为已有的代码添加Annotation。通过部署不同的AOP模块，就能使代码具有不同的Annotation，但比起直接修改XML显得复杂。 
+注释是简单易用的，并且对大多数应用来说已经足够了。而XML文件更复杂，但具有部署的灵活性，因而被用来处理与部署相关的决策。
+注释与XML配置文件可以一起使用。由于注释只能保存相当少的配置信息，只有预先集成的框架组件（类似在框架组件中已经完成了大多数预备工作）可以广泛地把注释作为配置选项。
+而XML配置文件作为一个可选的重载机制，可以用于改变注释的默认行为。
+</code></pre><h2 id="创建注解"><a href="#创建注解" class="headerlink" title="创建注解"></a>创建注解</h2><p>1.定义一个注解类</p>
+<pre><code>//@Retention(RetentionPolicy.RUNTIME)
+public @interface MyAnnotation {
+    //公共的final静态属性 默认加上public static final  必须初始化
+    String user = &quot;root&quot;;
+    String password = &quot;fangshuoit&quot;;
+
+    //公共的抽象方法  默认加上public abstract 调用时必须初始化
+    //可以有默认返回值(返回值类型:8种基本类型，String、Class、枚举、注解及这些类型的数组)
+    String driverClass() default &quot;com.mysql.jdbc.Driver&quot;;
+    String jdbcUrl() default &quot;jdbc:mysql://localhost:3306/test&quot;;
+    String password() default &quot;fangshuoit&quot;;
+
+    int[] arrayAttr() default {3,4,4};
+}
+</code></pre><p>2.在另一个类或方法上加上此注解,并且添加一个测试方法测试有没有此注解</p>
+<pre><code>@MyAnnotation(jdbcUrl = &quot;jdbc:mysql://localhost:3306/test2&quot;)
+public class TestAnnotaion {
+    private String name;
+
+    @Test
+    @MyAnnotation(arrayAttr={2,3,4}, jdbcUrl = &quot;jdbc:mysql://localhost:3306/test3&quot;)
+    public void test() {
+
+    }
+
+    @SuppressWarnings(&quot;deprecation&quot;)
+    public static void main(String[] args) {
+        System.runFinalizersOnExit(true);
+        if (TestAnnotaion.class.isAnnotationPresent(MyAnnotation.class)) { // 类上是否有注解，默认情况下返回false
+            MyAnnotation annotation = TestAnnotaion.class.getAnnotation(MyAnnotation.class);
+            System.out.println(annotation.jdbcUrl()); 
+            System.out.println(annotation.user);
+        }
+        System.out.println(&quot;运行结束&quot;);
+    }
+}
+//上面并没有返回System.out.println(annotation.jdbcUrl())结果,
+要设置生命周期,在注解类上加@Retention(RetentionPolicy.RUNTIME)
+
+输出:   
+        jdbc:mysql://localhost:3306/test2
+        root
+        运行结束
+
+//表示获取到TestAnnotaion类上的注解@MyAnnotation的信息
+//可以认定@MyAnnotation(driverClass = &quot;&quot;, jdbcUrl = &quot;jdbc:mysql://localhost:3306/test2&quot;)是MyAnnotation类的实例对象
+//这里是通过反射获得MyAnnotation对象
+//其实@MyAnnotation()相当于new了一个对象
+//如果数组属性中只有一个元素，这时候属性值部分可以省略大括号。
+
+可以加上@Target({ElementType.METHOD,ElementType.TYPE})
+表示只能在方法和类上加此注解
+
+枚举类型注解属性
+    在注解类中添加 MyEnum season() default MyEnum.Winter;
+    则被注解类可添加 @MyAnnotation(season = MyEnum.Autumn)
+</code></pre></div><script type="text/javascript" src="/js/share.js?v=0.0.1" async></script><a class="article-share-link" data-url="http://zj2626.github.io/2021/03/11/201703092044_annotation/" data-id="ckpdh7jjs0004n0ut8j13ugfk" data-qrcode="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMYAAADGCAAAAACs8KCBAAACL0lEQVR42u3azW6DQAxFYd7/panUbcVwrk2i4jmsoiQN87Fw/Xcc+Dp/r6t31q+v3vn76dW9HrtkyJDxWsa5vNYH4sir75BfJngZMmTswFgH2ZufwKGWBHTyVzJkyJCRJn88gHbuK0OGDBl9xjoRJJ/KkCFDxppBilhSgpJDp827h2txGTJkvJCRDga++fqD8w0ZMmS8hHGGVxoQ+YHOxiVDhozZjH6brD/I5MXtzTdlyJAxmtH/g86KBmnYpU09GTJkTGKQRhg/UG1dozYQlSFDxj6MfhhN17/S/wP9e8mQIWMGIw1nJPlLS+I0DT1q0V2GDBnjGLxNxlPJdEWDl8cyZMiYyqgFu9qAk2PSX5MhQ8ZsRnrEflGaZnRxKilDhoxtGKS4rbH5ER8IuDJkyBjBSI/1VDJXK2Vvli1kyJCxDYO30johlY8lgp0RGTJkbMxIVytQiAzHqHH9LUOGjEEMvmzBi1teN6eNtptHL0OGjG0YneY+SS5rrX/yQGXIkDGVgSYG+P007Usf3OVjkiFDxvaMuPn1lWWLYPIpQ4aMlzPS1hsfW/aTSM6WIUPGbEZn2au2hFErYoPUUIYMGeMY/KqNLflAlIdv/jhkyJAxiVFbxuJhsV82oyArQ4aMDRi1ILs+XDoSSEO/DBkyZPAStAaulcqXD0WGDBkylrdJE8p0XQMNGGTIkLEBo38gvn5RSzQ/2G6TIUPGv2d0BgNpuy1dDqsNIWTIkDGI8QMINDzi4rrbCgAAAABJRU5ErkJggg==">分享</a><div class="tags"><a href="/tags/注解/">注解</a><a href="/tags/元数据/">元数据</a></div><div class="post-nav"><a class="pre" href="/2021/03/11/20170315_iframe/">使用iframe标签实现局部刷新</a><a class="next" href="/2017/06/19/20170619_Mybatis/">Mybatis 高级结果映射 ResultMap Association Collection</a></div><div id="container"></div><link rel="stylesheet" href="/css/default.css?v=0.0.1"><script src="/js/gitment.browser.js?v=0.0.1"></script><script>var gitment = new Gitment({
+  owner: 'zj2626',
+  repo: 'zj2626.github.io',
+  oauth: {
+    client_id: '22769c7edffa5f05d10d',
+    client_secret: '7bac8fc03397cb64c178fbdfe3a01d2abb459704',
+  },
+})
+gitment.render('container')
+</script></div></div></div><div class="pure-u-1 pure-u-md-1-4"><div id="sidebar"><div class="widget"><div class="search-form"><input id="local-search-input" placeholder="Search" type="text" name="q" results="0"><div id="local-search-result"></div></div></div><div class="widget"><div class="widget-title"><i class="fa fa-folder-o"> 分类</i></div><ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/BUG解决/">BUG解决</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/">DOM操作</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DOM操作/XML/">XML</a><span class="category-list-count">6</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Git/">Git</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JDBC/">JDBC</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Linux/">Linux</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java虚拟机/">java虚拟机</a><span class="category-list-count">10</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/java语言基础/">java语言基础</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/python/">python</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/多线程/">多线程</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库/">数据库</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据库连接池/">数据库连接池</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/数据结构和算法/">数据结构和算法</a><span class="category-list-count">16</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器学习/">机器学习</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/">框架相关</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/前端技术/">前端技术</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/框架相关/权限管理/">权限管理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/正则/">正则</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/爬虫/">爬虫</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/程序安装与配置/">程序安装与配置</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/计算机网络/">计算机网络</a><span class="category-list-count">1</span></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-star-o"> 标签</i></div><div class="tagcloud"><a href="/tags/深入了解java虚拟机/" style="font-size: 15px;">深入了解java虚拟机</a> <a href="/tags/java/" style="font-size: 15px;">java</a> <a href="/tags/注解/" style="font-size: 15px;">注解</a> <a href="/tags/元数据/" style="font-size: 15px;">元数据</a> <a href="/tags/Maven/" style="font-size: 15px;">Maven</a> <a href="/tags/jenkins/" style="font-size: 15px;">jenkins</a> <a href="/tags/Git/" style="font-size: 15px;">Git</a> <a href="/tags/maven/" style="font-size: 15px;">maven</a> <a href="/tags/Hexo优化/" style="font-size: 15px;">Hexo优化</a> <a href="/tags/Shiro/" style="font-size: 15px;">Shiro</a> <a href="/tags/junit/" style="font-size: 15px;">junit</a> <a href="/tags/C语言/" style="font-size: 15px;">C语言</a> <a href="/tags/HTML/" style="font-size: 15px;">HTML</a> <a href="/tags/iframe/" style="font-size: 15px;">iframe</a> <a href="/tags/Mybatis/" style="font-size: 15px;">Mybatis</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/爬虫/" style="font-size: 15px;">爬虫</a> <a href="/tags/定义/" style="font-size: 15px;">定义</a> <a href="/tags/正则表达式/" style="font-size: 15px;">正则表达式</a> <a href="/tags/转码/" style="font-size: 15px;">转码</a> <a href="/tags/DBCP/" style="font-size: 15px;">DBCP</a> <a href="/tags/Dom4j/" style="font-size: 15px;">Dom4j</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/存储过程/" style="font-size: 15px;">存储过程</a> <a href="/tags/Hibernate/" style="font-size: 15px;">Hibernate</a> <a href="/tags/Mongodb/" style="font-size: 15px;">Mongodb</a> <a href="/tags/CRUD/" style="font-size: 15px;">CRUD</a> <a href="/tags/ThreadLocal/" style="font-size: 15px;">ThreadLocal</a> <a href="/tags/常用命令/" style="font-size: 15px;">常用命令</a> <a href="/tags/shell/" style="font-size: 15px;">shell</a> <a href="/tags/C3P0/" style="font-size: 15px;">C3P0</a> <a href="/tags/XPath/" style="font-size: 15px;">XPath</a> <a href="/tags/工具类/" style="font-size: 15px;">工具类</a> <a href="/tags/DRUID/" style="font-size: 15px;">DRUID</a> <a href="/tags/Blob/" style="font-size: 15px;">Blob</a> <a href="/tags/jaxp/" style="font-size: 15px;">jaxp</a> <a href="/tags/JDBC/" style="font-size: 15px;">JDBC</a> <a href="/tags/事务/" style="font-size: 15px;">事务</a> <a href="/tags/sax/" style="font-size: 15px;">sax</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/Vue/" style="font-size: 15px;">Vue</a> <a href="/tags/逻辑回归/" style="font-size: 15px;">逻辑回归</a></div></div><div class="widget"><div class="widget-title"><i class="fa fa-file-o"> 最近文章</i></div><ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20210601001_OutOfMemoryError/">4.OutOfMemoryError</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_VM-options配置/">VM options配置</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM运行原理/">JVM运行原理</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_JVM的年轻代以及GC回收细节/">JVM的年轻代以及GC回收细节</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/20170924_GC之间的区别/">Minor GC、Major GC和Full GC之间的区别</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703101259_垃圾收集器与内存分配策略/">垃圾收集器与内存分配策略</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/06/01/201703092017_对象在HotSpot虚拟机中/">对象在HotSpot虚拟机中</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031301/">使用多种算法对泰坦尼克号乘客获救原因进行分析</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031201/">scikit-learn数据预处理fit_transform()与transform()的区别(转)</a></li><li class="post-list-item"><a class="post-list-link" href="/2021/03/11/2018031202/">关于使用sklearn进行数据预处理-归一化/标准化/正则化(转)</a></li></ul></div><div class="widget"><div class="widget-title"><i class="fa fa-external-link"> 友情链接</i></div><ul></ul><a href="https://github.com/zj2626/" title="github" target="_blank">github</a></div></div></div><div class="pure-u-1 pure-u-md-3-4"><div id="footer">Copyright © 2021 <a href="/." rel="nofollow">ZJ_BLOG.</a> Powered by<a rel="nofollow" target="_blank" href="https://hexo.io"> Hexo.</a><a rel="nofollow" target="_blank" href="https://github.com/tufu9441/maupassant-hexo"> Theme</a> by<a rel="nofollow" target="_blank" href="https://github.com/pagecho"> Cho.</a></div></div></div><a class="show" id="rocket" href="#top"></a><script type="text/javascript" src="/js/totop.js?v=0.0.1" async></script><script type="text/javascript" src="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.js" async></script><script type="text/javascript" src="/js/fancybox.js?v=0.0.1" async></script><link rel="stylesheet" type="text/css" href="//cdn.bootcss.com/fancybox/3.2.5/jquery.fancybox.min.css"><script type="text/javascript" src="/js/search.js?v=0.0.1"></script><script>var search_path = 'search.xml';
+if (search_path.length == 0) {
+    search_path = 'search.xml';
+}
+var path = '/' + search_path;
+searchFunc(path, 'local-search-input', 'local-search-result');
+</script><script>var _hmt = _hmt || [];
+(function () {
+    var hm = document.createElement("script");
+    hm.src = '//hm.baidu.com/hm.js?' + 'c9a692191e9aca9e30daa3f6326cc789';
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+})();
+</script><script type="text/javascript" src="/js/codeblock-resizer.js?v=0.0.1"></script><script type="text/javascript" src="/js/smartresize.js?v=0.0.1"></script></div></body></html>
